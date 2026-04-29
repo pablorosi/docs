@@ -1,0 +1,84 @@
+/* Dark mode colors. */
+:root {
+	--sl-color-accent-low: #1b213f;
+	--sl-color-accent: #4d5bcb;
+	--sl-color-accent-high: #bcc7ef;
+	--sl-color-white: #ffffff;
+	--sl-color-gray-1: #e8edff;
+	--sl-color-gray-2: #bbc1d8;
+	--sl-color-gray-3: #7e89b5;
+	--sl-color-gray-4: #4c557e;
+	--sl-color-gray-5: #2d355b;
+	--sl-color-gray-6: #1c2347;
+	--sl-color-black: #131728;
+}
+/* Light mode colors. */
+:root[data-theme='light'] {
+	--sl-color-accent-low: #cdd6f4;
+	--sl-color-accent: #4f5dcd;
+	--sl-color-accent-high: #252d5d;
+	--sl-color-white: #131728;
+	--sl-color-gray-1: #1c2347;
+	--sl-color-gray-2: #2d355b;
+	--sl-color-gray-3: #4c557e;
+	--sl-color-gray-4: #7e89b5;
+	--sl-color-gray-5: #bbc1d8;
+	--sl-color-gray-6: #e8edff;
+	--sl-color-gray-7: #f3f6ff;
+	--sl-color-black: #ffffff;
+}
+
+/* --- FIX PARA LA IMAGEN DEL HERO --- */
+
+/* 1. Mobile First: On small screens, stack the text and image vertically */
+[data-template="splash"] .hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+/* 2. Desktop: When the screen is wide enough, use the 2-column Grid */
+@media (min-width: 50rem) {
+  [data-template="splash"] .hero {
+    display: grid;
+    /* Give the text 1 fraction, and the image 1.2 fractions of space */
+    grid-template-columns: 1fr 1.2fr; 
+    align-items: center;
+    gap: 3rem;
+  }
+}
+
+.foto-hero-arreglada {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  
+  /* THIS IS THE MAGIC TRICK */
+  /* 1.0 is normal size. 1.2 makes it 20% bigger. 1.5 makes it 50% bigger. */
+  transform: scale(1.8); 
+  
+  /* Optional: Adjust this if the scale makes it push too far up or down */
+  transform-origin: center center; 
+}
+
+/* 1. GLOBAL TYPOGRAPHY (Applies to the entire documentation site) */
+:root {
+  --sl-font: 'Inter', sans-serif;
+}
+
+/* 2. CONFIGURACIÓN DEL HEADER / BARRA SUPERIOR (Independiente) */
+.site-title {
+  /* Forzamos a que el nombre de la esquina use la fuente de código */
+  font-family: 'JetBrains Mono', monospace !important;
+  font-weight: 500;
+  letter-spacing: -0.05rem;
+  font-size: 1.25rem;
+}
+
+/* --- HERO TITLE TYPOGRAPHY --- */
+/* Targets ONLY the main h1 inside the hero component */
+.hero h1 {
+  font-weight: 900 !important; /* Change this number to your liking */
+}

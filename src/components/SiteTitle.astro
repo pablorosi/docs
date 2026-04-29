@@ -1,0 +1,28 @@
+---
+import type { Props } from '@astrojs/starlight/props';
+import Default from '@astrojs/starlight/components/SiteTitle.astro';
+---
+
+<a href="/" class="custom-title">
+  <span class="bracket">&lt;</span>
+  Pablo Rosi
+  <span class="bracket">/&gt;</span>
+</a>
+
+<style>
+  .custom-title {
+    text-decoration: none;
+    color: var(--sl-color-white);
+    font-weight: 600;
+    font-size: var(--sl-text-h4);
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+  }
+
+  .bracket {
+    color: var(--sl-color-accent); /* O el color que prefieras para los brackets */
+    font-weight: 400;
+    opacity: 0.8;
+  }
+</style>
