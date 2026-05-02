@@ -12,7 +12,7 @@ export default defineConfig({
 				'./src/styles/custom.css'],
 			title: 'pablo@docs:~$',
 
-			favicon: '/public/favicon.ico',
+			favicon: '/favicon.ico',
 			social: [
 				{ icon: 'github', label: 'GitHub', href: 'https://github.com/withastro/starlight' },
 				{ icon: 'linkedin', label: 'LinkedIn', href: 'https://www.linkedin.com/in/pablorosi/' },
