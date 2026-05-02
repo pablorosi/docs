@@ -1,49 +1,50 @@
-# Starlight Starter Kit: Basics
+# 📚 Lab Docs - Knowledge Base and Portfolio
 
-[![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
+Welcome to the source code repository of my technical documentation portal and portfolio. This platform is statically built with **Astro** and **Starlight**, and serves as a living record of my infrastructure projects.
 
-```
-pnpm create astro@latest -- --template starlight
-```
+🌐 **Live Documentation:** [docs.pablorosi.dev](https://docs.pablorosi.dev)
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## 🛠️ Tech Stack
 
-## 🚀 Project Structure
+* **Framework:** [Astro](https://astro.build/)
+* **Documentation Theme:** [Starlight](https://starlight.astro.build/)
+* **Content:** Markdown / MDX
+* **Deployment:** GitHub Actions (CI/CD)
 
-Inside of your Astro + Starlight project, you'll see the following folders and files:
+## 📁 Project Structure
 
-```
-.
-├── public/
+This repository follows the standard structure of an Astro project, integrating the **Diátaxis** framework within the content folder (`src/content/docs/`) to organize documentation logically:
+```text
+├── .github/workflows/       # CI/CD Automation (GitHub Actions)
+├── public/                  # Raw static resources (favicon.ico)
 ├── src/
-│   ├── assets/
-│   ├── content/
-│   │   └── docs/
-│   └── content.config.ts
-├── astro.config.mjs
-├── package.json
-└── tsconfig.json
+│   ├── assets/              # Processed images and diagrams
+│   └── content/
+│       └── docs/            # 📝 Documentation core (Markdown/MDX)
+│           ├── guides/      # [How-To] Step-by-step guides (e.g., Deploy Nginx)
+│           ├── reference/   # [Reference] Raw files (.conf), network schemas
+│           ├── theory/      # [Explanation] CCNA theory, architecture decisions
+│           └── index.mdx    # Home page (Landing Page)
+├── astro.config.mjs         # Main Astro and Starlight configuration
+├── package.json             # Dependencies and scripts (npm run dev/build)
+└── README.md                 
+````
+
+## 🚀 Local Development Guide
+
+If you want to clone this repository and run the documentation in your local environment to make changes, follow these steps:
+
+### 1. Prerequisites
+Make sure you have [Node.js](https://nodejs.org/) installed (version 18 or higher).
+
+### 2. Installation
+Clone the repository and install dependencies:
+```bash
+git clone [https://github.com/pablorosi/docs.git](https://github.com/pablorosi/docs.git)
 ```
-
-Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
-
-Images can be added to `src/assets/` and embedded in Markdown with a relative link.
-
-Static assets, like favicons, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Check out [Starlight’s docs](https://starlight.astro.build/), read [the Astro documentation](https://docs.astro.build), or jump into the [Astro Discord server](https://astro.build/chat).
+```bash
+cd docs
+````
+```bash
+npm install
+```
