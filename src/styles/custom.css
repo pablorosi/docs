@@ -31,23 +31,7 @@
 /* --- FIX PARA LA IMAGEN DEL HERO --- */
 
 /* 1. Mobile First: On small screens, stack the text and image vertically */
-[data-template="splash"] .hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2rem;
-}
 
-/* 2. Desktop: When the screen is wide enough, use the 2-column Grid */
-@media (min-width: 50rem) {
-  [data-template="splash"] .hero {
-    display: grid;
-    /* Give the text 1 fraction, and the image 1.2 fractions of space */
-    grid-template-columns: 1fr 1.2fr; 
-    align-items: center;
-    gap: 3rem;
-  }
-}
 
 .foto-hero-arreglada {
   width: 100%;
@@ -63,9 +47,12 @@
   transform-origin: center center; 
 }
 
-/* 1. GLOBAL TYPOGRAPHY (Applies to the entire documentation site) */
-:root {
-  --sl-font: 'Inter', sans-serif;
+
+@media (max-width: 600px) {
+  .foto-hero-arreglada {
+    margin-bottom: 20%; /* Ajusta este valor según sea necesario */
+    transform: scale(1.6);
+  }
 }
 
 /* 2. CONFIGURACIÓN DEL HEADER / BARRA SUPERIOR (Independiente) */
@@ -80,5 +67,5 @@
 /* --- HERO TITLE TYPOGRAPHY --- */
 /* Targets ONLY the main h1 inside the hero component */
 .hero h1 {
-  font-weight: 900 !important; /* Change this number to your liking */
+  font-weight: 800 !important; /* Change this number to your liking */
 }
