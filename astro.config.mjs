@@ -11,12 +11,18 @@ export default defineConfig({
 				'@fontsource/inter',
 				'./src/styles/custom.css'],
 			title: 'pablo@docs:~$',
+			components: {
+				Header: './src/components/Header.astro',
+			},
 
 			favicon: '/favicon.ico',
 			social: [
 				{ icon: 'github', label: 'GitHub', href: 'https://github.com/withastro/starlight' },
 				{ icon: 'linkedin', label: 'LinkedIn', href: 'https://www.linkedin.com/in/pablorosi/' },
-			],
+			// 	{icon: 'twitter', label: 'Twitter', href: 'https://twitter.com/pablorosidev' },
+			// 	{icon: 'blueSky', label: 'BlueSky', href: 'https://bsky.app/profile/pablorosi.dev' },
+		  ],
+		
 			sidebar: [
 				{
 					label: 'Secure Cloud Routing',

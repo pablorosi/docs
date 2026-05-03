@@ -39,7 +39,6 @@
   display: block;
   object-fit: contain;
   
-  /* THIS IS THE MAGIC TRICK */
   /* 1.0 is normal size. 1.2 makes it 20% bigger. 1.5 makes it 50% bigger. */
   transform: scale(1.8); 
   
@@ -50,14 +49,13 @@
 
 @media (max-width: 600px) {
   .foto-hero-arreglada {
-    margin-bottom: 20%; /* Ajusta este valor según sea necesario */
+    margin-bottom: 20%; 
     transform: scale(1.6);
   }
 }
 
-/* 2. CONFIGURACIÓN DEL HEADER / BARRA SUPERIOR (Independiente) */
 .site-title {
-  /* Forzamos a que el nombre de la esquina use la fuente de código */
+
   font-family: 'JetBrains Mono', monospace !important;
   font-weight: 500;
   letter-spacing: -0.05rem;
@@ -67,5 +65,5 @@
 /* --- HERO TITLE TYPOGRAPHY --- */
 /* Targets ONLY the main h1 inside the hero component */
 .hero h1 {
-  font-weight: 800 !important; /* Change this number to your liking */
+  font-weight: 800 !important; 
 }
