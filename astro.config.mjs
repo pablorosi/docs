@@ -17,8 +17,8 @@ export default defineConfig({
 
 			favicon: '/favicon.ico',
 			social: [
-				{ icon: 'github', label: 'GitHub', href: 'https://github.com/withastro/starlight' },
-				{ icon: 'linkedin', label: 'LinkedIn', href: 'https://www.linkedin.com/in/pablorosi/' },
+				{ icon: 'github', label: 'GitHub', href: 'https://github.com/pablorosi' },
+				{ icon: 'linkedin', label: 'LinkedIn', href: 'https://www.linkedin.com/in/pablorosi' },
 			// 	{icon: 'twitter', label: 'Twitter', href: 'https://twitter.com/pablorosidev' },
 			// 	{icon: 'blueSky', label: 'BlueSky', href: 'https://bsky.app/profile/pablorosi.dev' },
 		  ],
