@@ -26,15 +26,18 @@ export default defineConfig({
 			sidebar: [
 				{
 					label: 'Secure Cloud Routing',
-					autogenerate: { directory: 'secure-cloud-routing' },
+					collapsed: true,
+					autogenerate: { directory: 'secure-cloud-routing', collapsed: true },
 				},
 				{
 					label: 'Enterprise Homelab',
-					autogenerate: { directory: 'enterprise-homelab' },
+					collapsed: true,
+					autogenerate: { directory: 'enterprise-homelab', collapsed: true },
 				},
 				{
 					label: 'DB Administration',
-					autogenerate: { directory: 'db-administration' },
+					collapsed: true,
+					autogenerate: { directory: 'db-administration', collapsed: true },
 				},
 			],
 		}),
