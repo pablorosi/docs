@@ -1,0 +1,46 @@
+---
+title: Systems Overview
+description: Inventory and resource management of the home lab compute cluster.
+---
+
+import { Card, CardGrid, Aside } from '@astrojs/starlight/components';
+
+This section documents the compute and storage infrastructure that powers my labs. My philosophy is to use high-efficiency, small-form-factor hardware to build a scalable and quiet environment.
+
+<Aside type="note" title="Philosophy">
+I prioritize the **Performance-per-Watt** ratio, which led me to select the HP t740 platform as my primary hypervisor node.
+</Aside>
+
+## Hardware Inventory
+
+<CardGrid>
+  <Card title="Compute Node" icon="rocket">
+    **HP t740 Thin Client**  
+    AMD Ryzen Embedded V1756B (4C/8T)  
+    16GB DDR4 RAM  
+    512GB NVMe Storage
+  </Card>
+  <Card title="Management Console" icon="laptop">
+    **MacBook Pro**  
+    Primary workstation for CLI access,  
+    Draw.io diagramming, and code management.
+  </Card>
+</CardGrid>
+
+## Resource Allocation Dashboard
+
+This table tracks how I distribute my hardware resources across the virtual environment managed by Proxmox.
+
+| Service | vCPU | RAM | Storage | Role |
+| :--- | :--- | :--- | :--- | :--- |
+| **EVE-NG** | 4 | 8GB | 50GB | Network Emulation |
+| **Tailscale** | 1 | 512MB | 8GB | Mesh VPN Gateway |
+| **MariaDB Database**| 1 | 1GB | 20GB | Database |
+| **Reserved** | 2 | 6GB | - | Growth Capacity |
+
+## Core Software Stack
+
+*   **Hypervisor:** Proxmox VE (Debian-based)
+*   **Virtualization:** KVM / QEMU
+*   **Containerization:** LXC and Docker
+*   **Access & Security:** SSH, Tailscale, and RSA-key authentication

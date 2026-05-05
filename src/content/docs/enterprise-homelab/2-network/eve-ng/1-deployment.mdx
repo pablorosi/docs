@@ -1,0 +1,49 @@
+---
+title: EVE-NG Deployment
+description: Infrastructure details for my network emulation environment.
+---
+
+import { Aside, Steps, Card, CardGrid } from '@astrojs/starlight/components';
+
+This section details the deployment of my network emulation environment. To maximize the efficiency of my hardware, I have opted for a **nested virtualization** approach on my Proxmox cluster.
+
+<Aside type="tip" title="Why EVE-NG?">
+EVE-NG (Emulated Virtual Environment - Next Generation) allows for the seamless integration of virtual and physical network components, which is essential for my hybrid lab testing.
+</Aside>
+
+## 1. Host Environment
+
+I am utilizing an enterprisse-grade thin client as my primary compute node to balance power efficiency with performance.
+
+<CardGrid>
+  <Card title="Hardware" icon="laptop">
+    **HP t740 Thin Client**  
+    AMD Ryzen Embedded V1756B  
+    16GB DDR4 RAM
+  </Card>
+  <Card title="Hypervisor" icon="linux">
+    **Proxmox VE**  
+    Nested Virtualization enabled  
+    Kernel-based Virtual Machine (KVM)
+  </Card>
+</CardGrid>
+
+## 2. Provisioning & Configuration
+
+To ensure smooth performance when running multiple IOS images, the virtual machine is configured as follows:
+
+<Steps>
+1. **CPU Allocation:** 
+   4 vCPUs using `host-passthrough` mode to allow EVE-NG to access physical hardware acceleration.
+2. **Memory Management:** 
+   8 GB of dedicated RAM to handle the overhead of **Cisco IOL** and QEMU nodes.
+3. **Storage:** 
+   50 GB VirtIO-SCSI disk, thin-provisioned for optimal space management.
+</Steps>
+
+## 3. Network Topology Integration
+
+The EVE-NG instance is not isolated; it is fully integrated into my physical network:
+
+*   **Management Interface:** Assigned a static IP within the management VLAN.
+*   **External Cloud:** Bridged to the **Catalyst 3560-CX** physical ports, allowing virtual routers to communicate with physical hardware.

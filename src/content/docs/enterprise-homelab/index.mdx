@@ -1,0 +1,46 @@
+---
+title: Home Lab Overview
+description: The core vision and roadmap for my networking and systems environment.
+---
+
+import { Aside, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+Welcome to my personal Home Lab documentation. This project serves as my primary sandbox for testing **NetDevOps** workflows, mastering **Cisco infrastructure**, and exploring **Linux systems administration**.
+
+<Aside type="caution" title="Evolution in Progress">
+This lab is a continuous project. Documentation is updated in real-time as new technologies (like Ansible and Cloud-init) are integrated into the stack.
+</Aside>
+
+## The Vision
+
+The goal of this lab is to move beyond manual configuration. I am building a **Hybrid Infrastructure** that combines physical Cisco hardware with a virtualized Proxmox cluster to simulate enterprise-grade environments.
+
+## Current Project Status
+
+<Steps>
+1. **Physical Layer:** 
+   Core and Access switching established using Cisco Catalyst 3560-CX and 2960 platforms.
+2. **Compute Layer:** 
+   High-efficiency Proxmox cluster running on an HP t740 node with nested virtualization for EVE-NG.
+3. **Connectivity:** 
+   Secure remote access established via Tailscale Mesh VPN.
+4. **Next Step (Upcoming):** 
+   Automating VLAN provisioning and switch configurations using **Ansible playbooks**.
+</Steps>
+
+## Core Technology Stack
+
+<CardGrid>
+  <Card title="Networking" icon="random">
+    Cisco IOS, EVE-NG, GL.iNet (OpenWrt)
+  </Card>
+  <Card title="Systems" icon="setting">
+    Proxmox VE, Debian Linux, Ubuntu Server
+  </Card>
+  <Card title="Automation" icon="rocket">
+    Ansible, YAML, Python (Future Implementation)
+  </Card>
+  <Card title="Security" icon="approve-check-circle">
+    Tailscale, SSH Keys, Management VLANs
+  </Card>
+</CardGrid>
