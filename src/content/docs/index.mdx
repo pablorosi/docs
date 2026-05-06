@@ -1,14 +1,31 @@
 ---
-title: Lab Docs.
+title: Lab Docs
 description: My knowledge base. Where I figure things out and write them down.
 template: splash
 hero:
   tagline: My knowledge base. Where I figure things out and write them down.
   image:
-    # Usamos el HTML aquí dentro para que Starlight lo ponga en su columna derecha
     html: '<img src="/Photo.png" alt="Pablo Rosi" class="foto-hero-arreglada" />'
-  actions:
-    - text: Read the notes
-      link: /secure-cloud-routing/overview/
-      variant: primary
 ---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+## Projects
+
+<CardGrid>
+  <LinkCard
+    title="☁️ Cloud Infrastructure"
+    description="Secure routing, observability, and CI/CD deployment strategies for cloud services."
+    href="/cloud-infrastructure/"
+  />
+  <LinkCard
+    title="🏠 Enterprise Homelab"
+    description="Building a realistic lab with Cisco switching, Proxmox virtualization, and EVE-NG emulation."
+    href="/enterprise-homelab/"
+  />
+  <LinkCard
+    title="🗄️ Database Administration"
+    description="Practical notes for managing databases and data operations day to day."
+    href="/db-administration/"
+  />
+</CardGrid>

@@ -1,6 +1,8 @@
 ---
 title: "Network Architecture"
 description: "Overview of the hybrid physical and virtual network topology."
+sidebar:
+  label: "2 Network"
 ---
 
 ## Physical Topology Diagram

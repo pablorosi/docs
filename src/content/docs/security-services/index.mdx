@@ -1,0 +1,45 @@
+---
+title: Security & Core Services
+description: Overview of the Zero Trust architecture and centralized networking services used across all infrastructure projects.
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+Welcome to the **Security & Core Services** documentation.
+
+Instead of reinventing the wheel for every new server or application, both the Homelab and Cloud Infrastructure projects rely on a centralized, standardized networking and security layer. 
+
+## 🔐 Security Philosophy: Zero Trust
+
+All internal administration panels and management interfaces (such as EVE-NG or Nginx Proxy Manager) adhere strictly to a **Zero Trust Network Access (ZTNA)** model. 
+
+Our core architectural principles are:
+1. **No Public Ports:** Firewalls are configured to drop all inbound public traffic to management interfaces by default.
+2. **Private Overlay Routing:** Access is strictly routed through an encrypted Tailscale mesh network (`100.x.x.x`).
+3. **Valid Cryptography:** All internal endpoints use fully trusted Let's Encrypt SSL certificates validated via **DNS-01 challenges**, ensuring data integrity without exposing the servers to HTTP-01 internet validation.
+
+## 🗂️ Implementation Guides
+
+Because different projects utilize different web servers, the core security policy is implemented using distinct technologies. Select a guide below to see the specific configurations:
+
+<CardGrid>
+  <LinkCard 
+    title="Zero Trust Overlay (Tailscale)" 
+    description="How network traffic is securely routed using a private mesh network without exposing public IPs." 
+    href="/tu-ruta/tailscale/" 
+  />
+  <LinkCard 
+    title="Securing Nginx Proxy Manager" 
+    description="Docker implementation, internal loopback routing, and Cloudflare API DNS integration." 
+    href="/tu-ruta/nginx-proxy/" 
+  />
+  <LinkCard 
+    title="Securing Apache (EVE-NG)" 
+    description="Bare-metal implementation and Certbot DNS challenge configuration for enterprise hypervisors." 
+    href="/tu-ruta/apache-eve-ng/" 
+  />
+</CardGrid>
+
+---
+> **🛠️ Support & Debugging**
+> If you are experiencing connection timeouts or SSL certificate mismatches, it is likely a split-brain caching issue. Please refer to the [Troubleshooting: DNS & SSL Caching](/tu-ruta/troubleshooting/) guide.

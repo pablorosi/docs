@@ -1,0 +1,105 @@
+---
+import MobileMenuFooter from '@astrojs/starlight/components/MobileMenuFooter.astro';
+import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.astro';
+import SidebarSublist from '@astrojs/starlight/components/SidebarSublist.astro';
+
+type SidebarEntry = {
+  type: 'link' | 'group';
+  label: string;
+  href?: string;
+  entries?: SidebarEntry[];
+  collapsed?: boolean;
+  badge?: any;
+  attrs?: Record<string, any>;
+};
+
+const { sidebar } = Astro.locals.starlightRoute as { sidebar: SidebarEntry[] };
+const pathname = Astro.url.pathname;
+
+const projectKeys = [
+  'cloud-infrastructure',
+  'security-services',
+  'enterprise-homelab',
+  'db-administration',
+] as const;
+
+const projectLabels: Record<(typeof projectKeys)[number], string> = {
+  'cloud-infrastructure': 'Cloud Infrastructure',
+  'security-services': 'Security & Services',
+  'enterprise-homelab': 'Enterprise Homelab',
+  'db-administration': 'DB Administration',
+};
+
+const currentProject =
+  projectKeys.find((key) => pathname.includes(`/${key}/`) || pathname.endsWith(`/${key}`)) ?? null;
+
+function entryMatchesProject(entry: SidebarEntry, projectKey: string): boolean {
+  if (entry.type === 'link') {
+    const href = entry.href ?? '';
+    return href.includes(`/${projectKey}/`) || href.endsWith(`/${projectKey}`);
+  }
+
+  const children = entry.entries ?? [];
+  return children.some((child: SidebarEntry) => entryMatchesProject(child, projectKey));
+}
+
+function pruneSidebar(entries: SidebarEntry[], projectKey: string): SidebarEntry[] {
+  return entries.flatMap((entry) => {
+    if (entry.type === 'group') {
+      const prunedChildren = pruneSidebar(entry.entries ?? [], projectKey);
+      if (prunedChildren.length === 0) return [];
+      return [{ ...entry, entries: prunedChildren }];
+    }
+    return [entry];
+  });
+}
+
+let filteredSidebar: SidebarEntry[] = [];
+if (currentProject) {
+  // Try to find the top-level group for this project (the autogenerate group)
+  const projectLabel = projectLabels[currentProject];
+  const projectGroup = sidebar.find(
+    (entry: any) => entry.type === 'group' && entry.label === projectLabel
+  ) as SidebarEntry | undefined;
+
+  if (projectGroup && projectGroup.entries) {
+    // Use the group's entries directly (flattened), pruning any root links
+    filteredSidebar = pruneSidebar(projectGroup.entries as SidebarEntry[], currentProject);
+  } else {
+    // Fallback: filter and prune from entire sidebar
+    filteredSidebar = pruneSidebar(
+      sidebar.filter((entry: SidebarEntry) => entryMatchesProject(entry, currentProject)),
+      currentProject
+    );
+  }
+} else {
+  filteredSidebar = [];
+}
+
+const currentProjectLabel = currentProject ? projectLabels[currentProject] : null;
+---
+
+{currentProjectLabel && (
+  <div class="project-sidebar-title">{currentProjectLabel}</div>
+)}
+
+<SidebarPersister>
+  <SidebarSublist sublist={filteredSidebar as any} />
+</SidebarPersister>
+
+<div class="md:sl-hidden">
+  <MobileMenuFooter />
+</div>
+
+<style>
+  .project-sidebar-title {
+    margin: 0 0 0.75rem;
+    padding: 0.25rem 0.5rem 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--sl-color-text-accent);
+    border-bottom: 1px solid var(--sl-color-hairline-light);
+  }
+</style>

@@ -1,0 +1,51 @@
+---
+title: "Troubleshooting: DNS & SSL Caching in a Zero Trust Overlay"
+description: "Resolving stale DNS records and SSL handshake failures across different layers of the OS and browsers."
+---
+
+## The Problem
+
+During the deployment of a Zero Trust administration panel (Nginx Proxy Manager routed via a Tailscale overlay network `100.x.x.x`), the browser returned the following errors despite the infrastructure being correctly configured:
+
+*   **Firefox / Safari:** `Server Not Found`
+*   **Chrome:** `Secure Connection Failed (SSL peer has no certificate for the requested DNS name)`
+
+## Root Cause Analysis
+
+The root cause was traced to a **split-brain caching issue** on the client machine. 
+
+An initial typographical error was made during the DNS and Reverse Proxy configuration. After correcting the typo across all infrastructure layers (Cloudflare DNS, Let's Encrypt Certificate, and Nginx Proxy Manager), the client machine aggressively held onto the stale data. 
+
+Because the architecture utilizes a private VPN overlay (Tailscale), standard public internet routing could not override the local cache. The operating system cached the dead routing path, while the browsers cached the invalid SSL state from the initial typo.
+
+## The Diagnosis
+
+To isolate the issue and rule out server-side misconfigurations, a **Clean Slate Device Test** was performed:
+1. Disconnected a secondary mobile device from the local Wi-Fi to force a different network path (Cellular Data).
+2. Connected the device to the Tailscale overlay network.
+3. Attempted to access the secure URL.
+
+The connection succeeded immediately with a valid SSL certificate. This confirmed the infrastructure (Docker, Nginx, Let's Encrypt, Tailscale, Cloudflare API) was functioning flawlessly, isolating the fault entirely to the primary workstation's local cache.
+
+## The Resolution
+
+To completely resolve the issue, the cache had to be flushed at both the Operating System and Application (Browser) levels.
+
+### Step 1: Flush macOS DNS Resolver
+The macOS local DNS cache was forcefully cleared via the terminal to drop the stale IP bindings:
+
+```bash
+sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder
+```
+
+### Step 2: Flush Browser-Specific Socket Pools
+
+Chromium-based browsers ignore the OS cache and maintain their own internal DNS records. These were manually purged:
+
+* Navigated to chrome://net-internals/#dns -> Clear host cache
+
+* Navigated to chrome://net-internals/#sockets -> Flush socket pools
+
+### Step 3: Hard Refresh
+
+A hard refresh (Cmd + Shift + R) was executed to bypass stored offline web assets. The administration panel immediately loaded securely over the private overlay.

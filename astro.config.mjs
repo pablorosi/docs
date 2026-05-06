@@ -13,6 +13,7 @@ export default defineConfig({
 			title: 'pablo@docs:~$',
 			components: {
 				Header: './src/components/Header.astro',
+				Sidebar: './src/components/Sidebar.astro',
 			},
 
 			favicon: '/favicon.ico',
@@ -25,10 +26,15 @@ export default defineConfig({
 		
 			sidebar: [
 				{
-					label: 'Secure Cloud Routing',
+					label: 'Cloud Infrastructure',
 					collapsed: true,
-					autogenerate: { directory: 'secure-cloud-routing', collapsed: true },
+					autogenerate: { directory: 'cloud-infrastructure', collapsed: true },
 				},
+				// {
+				// 	label: 'Security & Services',
+				// 	collapsed: true,
+				// 	autogenerate: { directory: 'security-services', collapsed: true },
+				// },
 				{
 					label: 'Enterprise Homelab',
 					collapsed: true,
