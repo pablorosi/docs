@@ -21,9 +21,6 @@ This repository follows the standard structure of an Astro project, integrating 
 │   ├── assets/              # Processed images and diagrams
 │   └── content/
 │       └── docs/            # 📝 Documentation core (Markdown/MDX)
-│           ├── guides/      # [How-To] Step-by-step guides (e.g., Deploy Nginx)
-│           ├── reference/   # [Reference] Raw files (.conf), network schemas
-│           ├── theory/      # [Explanation] CCNA theory, architecture decisions
 │           └── index.mdx    # Home page (Landing Page)
 ├── astro.config.mjs         # Main Astro and Starlight configuration
 ├── package.json             # Dependencies and scripts (npm run dev/build)
