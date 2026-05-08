@@ -4,6 +4,10 @@ import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
+	prefetch: {
+    prefetchAll: true,
+    defaultStrategy: 'hover'
+  },
 	integrations: [
 		starlight({
 			customCss: [
@@ -30,11 +34,6 @@ export default defineConfig({
 					collapsed: true,
 					autogenerate: { directory: 'cloud-infrastructure', collapsed: true },
 				},
-				// {
-				// 	label: 'Security & Services',
-				// 	collapsed: true,
-				// 	autogenerate: { directory: 'security-services', collapsed: true },
-				// },
 				{
 					label: 'Enterprise Homelab',
 					collapsed: true,
