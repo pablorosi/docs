@@ -1,0 +1,69 @@
+---
+title: CI/CD Pipelines with GitHub Actions
+description: Automating deployments securely via a Zero Trust network.
+sidebar:
+  order: 6
+---
+
+## Continuous Deployment Strategy
+
+Manual server updates are prone to human error. To professionalize the deployment lifecycle, **GitHub Actions** is utilized to automatically build and deploy new code every time a commit is pushed to the `main` branch. 
+
+However, because the server's SSH port is completely blocked from the public internet by the Hetzner firewall, a standard deployment pipeline cannot reach the server.
+
+---
+
+## Zero Trust Workflow Integration
+
+To solve this, the pipeline temporarily joins the private **Tailscale** overlay network. The GitHub runner authenticates via an ephemeral OAuth token, pushes the code over the encrypted VPN tunnel, and then destroys its connection.
+
+### Workflow Breakdown
+1. **Trigger:** Activates strictly on `push` events to the `main` branch.
+2. **Build Environment:** Installs Node.js, `pnpm`, and compiles the static site.
+3. **Zero Trust Authentication:** The runner authenticates into Tailscale with a specific `tag:ci` role.
+4. **Encrypted Deployment:** Code is securely pushed to the server's internal IP (`100.x.x.x`).
+
+```yaml
+# Snippet: Zero Trust Deployment Workflow
+    steps:
+      # ... [Build steps omitted] ...
+
+      - name: Connect to Tailscale Network
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Deploy to Hetzner via SSH
+        uses: easingthemes/ssh-deploy@main
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          # This connects to the internal Tailscale IP, not the public internet!
+          REMOTE_HOST: ${{ secrets.SERVER_IP }} 
+          REMOTE_USER: ${{ secrets.SERVER_USERNAME }}
+          SOURCE: "dist/"
+          TARGET: "/opt/docker/portfolio/public_html"
+```
+
+
+:::tip[View the Parallel CI/CD Pipelines]
+To see the complete CI/CD workflows, check out the `deploy.yml` files in their respective GitHub repositories:
+
+- [Portfolio Deployment Workflow](https://github.com/tu-usuario/repo-portfolio)
+- [Documentation Deployment Workflow](https://github.com/tu-usuario/repo-docs)
+:::
+
+## Security Integration (GitHub Secrets)
+
+No sensitive data is hardcoded into the repository. The following variables are injected securely at runtime, adhering to the Principle of Least Privilege:
+
+    TS_OAUTH_CLIENT_ID & SECRET: Temporary network access credentials.
+
+    SERVER_IP: The internal Tailscale IP address (100.x.x.x).
+
+    SSH_PRIVATE_KEY: A dedicated, passwordless ED25519 key generated strictly for GitHub Actions.
+
+:::note[Operational Excellence]
+This CI/CD pipeline guarantees secure, automated deployments. By utilizing Tailscale, we achieve modern DevOps automation without compromising the strict Layer 4 firewall rules.
+:::

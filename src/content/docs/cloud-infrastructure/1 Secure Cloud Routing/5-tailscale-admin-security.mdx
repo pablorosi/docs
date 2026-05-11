@@ -1,0 +1,42 @@
+---
+title: Tailscale Private Admin Access
+description: Implementing Zero Trust architecture and Out-of-Band management to isolate the Nginx control panel.
+sidebar:
+  order: 5
+---
+
+## Zero Trust Philosophy
+
+The Nginx Proxy Manager (NPM) administrative dashboard runs on port 81. Exposing this port to the public internet creates an unnecessary attack surface. To implement a **Zero Trust Architecture**, port 81 is blocked on the Hetzner public firewall, and access is exclusively routed through a **Tailscale** overlay network.
+
+---
+
+## Tailscale Configuration
+
+Tailscale establishes a peer-to-peer WireGuard mesh network (Tailnet) between my personal devices and the Hetzner server.
+
+1.  **Installation:** Tailscale is installed directly on the Hetzner host OS.
+2.  **Authentication:** The server is authenticated to the Tailnet as a headless machine.
+3.  **Local IP:** The server is assigned a private Tailscale IP (e.g., `100.x.x.x`).
+
+---
+
+## Out-of-Band (OOB) Management
+
+Instead of routing the admin panel through the reverse proxy itself (which can cause Docker Hairpin NAT loops and creates a circular dependency on the proxy engine), the architecture utilizes **Out-of-Band (OOB) Management**.
+
+Administrative access to NPM is entirely decoupled from the public DNS routing table. 
+
+* **Data Plane:** Public web traffic is routed via Cloudflare to port 80/443.
+* **Management Plane:** Admin traffic is routed directly through the encrypted WireGuard tunnel via the Tailscale interface.
+
+### Access Method
+To manage the infrastructure, the administrator navigates directly to the Tailscale IP and management port from an authenticated device:
+
+`http://100.x.x.x:81`
+
+:::tip[Security Validation]
+Attempting to access port 81 from a public connection is impossible. The Docker port binding ensures the container only listens to the Tailscale network interface. Furthermore, the traffic is inherently encrypted end-to-end by WireGuard, satisfying strict Zero Trust requirements without relying on a public SSL certificate.
+:::
+
+Proceed to **[GitHub Actions CI/CD Pipeline](./6-github-cicd-pipelines)** to review the automated deployment lifecycle.

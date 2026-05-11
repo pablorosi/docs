@@ -1,0 +1,57 @@
+---
+title: Nginx Reverse Proxy & Public SSL
+description: Routing incoming web traffic to the correct Docker containers and securing it with Let's Encrypt.
+sidebar:
+  order: 4
+---
+
+## Traffic Ingress Architecture
+
+Once traffic passes through Cloudflare, it hits the Hetzner server. **Nginx Proxy Manager (NPM)** is deployed as the primary ingress point, listening on ports 80 and 443. Its job is to analyze the HTTP headers and route the request to the corresponding Docker container.
+
+---
+
+## Nginx Proxy Manager Setup
+
+NPM is deployed via its own isolated `docker-compose.yml` file. It connects to the `proxy-network` alongside the web containers, allowing it to route traffic securely without exposing the internal web servers to the outside world. 
+
+Here is the exact ingress configuration, highlighting the Out-of-Band (OOB) management binding:
+
+```yaml
+# Snippet: NPM Ingress configuration
+services:
+  proxy-manager:
+    image: 'jc21/nginx-proxy-manager:latest'
+    container_name: nginx-proxy-manager
+    restart: unless-stopped
+    ports:
+      - '80:80'   # Public HTTP routing
+      - '443:443' # Public HTTPS routing
+      - '100.x.x.x:81:81' # OOB Management: Bound strictly to Tailscale IP
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+    networks:
+      - proxy-network
+```
+
+
+## Proxy Hosts & SSL Certificates
+
+Inside the NPM dashboard, incoming public traffic is routed using Docker's internal DNS resolver (container names) over the shared `proxy-network`. For example, to route traffic to the Astro portfolio:
+
+    Domain: pablorosi.dev
+
+    Forward Host: astro-site (Internal Docker DNS)
+
+    Forward Port: 80
+
+## Automated Let's Encrypt SSL
+
+Although Cloudflare encrypts traffic from the user to the edge, NPM generates Let's Encrypt certificates to ensure Strict SSL (Full Encryption) from Cloudflare to the Hetzner server.
+
+:::note[Security Decision]
+By forcing SSL renewal through NPM, we ensure end-to-end encryption without relying entirely on Cloudflare's shared edge certificates. Furthermore, the administrative GUI is deliberately removed from public DNS routing to prevent Hairpin NAT loops and enforce a strict Zero-Trust security model via the VPN.
+:::
+
+Proceed to **[Tailscale Private Admin Access](./5-tailscale-admin-security)** to see exactly how the Nginx administrative dashboard is secured using this architecture.

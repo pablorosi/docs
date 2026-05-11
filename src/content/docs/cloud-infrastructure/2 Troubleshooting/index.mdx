@@ -1,0 +1,17 @@
+---
+title: Troubleshooting 
+description: A collection of technical challenges, root cause analyses, and architectural resolutions.
+sidebar:
+  order: 1
+---
+
+This section documents real-world technical hurdles encountered during the construction of this infrastructure. Rather than just "fixing" errors, each entry follows a **Root Cause Analysis (RCA)** methodology to ensure long-term system stability and architectural growth.
+
+
+## Documented Resolutions
+
+### 🌐 Network & Security
+* **[Nginx 504 Gateway Time-out](./nginx-504-timeout)** Resolving Hairpin NAT loops and internal routing conflicts when proxying an admin panel through its own engine.
+* **[DNS & SSL Caching in Zero Trust](./dns-ssl-caching)** Handling stale DNS records and SSL handshake failures caused by aggressive OS and browser-level caching.
+
+---

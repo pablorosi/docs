@@ -1,0 +1,38 @@
+---
+title: "Troubleshooting: 504 Gateway Time-out Error in NPM"
+description: "Technical guide on internal redirection failure (Self-Proxy) and NAT loopback in Docker."
+sidebar:
+  order: 3
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Problem Description
+
+When attempting to access the **Nginx Proxy Manager (NPM)** administration interface (GUI) through a domain managed by the proxy itself (e.g., `nginx.lab.pablorosi.com`), the server returns an OpenResty **504 Gateway Time-out** error.
+
+## Root Cause Analysis
+
+This error is a classic symptom of a network limitation known as **Hairpin NAT** (or NAT Loopback) within the Docker environment.
+
+### Technical Factors
+1. **Strict Host-Binding:** The NPM container's management port (`81`) is bound exclusively to the **Tailscale** interface (`100.x.x.x:81`) to ensure security.
+2. **Routing Loop:** When the Nginx engine attempts to process a request directed to its own Tailscale IP, the traffic originates inside the container, exits to the host's network interface, and immediately attempts to re-enter the same container.
+3. **IPTables Block:** Docker's internal firewall detects this behavior as an invalid routing loop and preemptively drops the packets, causing the "upstream" (the control panel) to never respond to the proxy request.
+
+
+## Architectural Resolution
+
+Instead of patching inefficient routing, a solution based on an industry standard has been implemented: **Out-of-Band (OOB) Management**.
+
+### Steps Taken:
+1. **Self-Proxy Removal:** The Proxy Host rule for the administration domain within NPM has been removed.
+2. **Direct Access via VPN:** Access to the control panel is now performed exclusively through the Tailscale IP (`http://100.x.x.x:81`).
+
+## Infrastructure Best Practices
+
+This decision is not a limitation, but an improvement to the system's robustness:
+
+* **Zero-Trust Security:** The administration panel is removed from public/semi-public DNS routing tables, reducing the attack surface.
+* **Control Plane Isolation:** By separating the data plane (application traffic) from the management plane (proxy administration), we ensure that a configuration error in an SSL rule or a failure in the Nginx engine does not block access to the recovery tool.
+* **Lower Layer Encryption:** Even if access is via HTTP, Tailscale's **WireGuard** tunnel guarantees that all traffic is end-to-end encrypted between the client and the server.

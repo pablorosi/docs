@@ -1,0 +1,47 @@
+---
+title: Cloudflare DNS & Edge Routing
+description: Configuring edge network security and domain redirection rules.
+sidebar:
+  order: 2
+---
+
+## Edge Network Strategy
+
+Instead of pointing domains directly to the Hetzner server's public IP, **Cloudflare** is utilized as a reverse proxy at the edge. This provides DDoS protection, global CDN caching, and strict DNS management.
+
+### Active Domains
+* `pablorosi.dev` (Primary Portfolio)
+* `docs.pablorosi.dev` (Starlight Documentation)
+* `pablorosi.com` (Legacy Domain - Redirected)
+* `docs.pablorosi.com` (Legacy Domain - Redirected)
+
+---
+
+## DNS Configuration
+
+All primary A records and CNAMEs are proxied through Cloudflare (the "Orange Cloud").
+
+| Type | Name | Content | Proxy Status |
+| :--- | :--- | :--- | :--- |
+| A | `@` | `[Hetzner IP]` | Proxied |
+| CNAME | `docs` | `pablorosi.dev` | Proxied |
+
+---
+
+## Legacy Domain Redirection
+
+To maintain SEO and user experience, traffic from the `.com` domain is aggressively forwarded to the `.dev` domain at the edge, meaning the Hetzner server never has to process these requests.
+
+### Cloudflare Page Rules
+* **URL Match:** `*pablorosi.com/*`
+* **Forwarding URL:** `301 - Permanent Redirect`
+* **Destination:** `https://pablorosi.dev/$1`
+
+:::tip[Performance Gain]
+Handling 301 redirects at the Cloudflare edge significantly reduces the processing load on the Nginx container hosted on Hetzner.
+:::
+
+Now that the DNS is configured and edge caching is active, the traffic is directed to the Hetzner server's public IP. 
+
+Proceed to **[Cloud Firewall & Zero Trust](./3-firewall)** to see how this incoming traffic is strictly filtered at the network layer before it is allowed to reach the operating system.
+

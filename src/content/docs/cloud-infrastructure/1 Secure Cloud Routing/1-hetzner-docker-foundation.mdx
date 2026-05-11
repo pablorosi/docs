@@ -1,0 +1,92 @@
+---
+title: Hetzner VPS & Docker Foundation
+description: Provisioning the underlying compute infrastructure and setting up the container runtime.
+sidebar:
+  order: 1
+---
+
+## Infrastructure Overview
+
+To ensure reliable performance and complete control over the environment, the foundation of this project is built on a **Hetzner Virtual Private Server (VPS)**. To maintain a reproducible and isolated environment, all services are containerized using **Docker** and managed via **Docker Compose**.
+
+### Hardware & OS Specifications
+* **Provider:** Hetzner Cloud
+* **OS:** Ubuntu 24.04 LTS
+* **Location:** Nuremberg
+
+---
+
+## Server Provisioning & Hardening
+
+Before deploying any containers, the host machine requires basic security hardening to prevent unauthorized access.
+
+### Secure SSH & Zero Trust Access
+To secure remote access, password authentication is completely disabled in favor of cryptographic keys. 
+
+Furthermore, the server does not accept SSH connections from the public IP. Administrative access is strictly routed through the private Tailscale overlay network (`100.x.x.x`), rendering the server completely invisible to automated bot scanners.
+
+```bash
+# Connecting via the secure ZTNA tunnel
+ssh root@100.x.x.x
+apt update && apt upgrade -y
+```
+
+:::note[Security Decision]
+By disabling PasswordAuthentication in the sshd_config and dropping all public traffic to port 22 at the edge, the server's attack surface is drastically reduced. The exact network policies are detailed in the Cloud Firewall & Zero Trust architecture page.
+:::
+
+## Docker Environment Setup
+
+### Installing the Container Engine
+
+The official Docker engine is installed to manage the application lifecycle.
+
+```bash
+docker --version
+docker compose version
+```
+
+
+### Infrastructure as Code (Docker Compose)
+
+The infrastructure is managed using modular, decoupled `docker-compose.yml` files for each service. To ensure maximum isolation while allowing traffic routing, containers that need to communicate with the Nginx Proxy Manager are connected via an external Docker network named `proxy-network`. Instead of running heavy Node.js servers, the built static files for the Astro portfolio and Starlight documentation are served using ultra-fast, lightweight Alpine Nginx containers.
+
+```yaml
+# Snippet: Static Site Containers
+services:
+  # Astro portfolio
+  web-portfolio:
+    image: nginx:alpine 
+    container_name: astro-site
+    restart: unless-stopped
+    networks:
+      - proxy-network
+    volumes:
+      # Serves the actual static build via read-only mounts
+      - ./public_html:/usr/share/nginx/html:ro
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+
+  # Starlight docs
+  web-docs:
+    image: nginx:alpine
+    container_name: starlight-docs
+    restart: unless-stopped
+    networks:
+      - proxy-network
+    volumes:
+      - ./docs:/usr/share/nginx/html:ro
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+```
+
+:::tip[Explore the Modular Infrastructure]
+The complete infrastructure configuration, including the ingress routing, is version-controlled and decoupled for maximum isolation. You can view the specific `docker-compose.yml` files for each service in their respective GitHub repositories:
+
+- [Portfolio Infrastructure](https://github.com/pablorosi/portfolio)
+- [Documentation Infrastructure](https://github.com/pablorosi/docs)
+:::
+
+### Validation
+
+To verify the foundation is solid, running `docker info` should return the active server parameters without permission errors.
+
+Proceed to **[Cloudflare DNS & Edge Routing](./2-cloudflare-dns-routing)** to see how public traffic is directed to this server.
