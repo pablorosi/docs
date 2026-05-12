@@ -51,3 +51,9 @@ Chromium-based browsers ignore the OS cache and maintain their own internal DNS 
 ### Step 3: Hard Refresh
 
 A hard refresh (Cmd + Shift + R) was executed to bypass stored offline web assets. The administration panel immediately loaded securely over the private overlay.
+
+---
+
+:::note[Historical Context]
+**Note:** The issue described in this document occurred *before* the architectural decision was made to strictly use the Tailscale IP (`http://100.x.x.x:81`) to access the Nginx control panel in order to prevent NAT Loopback issues. For more details on the current approach, see the [504 Gateway Time-out Documentation](/cloud-infrastructure/2-troubleshooting/npm-504-gateway-timeout/).
+:::
