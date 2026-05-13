@@ -1,0 +1,30 @@
+---
+title: Passive Interfaces
+date: 2026-05-13
+tag: networking
+---
+
+The function of a passive interface is to stop the router from sending hello packets.
+
+### Configuration example with OSPF
+
+```cisco
+Router(config)# router ospf 1
+Router(config-router)# passive-interface GigabitEthernet0/0
+```
+
+### Default Passive 
+In big networks the best strategy is to put all interfaces in passive mode by default, activating only the ones that go to other routers.
+
+```cisco
+Router(config-router)# passive-interface default
+Router(config-router)# no passive-interface GigabitEthernet0/1  
+````
+
+### Why use passive-interface on a Loopback?
+Even though the Loopback is virtual, the router's CPU still works to generate those packets every 10 seconds witch are automatically discarded by the router. It's a waste of CPU cycles.
+
+
+
+
+
