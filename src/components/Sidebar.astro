@@ -2,11 +2,13 @@
 import MobileMenuFooter from '@astrojs/starlight/components/MobileMenuFooter.astro';
 import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.astro';
 import SidebarSublist from '@astrojs/starlight/components/SidebarSublist.astro';
+import { getCollection } from 'astro:content';
 
 type SidebarEntry = {
   type: 'link' | 'group';
   label: string;
   href?: string;
+  isCurrent?: boolean;
   entries?: SidebarEntry[];
   collapsed?: boolean;
   badge?: any;
@@ -18,20 +20,42 @@ const pathname = Astro.url.pathname;
 
 const projectKeys = [
   'cloud-infrastructure',
-  'security-services',
-  'enterprise-homelab',
-  'db-administration',
+  'enterprise-homelab', 
+  'learning-log',
 ] as const;
 
 const projectLabels: Record<(typeof projectKeys)[number], string> = {
   'cloud-infrastructure': 'Cloud Infrastructure',
-  'security-services': 'Security & Services',
   'enterprise-homelab': 'Enterprise Homelab',
-  'db-administration': 'DB Administration',
+  'learning-log': 'Learning Log',
 };
 
 const currentProject =
   projectKeys.find((key) => pathname.includes(`/${key}/`) || pathname.endsWith(`/${key}`)) ?? null;
+
+const learningLogNotes = currentProject === 'learning-log'
+  ? (await getCollection('docs', ({ id, data }) => {
+      return id.startsWith('learning-log/') && !data.draft && !id.endsWith('/index');
+    }))
+      .sort((a, b) => {
+        const aTime = a.data.date ? new Date(a.data.date).getTime() : 0;
+        const bTime = b.data.date ? new Date(b.data.date).getTime() : 0;
+        return bTime - aTime;
+      })
+      .map((note) => {
+        const href = note.slug
+          ? `/${note.slug}/`
+          : `/${note.id.replace(/\\/g, '/').replace(/\.mdx?$/, '')}/`;
+        return {
+          type: 'link',
+          label: note.data.title,
+          href,
+          isCurrent: pathname === href || pathname === href.replace(/\/$/, ''),
+          badge: undefined,
+          attrs: {},
+        };
+      })
+  : [];
 
 function entryMatchesProject(entry: SidebarEntry, projectKey: string): boolean {
   if (entry.type === 'link') {
@@ -54,6 +78,19 @@ function pruneSidebar(entries: SidebarEntry[], projectKey: string): SidebarEntry
   });
 }
 
+function collectProjectLinks(entries: SidebarEntry[], projectKey: string): SidebarEntry[] {
+  return entries.flatMap((entry) => {
+    if (entry.type === 'group') {
+      return collectProjectLinks(entry.entries ?? [], projectKey);
+    }
+    const href = entry.href ?? '';
+    if (href.includes(`/${projectKey}/`) || href.endsWith(`/${projectKey}`)) {
+      return [entry];
+    }
+    return [];
+  });
+}
+
 let filteredSidebar: SidebarEntry[] = [];
 if (currentProject) {
   // Try to find the top-level group for this project (the autogenerate group)
@@ -62,7 +99,9 @@ if (currentProject) {
     (entry: any) => entry.type === 'group' && entry.label === projectLabel
   ) as SidebarEntry | undefined;
 
-  if (projectGroup && projectGroup.entries) {
+  if (currentProject === 'learning-log') {
+    filteredSidebar = learningLogNotes;
+  } else if (projectGroup && projectGroup.entries) {
     // Use the group's entries directly (flattened), pruning any root links
     filteredSidebar = pruneSidebar(projectGroup.entries as SidebarEntry[], currentProject);
   } else {
@@ -84,7 +123,9 @@ const currentProjectLabel = currentProject ? projectLabels[currentProject] : nul
 )}
 
 <SidebarPersister>
-  <SidebarSublist sublist={filteredSidebar as any} />
+  <div class:list={{ 'learning-log-sidebar': currentProject === 'learning-log' }}>
+    <SidebarSublist sublist={filteredSidebar as any} />
+  </div>
 </SidebarPersister>
 
 <div class="md:sl-hidden">
@@ -101,5 +142,9 @@ const currentProjectLabel = currentProject ? projectLabels[currentProject] : nul
     text-transform: uppercase;
     color: var(--sl-color-text-accent);
     border-bottom: 1px solid var(--sl-color-hairline-light);
+  }
+  .learning-log-sidebar :global(a) {
+    font-size: 0.85rem;
+    font-weight: 500;
   }
 </style>

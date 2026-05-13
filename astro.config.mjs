@@ -35,14 +35,14 @@ export default defineConfig({
 					autogenerate: { directory: 'cloud-infrastructure', collapsed: true },
 				},
 				{
+					label: 'Learning Log',
+					collapsed: true,
+					autogenerate: { directory: 'learning-log', collapsed: true },
+				},
+				{
 					label: 'Enterprise Homelab',
 					collapsed: true,
 					autogenerate: { directory: 'enterprise-homelab', collapsed: true },
-				},
-				{
-					label: 'DB Administration',
-					collapsed: true,
-					autogenerate: { directory: 'db-administration', collapsed: true },
 				},
 			],
 		}),
