@@ -1,0 +1,20 @@
+---
+title: Introduce routes in Cisco routers
+date: 2026-05-14
+tag: networking
+---
+
+
+### Ways to introduce routes into the routing table
+
+Below are common methods to get a route into a router's routing table:
+
+- Connected routes — automatically present when an interface in that subnet is `up`.
+	- Example: enabling `interface GigabitEthernet0/1` with an IP places the connected network into the RIB.
+- Static routes — manually configured, very common for specific next-hops.
+	- Example: `ip route 10.0.1.0 255.255.255.0 192.0.2.1`.
+	- Floating static: a static with a higher administrative distance used as a backup (e.g. `ip route ... 250`).
+- Default routes — a special static `0.0.0.0/0` used when no more specific route exists.
+	- Example: `ip route 0.0.0.0 0.0.0.0 192.0.2.254`.
+- Dynamic routing protocols — routers learn networks from peers and decide best routes based on AD + metrics.
+	- Examples: `router ospf 1`, `router bgp 65000`, `router eigrp 100`.

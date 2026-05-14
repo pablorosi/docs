@@ -1,0 +1,55 @@
+---
+title: Route precedence in Cisco Routers
+date: 2026-05-14
+tag: networking
+---
+Only the best route for each learned network/prefix makes it into the routing table.
+If they don't have the same prefix
+
+Ex: 
+192.168.0.0/30 
+192.168.0.0/28
+
+Although they are overlapping the router adds both routes to the routing table.
+When a packet arrives, the router looks for the most specific match, the longest prefix.
+
+
+### Criteria for which is the best route to the exact same network/prefix:
+#### 1. Administrative Distance (lower value is better)
+
+**Table 1 — Common Administrative Distance (Cisco defaults)**
+
+| Source / Protocol                | Administrative Distance |
+|----------------------------------|-------------------------:|
+| Connected                        | 0                      |
+| Static                           | 1                      |
+| eBGP                             | 20                     |
+| EIGRP (internal)                 | 90                     |
+| IGRP (legacy)                    | 100                    |
+| OSPF                             | 110                    |
+| IS-IS                            | 115                    |
+| RIP                              | 120                    |
+| EIGRP (external)                 | 170                    |
+| iBGP                             | 200                    |
+| Unknown / Not trusted (drop)     | 255                    |
+
+Lower values are preferred — the route with the lowest administrative distance for the same prefix wins. A value of `255` means the route is considered unreachable and will not be installed in the routing table.
+
+If there is a tie:
+
+#### 2. Metric (lower value is better)
+**Table 2 — Common Metric Types and How They Work**
+
+| Protocol / Source | Metric Type | How it's calculated / used |
+|-------------------|-------------|----------------------------|
+| OSPF              | Cost        | Sum of interface costs (default cost = 10^8 / bandwidth). Lower cost preferred. |
+| EIGRP             | Composite metric | Uses bandwidth, delay, reliability, load and MTU (by default bandwidth + delay). Lower composite metric preferred. |
+| RIP               | Hop count   | Simple count of hops to destination (max 15 in RIP v2). Lower hop count preferred. |
+| BGP               | Path attributes| BGP selects best path using a specific attribute order: highest LOCAL_PREF, shortest AS_PATH, lowest origin type, lowest MED (when comparable), eBGP over iBGP, etc. MED is a tie-breaker and is lower-is-better. |
+| Static / Connected | Not applicable / 0 | Static and connected routes do not use a routing metric in selection; they are preferred by Administrative Distance. |
+
+Metrics are protocol-specific and are only compared between routes learned via the same protocol (or after protocols are normalized via redistribution). For example, OSPF cost values are only comparable against other OSPF-learned routes; comparing an OSPF cost to an EIGRP composite metric is meaningless — Administrative Distance decides between protocols first.
+
+If there are multiple best routes with the same Administrative Distance and Metric, they will all enter the routing table and the router will perform Equal Cost Load Balancing over them.
+
+
