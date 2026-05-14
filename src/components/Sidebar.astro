@@ -100,7 +100,16 @@ if (currentProject) {
   ) as SidebarEntry | undefined;
 
   if (currentProject === 'learning-log') {
-    filteredSidebar = learningLogNotes;
+    const indexHref = '/learning-log/';
+    const indexEntry: SidebarEntry = {
+      type: 'link',
+      label: 'View all notes',
+      href: indexHref,
+      isCurrent: pathname === indexHref || pathname === indexHref.replace(/\/$/, ''),
+      badge: undefined,
+      attrs: {},
+    };
+    filteredSidebar = [indexEntry, ...learningLogNotes];
   } else if (projectGroup && projectGroup.entries) {
     // Use the group's entries directly (flattened), pruning any root links
     filteredSidebar = pruneSidebar(projectGroup.entries as SidebarEntry[], currentProject);

@@ -2,7 +2,7 @@
 // src/components/RecentNotes.astro
 import { getCollection } from 'astro:content';
 
-const { limit = 5, showAllLink = true } = Astro.props;
+const { limit = 5, showAllLink = true, showFilters = !showAllLink } = Astro.props;
 
 const recentNotes = (await getCollection('docs', ({ id, data }) => {
   return id.startsWith('learning-log/') && !data.draft;
@@ -40,45 +40,152 @@ const getHref = (note) => {
   const normalized = id.endsWith('/index') ? id.slice(0, -('/index'.length)) : id;
   return `/${normalized}/`;
 };
----
-<table>
-  <thead>
-    <tr>
-      <th>Tag</th>
-      <th>Date</th>
-      <th>Note</th>
-    </tr>
-  </thead>
-  <tbody>
-    {visibleNotes.map((note) => (
-      <tr>
-        <td class="tag">{getTag(note.data)}</td>
-        <td class="date">{formatDate(note.data.date)}</td>
-        <td class="note">
-          <a href={getHref(note)}>
-            {getNoteText(note.data)}
-          </a>
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
 
-{showAllLink && (
-  <div class="recent-notes-footer">
-    <a class="recent-notes-link" href="/learning-log">Ver todo</a>
-  </div>
-)}
+const allTags = Array.from(new Set(visibleNotes.map(note => getTag(note.data)))).sort();
+---
+<div class="recent-notes-container">
+  {showFilters && (
+    <div class="tag-filters">
+      <button class="tag-btn active" data-filter="all">All</button>
+      {allTags.map((tag) => (
+        <button class="tag-btn" data-filter={tag}>{tag}</button>
+      ))}
+    </div>
+  )}
+
+  <table class="recent-notes-table">
+    <thead>
+      <tr>
+        <th>Tag</th>
+        <th>Date</th>
+        <th>Note</th>
+      </tr>
+    </thead>
+    <tbody>
+      {visibleNotes.map((note) => (
+        <tr class="note-row" data-tag={getTag(note.data)}>
+          <td class="tag"><span class="table-tag-badge">{getTag(note.data)}</span></td>
+          <td class="date">{formatDate(note.data.date)}</td>
+          <td class="note">
+            <a href={getHref(note)}>
+              {getNoteText(note.data)}
+            </a>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+
+  {showAllLink && (
+    <div class="recent-notes-footer">
+      <a class="recent-notes-btn" href="/learning-log">View All Notes &rarr;</a>
+    </div>
+  )}
+</div>
+
+<script>
+  function setupFilters() {
+    const containers = document.querySelectorAll('.recent-notes-container');
+    containers.forEach(container => {
+      const buttons = container.querySelectorAll('.tag-btn');
+      const rows = container.querySelectorAll('.note-row');
+      
+      buttons.forEach(btn => {
+        // Remover listeners previos si se re-ejecuta
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+        
+        newBtn.addEventListener('click', () => {
+          container.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+          newBtn.classList.add('active');
+          
+          const filter = newBtn.getAttribute('data-filter');
+          
+          rows.forEach(row => {
+            if (filter === 'all' || row.getAttribute('data-tag') === filter) {
+              row.style.display = '';
+            } else {
+              row.style.display = 'none';
+            }
+          });
+        });
+      });
+    });
+  }
+
+  setupFilters();
+  document.addEventListener('astro:after-swap', setupFilters);
+</script>
 
 <style>
-  .recent-notes-footer {
-    margin-top: 0.75rem;
+  .recent-notes-container {
     display: flex;
-    justify-content: flex-start;
+    flex-direction: column;
   }
-  .recent-notes-link {
-    text-decoration: underline;
-    font-weight: 600;
+  .tag-filters {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .tag-btn {
+    background: var(--sl-color-gray-6);
+    border: 1px solid var(--sl-color-gray-5);
+    color: var(--sl-color-white);
+    padding: 0.2rem 0.8rem;
+    margin: 0;
+    line-height: normal;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+  }
+  .tag-btn:hover {
+    background: var(--sl-color-gray-5);
+    border-color: var(--sl-color-gray-4);
+  }
+  .tag-btn.active {
+    background: var(--sl-color-accent);
+    color: var(--sl-color-white);
+    border-color: var(--sl-color-accent);
+  }
+  .recent-notes-table {
+    width: 100%;
+    display: table !important;
+  }
+  .table-tag-badge {
+    background-color: var(--sl-color-gray-6);
+    color: var(--sl-color-gray-2);
+    /* font-size inherits from standard table text */
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--sl-color-gray-5);
+    white-space: nowrap;
+  }
+  .recent-notes-footer {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .recent-notes-btn {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--sl-color-gray-5);
+    background-color: transparent;
+    color: var(--sl-color-white) !important;
+    text-decoration: none;
+    font-size: 0.95rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+  }
+  .recent-notes-btn:hover {
+    border-color: var(--sl-color-accent);
+    background-color: var(--sl-color-gray-6);
   }
 </style>
 
