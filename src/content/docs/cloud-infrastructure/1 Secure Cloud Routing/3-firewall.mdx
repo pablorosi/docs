@@ -54,4 +54,4 @@ By routing SSH and NPM management through the Tailscale interface (`tailscale0`)
 
 To verify the setup, a port scan from the public internet should only show ports 80, 443, and the UDP ranges as open. Any attempt to reach port 22 or 81 will result in a timeout, as packets are dropped at the Hetzner edge before reaching the OS.
 
-Proceed to **[Nginx Reverse Proxy & Public SSL](./4-nginx-reverse-proxy)** to see how public traffic is handled once it passes through this firewall.
+Proceed to **[Nginx Reverse Proxy & Public SSL](/cloud-infrastructure/1-secure-cloud-routing/4-nginx-reverse-proxy)** to see how public traffic is handled once it passes through this firewall.
