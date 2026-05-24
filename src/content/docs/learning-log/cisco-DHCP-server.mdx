@@ -1,0 +1,44 @@
+---
+title: Use a Cisco Router as a DHCP server
+date: 2026-05-24
+tag: networking
+---
+
+Instead of having a dedicated DHCP server in a small office, you can use a Cisco router not only as a router but as a DHCP server as well.
+
+### 1. Configuration
+
+#### 1.1 Exclude all IP addresses that you already have assigned or don't want to be assigned via DHCP
+```cisco
+Router(config)# ip dhcp excluded-address 192.168.1.1 192.168.1.10
+```
+
+#### 1.2 Create the DHCP pool
+```cisco
+Router(config)# ip dhcp pool LAN_USERS
+```
+
+#### 1.3 Define the network and subnet mask
+```cisco
+Router(dhcp-config)# network 192.168.1.0 255.255.255.0
+```
+
+#### 1.4 Configure the default-gateway
+
+```cisco
+Router(dhcp-config)# default-router 192.168.1.1
+```
+#### 1.5 Configure the DNS server
+```cisco
+Router(dhcp-config)# dns-server 8.8.8.8
+```
+
+#### 1.6 Configure the time lease
+By default, the time that a device can use an IP before it has to renew it is 1 day on a Cisco router. That can be changed with the command:
+
+```cisco
+Router(dhcp-config)# lease 7 0 0
+Router(dhcp-config)# exit
+```
+
+
