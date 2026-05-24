@@ -1,0 +1,21 @@
+---
+title: Configure a Cisco router to use an external DHCP server
+date: 2026-05-24
+tag: networking
+---
+
+When a device is added to the network, it sends a DHCP broadcast message to search for a server.
+By default, routers block and discard broadcast messages. To avoid this, it is necessary to configure a DHCP relay agent.
+
+### 1. How to configure a DHCP relay agent
+
+#### 1.1 Access the interface to which the devices that need an IP address are connected
+```cisco
+Router(config-if)# ip helper-address 10.5.5.10
+```
+
+#### 1.2 Configure the external DHCP server IP
+```cisco
+Router(config-if)# ip helper-address 10.5.5.10
+```
+
