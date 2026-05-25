@@ -1,0 +1,88 @@
+---
+title: HSRP - Hot Standby Router Protocol
+date: 2026-05-25
+tag: networking
+---
+
+HSRP is a Cisco proprietary protocol that creates the illusion of a single gateway. Two (or more) routers share a virtual IP and MAC so hosts always use the same default gateway. One router is active and forwards traffic, while the other stays in standby and takes over if the active router fails.
+
+
+### 1.Configuration
+
+#### 1.1 Configure the active router
+```cisco
+R1(config)# interface GigabitEthernet 0/1
+R1(config-if)# ip address 192.168.1.252 255.255.255.0
+
+! 1.1.1 Define the HSRP group (e.g., group 1) and the virtual IP
+R1(config-if)# standby 1 ip 192.168.1.254
+
+! 1.1.2 Raise the priority (default is 100, higher wins)
+R1(config-if)# standby 1 priority 110
+
+! 1.1.3 Enable preemption (forces takeover when it comes back online)
+R1(config-if)# standby 1 preempt
+````
+#### 1.2 Configure the standby router
+```cisco
+R2(config)# interface GigabitEthernet 0/1
+R2(config-if)# ip address 192.168.1.253 255.255.255.0
+
+! 1.2.1 Define the SAME HSRP group and the SAME virtual IP
+R2(config-if)# standby 1 ip 192.168.1.254
+
+! 1.2.2 Leave the default priority (100)
+! 1.2.3 (Optional) Enable preempt in case we lower R1's priority later
+R2(config-if)# standby 1 preempt
+```
+
+### 2. Verification and Troubleshooting
+#### 2.1 Quick summary
+```cisco
+R1# show standby brief
+```
+#### 2.2 Detailed summary
+```cisco
+R1# show standby
+```
+
+### 3.Alternatives
+
+#### 3.1 VRRP (Virtual Router Redundancy Protocol)
+
+VRRP is the direct, open-standard alternative to Cisco's HSRP. It is used when a network contains hardware from multiple vendors (e.g., mixing Cisco switches with Juniper or MikroTik routers).
+
+    **Standard:** Open standard (IETF RFC 3768).
+
+    **Terminology / Roles:**
+    
+    Master: The router currently forwarding traffic (Equivalent to HSRP's Active).
+
+    Backup: The router waiting to take over (Equivalent to HSRP's Standby).
+
+    **Distinctive Feature:** In VRRP, the Virtual IP address can be the exact same as the physical IP address configured on the Master router's interface.
+
+    **Preemption:** Enabled by default (This is a major exam trick; remember that HSRP has preemption disabled by default).
+
+    **Multicast Address:** 224.0.0.18.
+
+#### 3.2 GLBP (Gateway Load Balancing Protocol)
+
+GLBP solves the main inefficiency of HSRP and VRRP. Instead of having a powerful backup router sitting completely idle, GLBP uses all available routers at the same time to route traffic.
+
+    **Standard:** Cisco Proprietary.
+
+    **Core Feature:** Active/Active Load Balancing. It distributes the outbound traffic from the LAN across multiple routers simultaneously.
+
+    **How it Works (The ARP Trick):** All routers share a single Virtual IP address. However, when PCs send an ARP request asking for the MAC address of that Virtual IP, GLBP replies to different PCs with different Virtual MAC addresses. This forces different PCs to send their traffic to different physical routers.
+
+    **Terminology / Roles:**
+
+        AVG (Active Virtual Gateway): The "boss" router. It is the only router allowed to answer ARP requests from the PCs. It decides which PC gets which MAC address.
+
+        AVF (Active Virtual Forwarder): The actual routers doing the heavy lifting. They receive the traffic directed to their assigned MAC address and route it to the internet. (Note: The AVG is also an AVF).
+
+    **Multicast Address:** 224.0.0.102.
+
+
+
