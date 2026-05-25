@@ -1,0 +1,83 @@
+---
+title: STP - Spanning Tree Protocol
+date: 2026-05-25
+tag: networking
+---
+A protocol developed to prevent layer 2 broadcast storms caused by switching loops
+
+### 1. How does it work?
+
+#### 1.1 Root bridge is elected using the Bridge ID 
+
+The bridge ID has this structure:
+
+![Bridge-ID-Diagram](/Bridge-ID.svg)
+
+So the Bridge Priority can take 12 different values being 61440 the highest and 32768 the default.
+The switch with the lowest Bridge ID gets elected as the Root Bridge 
+
+### 1.2 STP Port Roles
+
+Once the Root Bridge is elected, Spanning Tree Protocol (STP) evaluates all network paths to prevent loops. To do this, every port participating in STP is assigned one of three primary roles:
+
+**Root Port (RP):** This is the port with the best (lowest cost) path to the Root Bridge. Every non-root switch must have exactly one Root Port.
+
+**Designated Port (DP):** This port is responsible for forwarding traffic onto a specific network segment. There is exactly one Designated Port per collision domain (or link). All ports on the Root Bridge are Designated Ports (unless there is a physical loop connected back to the same switch).
+
+**Non-Designated Port (NDP / Blocking):** If a port is neither a Root Port nor a Designated Port, it becomes a Non-Designated port. This port is placed in a Blocking state to break the loop. It listens to BPDU frames but does not forward standard data traffic.
+
+
+### 1.3 How STP Chooses the Roles
+
+When switches decide which port becomes the Root Port or Designated Port, they follow a strict sequence of tie-breakers:
+
+**Lowest Path Cost to the Root Bridge** (Based on bandwidth: 10 Gbps, 1 Gbps, 100 Mbps, etc.)
+
+| Link Speed (Bandwidth) | Classic STP Cost (802.1D / Short) | RSTP & MSTP Cost (802.1t / Long) |
+| :--- | ---: | ---: |
+| **10 Mbps** (Ethernet) | 100 | 2,000,000 |
+| **100 Mbps** (Fast Ethernet) | 19 | 200,000 |
+| **1 Gbps** (Gigabit Ethernet) | 4 | 20,000 |
+| **10 Gbps** | 2 | 2,000 |
+| **100 Gbps** | 1 *(Cannot scale lower)* | 200 |
+| **1 Tbps** | 1 *(Cannot scale lower)* | 20 |
+
+**Lowest Sender Bridge ID (BID)** (If costs are equal, the switch with the lower Bridge ID wins).
+
+**Lowest Sender Port ID** (If two links connect to the exact same switch, the port with the lowest port number wins, e.g., Fa0/1 beats Fa0/2).
+
+### 2. Port State Transition Table
+
+| Phase | Classic STP (802.1D) | Duration | Rapid STP (RSTP / 802.1w) | Duration | What the port is actually doing |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **1** | **Blocking** | 0 to 20 sec* | **Discarding** | 0 seconds | The port just woke up. It drops user data and does not learn MAC addresses, but it listens for incoming BPDUs. |
+| **2** | **Listening** | 15 seconds | **Discarding** | ~0 seconds | The switch actively sends and receives BPDUs to elect the Root Bridge and port roles. It still drops user data. **RSTP merges Blocking and Listening into a single "Discarding" state.** |
+| **3** | **Learning** | 15 seconds | **Learning** | Milliseconds | The switch starts reading source MAC addresses from the wire to populate its MAC table. It still drops user data to prevent loops. |
+| **4** | **Forwarding** | Permanent | **Forwarding** | Permanent | The port is fully operational. It sends and receives standard user data. |
+
+### 3. Configuration
+
+#### 3.1 Set the STP mode
+```cisco
+! For Classic STP (802.1D)
+Switch(config)# spanning-tree mode pvst
+
+! For Rapid STP (802.1w) - Highly Recommended
+Switch(config)# spanning-tree mode rapid-pvst
+```
+#### 3.2 Electing the root bridge
+```cisco
+! Method A
+Switch(config)# spanning-tree vlan 1 priority 4096
+! Method B
+Switch(config)# spanning-tree vlan 1 root primary
+```
+#### 3.3 Verification 
+```cisco
+Switch# show spanning-tree
+```
+
+
+
+
+
