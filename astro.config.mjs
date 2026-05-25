@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import mermaid from 'astro-mermaid';
 
 // https://astro.build/config
 export default defineConfig({
@@ -30,6 +31,31 @@ export default defineConfig({
 		
 			sidebar: [
 				{
+					label: 'Enterprise Homelab',
+					collapsed: true,
+					items: [
+						{
+                            label: 'Project Overview',
+                            link: '/enterprise-homelab/', 
+                        },
+            			{	
+              			label: '1 Systems',
+						collapsed: true,
+              			autogenerate: { directory: 'enterprise-homelab/1 Systems', collapsed: true },
+            			},
+            			{
+              			label: '2 Network',
+						collapsed: true,
+              			autogenerate: { directory: 'enterprise-homelab/2 Network', collapsed: true },
+            			},
+						{
+              			label: '3 Troubleshooting',
+						collapsed: true,
+              			autogenerate: { directory: 'enterprise-homelab/3 Troubleshooting', collapsed: true },
+            			},
+          					],
+				},
+				{
 					label: 'Cloud Infrastructure',
 					collapsed: true,
 					autogenerate: { directory: 'cloud-infrastructure', collapsed: true },
@@ -39,11 +65,7 @@ export default defineConfig({
 					collapsed: true,
 					autogenerate: { directory: 'learning-log', collapsed: true },
 				},
-				{
-					label: 'Enterprise Homelab',
-					collapsed: true,
-					autogenerate: { directory: 'enterprise-homelab', collapsed: true },
-				},
+				
 			],
 		}),
 	],
