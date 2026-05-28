@@ -10,7 +10,7 @@ HSRP is a Cisco proprietary protocol that creates the illusion of a single gatew
 ### 1.Configuration
 
 #### 1.1 Configure the active router
-```cisco
+```txt
 R1(config)# interface GigabitEthernet 0/1
 R1(config-if)# ip address 192.168.1.252 255.255.255.0
 
@@ -24,7 +24,7 @@ R1(config-if)# standby 1 priority 110
 R1(config-if)# standby 1 preempt
 ````
 #### 1.2 Configure the standby router
-```cisco
+```txt
 R2(config)# interface GigabitEthernet 0/1
 R2(config-if)# ip address 192.168.1.253 255.255.255.0
 
@@ -38,11 +38,11 @@ R2(config-if)# standby 1 preempt
 
 ### 2. Verification and Troubleshooting
 #### 2.1 Quick summary
-```cisco
+```txt
 R1# show standby brief
 ```
 #### 2.2 Detailed summary
-```cisco
+```txt
 R1# show standby
 ```
 

@@ -22,7 +22,7 @@ When configuring EtherChannel, you have to choose a negotiation protocol:
 ![EtherChannel-Diagram](/EtherChannel.svg)
 
 #### 2.1 Configure Switch A 
-```cisco
+```txt
 SwitchA(config)# interface range GigabitEthernet 0/1 - 2
 SwitchA(config-if-range)# channel-group 1 mode active
 SwitchA(config-if-range)# exit
@@ -30,14 +30,14 @@ SwitchA(config-if-range)# exit
 
 #### 2.2 Configure the Logical Port-Channel on Switch A
 Once the channel group is created, a virtual interface called Port-channel 1 appears. You configure your VLANs or trunking on this logical interface, NOT the physical ones anymore.
-```cisco
+```txt
 SwitchA(config)# interface Port-channel 1
 SwitchA(config-if)# switchport mode trunk
 SwitchA(config-if)# exit
 ````
 
 ### 2.3 Configure Switch B
-```ciscoSwitchB(config)# interface range GigabitEthernet 0/1 - 2
+```txt
 SwitchB(config-if-range)# channel-group 1 mode active
 SwitchB(config-if-range)# exit
 
@@ -47,7 +47,7 @@ SwitchB(config-if)# end
 ````
 
 ### 3.Verification commands
-```cisco
+```txt
 SwitchA# show etherchannel summary
 SwitchA# show interfaces trunk
 ```

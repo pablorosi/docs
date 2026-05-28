@@ -58,7 +58,7 @@ When switches decide which port becomes the Root Port or Designated Port, they f
 ### 3. Configuration
 
 #### 3.1 Set the STP mode
-```cisco
+```txt
 ! For Classic STP (802.1D)
 Switch(config)# spanning-tree mode pvst
 
@@ -66,14 +66,14 @@ Switch(config)# spanning-tree mode pvst
 Switch(config)# spanning-tree mode rapid-pvst
 ```
 #### 3.2 Electing the root bridge
-```cisco
+```txt
 ! Method A
 Switch(config)# spanning-tree vlan 1 priority 4096
 ! Method B
 Switch(config)# spanning-tree vlan 1 root primary
 ```
 #### 3.3 Verification 
-```cisco
+```txt
 Switch# show spanning-tree
 ```
 

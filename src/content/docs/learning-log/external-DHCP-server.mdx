@@ -10,12 +10,12 @@ By default, routers block and discard broadcast messages. To avoid this, it is n
 ### 1. How to configure a DHCP relay agent
 
 #### 1.1 Access the interface to which the devices that need an IP address are connected
-```cisco
+```txt
 Router(config-if)# ip helper-address 10.5.5.10
 ```
 
 #### 1.2 Configure the external DHCP server IP
-```cisco
+```txt
 Router(config-if)# ip helper-address 10.5.5.10
 ```
 
