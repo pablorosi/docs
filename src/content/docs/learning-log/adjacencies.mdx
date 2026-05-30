@@ -1,0 +1,35 @@
+---
+title: "Understanding Routing Protocol Adjacencies"
+date: "2026-05-29"
+tag: networking
+---
+
+# Routing Protocol Adjacencies
+
+When configuring dynamic routing protocols like OSPF or EIGRP, routers do not just blindly broadcast their routing tables to the entire network. They must establish secure, trusted relationships first. This is handled through **Adjacencies** and **Mutual Authentication**.
+
+## 1. Neighbor Adjacencies
+
+An **adjacency** is a logical, operational relationship formed between two directly connected routers running the same routing protocol. 
+
+Before exchanging routing data, routers must verify they belong to the same administrative domain. 
+
+### The Hello Protocol
+1. **Discovery:** A router sends out multicast **Hello packets** on its active interfaces.
+2. **Parameter Verification:** When a neighboring router receives the packet, it checks specific parameters (Subnet, Hello/Dead timers, and Authentication details).
+3. **The Adjacency State:** If all parameters match, the routers become *Neighbors* and transition into a **"Full" Adjacency** state. Only then do they synchronize their Link-State Databases (LSDB) or routing tables. If a link goes down, the adjacency drops, and routing ceases.
+
+---
+
+## 2. Cryptographic Authentication
+
+Sending a routing password in cleartext is a massive security vulnerability. Modern protocols use **Cryptographic Hashing** (like MD5 or HMAC-SHA) to authenticate without ever transmitting the actual password across the wire.
+
+### How Mutual Authentication Works:
+* Both routers are configured with a matching **Pre-Shared Key**.
+* Router A combines its Hello packet with the Key and generates a mathematical **Hash**.
+* Router A sends the packet + the Hash (but *never* the Key itself).
+* Router B runs the exact same mathematical algorithm using its own local Key.
+* If Router B's calculated hash matches the received hash, the adjacency is approved with 100% certainty that the neighbor holds the correct key.
+
+**Security Note:** Without authentication, an attacker could plug a rogue device into the network, form an adjacency, and execute a **Route Injection Attack** (Route Poisoning) to hijack enterprise traffic.
