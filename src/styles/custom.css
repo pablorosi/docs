@@ -49,28 +49,3 @@
 .hero h1 {
   font-weight: 800; 
 }
-
-/* Quitar el estilo de "tarjeta gigante" de los botones de paginación */
-
-.pagination-links a {
-    border: none !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    padding: 0.5rem 0 !important;
-}
-
-/* Hacer el texto principal (el título del post) un poco más pequeño */
-.pagination-links a .link-title {
-    font-size: 1rem !important;
-}
-
-/* Hacer el texto secundario ("Next" / "Previous") más discreto */
-.pagination-links a span:not(.link-title) {
-    font-size: 0.8em !important;
-    color: var(--sl-color-gray-4);
-}
-
-/* Opcional: Un pequeño efecto al pasar el ratón */
-.pagination-links a:hover {
-    color: var(--sl-color-accent);
-}
