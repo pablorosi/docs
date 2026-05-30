@@ -1,0 +1,43 @@
+---
+title: "Access Control Lists (ACLs)"
+date: 2026-05-30
+tag: networking
+---
+An Access Control List (ACL) is essentially a set of IF/THEN rules that you apply to a router interface. It acts as a firewall for your network, inspecting packets as they pass through and deciding whether to permit (let them pass) or deny (drop them) based on criteria like IP addresses or port numbers.
+
+### 1. Rules of ACLs
+
+**Sequential Processing (Top-Down):** The router reads the rules in order from top to bottom. The moment a packet matches a rule, the router takes action (permit or deny) and stops reading. It does not care what the rest of the list says.
+
+**The Implicit Deny:** At the very bottom of every single ACL is an invisible, unwritten rule that says deny any. If a packet makes it through your entire list and doesn't match a single rule, it is dropped. (This is why an ACL with only deny statements blocks 100% of traffic).
+
+**One Per Interface, Per Direction, Per Protocol:** You can only have one ACL applied to an interface going IN, and one going OUT, for IPv4.
+
+### 2. Types of ACLs
+
+2.1. Standard ACLs (Numbers 1 - 99)
+They can only filter traffic based on the Source IP Address.
+
+2.1.1 Configuration
+```txt
+Router(config)# access-list 10 deny host 192.168.1.50
+Router(config)# access-list 10 permit any
+```
+
+2.2 Extended ACLs (Numbers 100 - 199)
+They are highly precise. They can filter based on Source IP, Destination IP, Protocol (TCP/UDP/ICMP), and specific Port Numbers (like 80 for HTTP or 22 for SSH).
+
+2.2.1 Configuration
+```txt
+Router(config)# access-list 100 permit tcp 192.168.1.0 0.0.0.255 host 10.0.0.5 eq 80
+Router(config)# access-list 100 deny icmp 192.168.1.0 0.0.0.255 host 10.0.0.5
+Router(config)# access-list 100 permit ip any any
+```
+
+3. Applying the ACL 
+An ACL does absolutely nothing until you attach it to an interface and tell the router which direction to watch (in or out).
+
+```txt
+Router(config)# interface GigabitEthernet0/0
+Router(config-if)# ip access-group 100 in
+````
