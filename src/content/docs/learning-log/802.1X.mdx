@@ -1,0 +1,16 @@
+---
+title: "802.1X Identity Based Networking"
+date: 2026-05-30
+tag: networking
+---
+### 1.How 802.1X Works
+
+It relies on a "Zero Trust" model at the physical layer, using three specific components:
+
+    The Supplicant (The Client): The laptop or PC trying to connect. It must have software configured to send credentials (usually a digital certificate or a corporate username/password).
+
+    The Authenticator (The Switch): The gatekeeper. When a PC plugs in, the switch port stays mathematically "locked" in an unauthorized state. It blocks all DHCP, ARP, and IP traffic. The only traffic allowed through is EAP (Extensible Authentication Protocol) messages.
+
+    The Authentication Server (RADIUS/Cisco ISE): The switch forwards the EAP credentials to a central security server. If the server verifies the credentials, it sends an "Accept" message to the switch.
+
+
