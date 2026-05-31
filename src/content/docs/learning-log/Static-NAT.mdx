@@ -1,0 +1,43 @@
+---
+title: "Static NAT"
+date: 2026-05-30
+tag: networking
+---
+
+Network Address Translation (NAT) is the process of changing a private IP address (which cannot route on the internet) into a public IP address (which can).
+
+Static NAT is the simplest version of this. It is a permanent, one-to-to-one (1:1) mapping between a single private IP and a single public IP.
+
+### 1.When do you use it?
+
+You use Static NAT almost exclusively for inbound traffic.
+If you have a Web Server, an Email Server, or a VPN Gateway inside your network, the outside world needs a reliable, unchanging public IP address to connect to it. You statically map that server's private IP to a public IP.
+
+#### 2.Configuration
+
+The Scenario: You have a Web Server with a private IP of 192.168.10.50.
+Your ISP gave you a public IP of 203.0.113.5.
+Your router connects to the LAN on GigabitEthernet0/0 and to the internet on GigabitEthernet0/1.
+
+#### Step 1: Create the Translation Rule
+
+```txt
+Router(config)# ip nat inside source static 192.168.10.50 203.0.113.5
+```
+
+#### Step 2: Define the Inside Interface
+
+```txt
+Router(config)# interface GigabitEthernet0/0
+Router(config-if)# ip nat inside
+```
+
+### Step 3: Define the outside Interface
+
+```txt
+Router(config)# interface GigabitEthernet0/1
+Router(config-if)# ip nat outside
+```
+
+
+
