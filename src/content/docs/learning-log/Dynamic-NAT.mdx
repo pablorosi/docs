@@ -1,0 +1,59 @@
+---
+title: "Dynamic NAT"
+date: 2026-05-30
+tag: networking
+---
+If Static NAT is a dedicated, private phone extension, Dynamic NAT is like a pool of shared company cell phones.
+
+Instead of a permanent one-to-one mapping, Dynamic NAT maps a private IP address to a public IP address drawn from a pool of available public addresses.
+
+### 1.How it Works
+Imagine your company has 50 employees on the inside network (Private IPs), but your ISP only sold you a block of 10 Public IPs.
+
+When Employee #1 wants to browse the internet, the router grabs the first available Public IP from the pool and temporarily assigns it to that employee. When Employee #2 goes online, they get the second Public IP.
+
+**The Catch:** Because it is a 1-to-1 mapping at any given moment, if 10 employees go online, all 10 Public IPs in the pool are taken. If Employee #11 tries to go online, the router drops their traffic. They cannot access the internet until one of the first 10 employees stops transmitting and their NAT translation times out, returning that Public IP to the pool.
+
+### 2.Configuration
+
+The Scenario: * Your internal network is 192.168.10.0/24.
+
+Your ISP gave you a pool of public IPs from 203.0.113.10 to 203.0.113.20.
+
+Inside Interface is GigabitEthernet0/0, Outside is GigabitEthernet0/1.
+
+#### Step 1: Create an ACL to define the Inside Local addresses 
+```txt
+Router(config)# access-list 1 permit 192.168.10.0 0.0.0.255
+```
+
+#### Step 2: Create the NAT Pool to define the "Inside Global" addresses.
+```txt
+Router(config)# ip nat pool MY_POOL 203.0.113.10 203.0.113.20 netmask 255.255.255.0
+```
+
+#### Step 3: Link the ACL and the Pool together.
+```txt
+Router(config)# ip nat inside source list 1 pool MY_POOL
+```
+
+#### Step 4: Define the Inside and Outside Interfaces.
+```txt
+Router(config)# interface GigabitEthernet0/0
+Router(config-if)# ip nat inside
+Router(config)# interface GigabitEthernet0/1
+Router(config-if)# ip nat outside
+```
+
+### 3.Verification 
+```txt
+show ip nat translations
+```
+
+
+
+
+
+
+
+
