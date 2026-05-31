@@ -1,0 +1,45 @@
+---
+title: "Port Address Translation (PAT)"
+date: 2026-05-31
+tag: networking
+---
+
+PAT allows many devices to go out to the internet using only 1 Public IP address.
+
+### 1.How it works
+
+When your devices all try to browse the internet from your house, they all hit your home router. Your ISP only gave your house one public IP address.
+
+To make it work, the router alters the outbound packet:
+
+It changes the Private Source IP to your one Public IP.
+
+It changes the Source Port to a random, high number (e.g., 50001).
+
+When the web server replies, it sends the packet back to your Public IP on port 50001. Your router looks at its NAT Translation Table, sees that port 50001 belongs specifically to your Mac, changes the destination IP back to your Mac's private IP, and forwards it inside.
+
+This allows up to 65,000 internal devices to share a single public IP address simultaneously!
+
+### 2.Configuration
+
+#### Step 1: Create the ACL to define who is allowed out.
+```txt
+Router(config)# access-list 1 permit 192.168.1.0 0.0.0.255
+```
+
+#### Step 2: Link the ACL to the Outside Interface.
+
+```txt
+Router(config)# ip nat inside source list 1 interface GigabitEthernet0/1 overload
+```
+
+#### Step 3: Define the interfaces
+
+```txt
+Router(config)# interface GigabitEthernet0/0
+Router(config-if)# ip nat inside
+Router(config)# interface GigabitEthernet0/1
+Router(config-if)# ip nat outside
+```
+
+
