@@ -49,3 +49,11 @@
 .hero h1 {
   font-weight: 800; 
 }
+
+/* Hide anchor link icons on headings */
+.sl-markdown-content .sl-anchor-link {
+  display: none;
+}
+.sl-markdown-content .sl-heading-wrapper > :first-child {
+  padding-inline-end: 0;
+}

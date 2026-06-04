@@ -11,13 +11,8 @@ This documentation is currently under active development. The architectural desi
 
 ## Infrastructure Pillars
 
-This section of the documentation covers the core components that power the backend environment. To maintain scalability and security, the architecture is divided into three main projects:
+This section of the documentation covers the core components that power the backend environment.
 
 ### 1. Secure Cloud Routing
 This layer handles all incoming traffic, edge security, and internal service routing. It details the **Defense in Depth** strategy, including the Hetzner Cloud Firewall, Nginx Reverse Proxy configurations, and the Zero Trust Tailscale overlay network used to secure administrative access.
 
-### 2. Uptime Observability
-To ensure maximum reliability, this project focuses on monitoring system health and application status. It covers the deployment of observability tools designed to track container uptime, monitor server resources, and provide immediate alerts if any part of the infrastructure degrades.
-
-### 3. CI/CD Deployment
-This section documents the automated pipeline that brings code from the repository to the production server. It explains how GitHub Actions is integrated securely with the private Tailscale network to pull, build, and deploy Docker containers without ever exposing SSH ports to the public internet.
