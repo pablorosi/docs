@@ -1,0 +1,74 @@
+---
+title: "Python Libraries Cheat Sheet"
+date: 2026-06-06
+tag: Python
+---
+
+These are common Python libraries for interactive work and terminal output. Install them inside a virtual environment to keep dependencies isolated per project.
+
+## 1. Rich
+
+Rich formats terminal output with colors, tables, progress bars, panels, and syntax-highlighted tracebacks. Use it in CLI tools and scripts when plain `print()` is not enough.
+
+### 1.1 Install
+
+```bash
+pip install rich
+```
+
+### 1.2 Examples
+
+Colored output:
+
+```python
+from rich import print
+
+print("[bold green]OK[/] [red]Error[/]")
+```
+
+## 2. IPython
+
+IPython is an enhanced interactive Python shell (REPL). It adds tab completion, `?` help, `%magic` commands, and better object inspection compared to the standard `python` interpreter.
+
+### 2.1 Install
+
+```bash
+pip install ipython
+```
+
+### 2.2 Launch
+
+```bash
+ipython
+```
+
+### 2. 3 Common magic commands
+
+```python
+%pwd          # print working directory
+%run script.py  # execute a Python file
+%timeit sum(range(100))  # benchmark an expression
+obj?          # show help for an object
+```
+
+IPython is also the kernel that powers Jupyter notebooks.
+
+## 3. JupyterLab
+
+JupyterLab is a web-based IDE for notebooks, terminals, and file browsing. It is the primary environment for exploratory Python and data work.
+
+### 3.1 Install
+
+```bash
+pip install jupyterlab
+```
+
+###3.2 Launch
+
+```bash
+jupyter lab
+```
+
+This opens the JupyterLab UI in your browser. From there you can create `.ipynb` notebooks with code and markdown cells, run them cell by cell, and inspect outputs inline.
+
+JupyterLab uses IPython as its Python kernel. You can also use Rich inside notebook cells for formatted terminal-style output.
