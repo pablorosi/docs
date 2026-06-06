@@ -1,7 +1,14 @@
 # build output
 dist/
+
 # generated types
 .astro/
+
+# Package Manager Cache
+.pnpm-store/
+
+# Local Editor Files
+.vscode/
 
 # dependencies
 node_modules/
