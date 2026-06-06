@@ -1,0 +1,93 @@
+---
+title: "Python Virtual Environments"
+date: 2026-06-06
+tag: Python
+---
+
+In Python, running `pip install` saves dependencies globally on your operating system by default. This can cause conflicts when different projects require different versions of the same library.
+
+The solution to this problem is creating virtual environments. A virtual environment (venv) is a self-contained directory that acts as a secure bubble holding its own isolated Python binary and local dependencies.
+
+## 1. Configuration (for Linux and macOS)
+
+### 1.1 Create the environment
+
+```bash
+python3 -m venv .venv
+```
+
+Creates a hidden `.venv` folder containing the isolated Python environment.
+
+### 1.2 Activate the environment
+
+```bash
+source .venv/bin/activate
+```
+
+### 1.3 Install packages
+
+```bash
+pip install requests paramiko
+```
+
+### 1.4 Save dependencies
+
+Python does not auto-generate a dependency file. You must manually export your exact dependency tree to a plain text file named `requirements.txt`:
+
+```bash
+pip freeze > requirements.txt
+```
+
+To replicate the exact environment on a production server:
+
+```bash
+pip install -r requirements.txt
+```
+
+## 2. How to switch environments
+
+### 2.1 Deactivate the current environment
+
+```bash
+deactivate
+```
+
+### 2.2 Activate the new environment
+
+Change to the project directory, then run:
+
+```bash
+source .venv/bin/activate
+```
+
+## 3. Specify the Python version
+
+To use a specific Python version for your project even if it is not installed on your machine, you can use a tool called pyenv.
+
+### 3.1 Install pyenv
+
+On macOS:
+
+```bash
+brew install pyenv
+```
+
+On Linux, follow the [pyenv installation guide](https://github.com/pyenv/pyenv#installation).
+
+### 3.2 Download the Python version you need
+
+```bash
+pyenv install 3.11.8
+```
+
+### 3.3 Configure that version in your current directory
+
+```bash
+pyenv local 3.11.8
+```
+
+### 3.4 Create the virtual environment
+
+```bash
+python -m venv .venv
+```
