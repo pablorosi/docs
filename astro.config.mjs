@@ -20,6 +20,7 @@ export default defineConfig({
 				'./src/styles/custom.css'],
 			title: 'pablo@docs:~$',
 			components: {
+				Head: './src/components/starlight/Head.astro',
 				Header: './src/components/Header.astro',
 				Sidebar: './src/components/Sidebar.astro',
 			},

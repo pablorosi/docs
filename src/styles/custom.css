@@ -32,7 +32,8 @@
 }
 
 .hero {
-  padding-block: 3rem; 
+  padding-block: 3rem;
+  view-transition-name: none;
 }
 
 .hero-img {
@@ -40,6 +41,7 @@
   height: auto;
   display: block;
   object-fit: contain;
+  view-transition-name: none;
 }
 
 .site-title {

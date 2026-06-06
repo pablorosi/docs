@@ -1,0 +1,40 @@
+---
+import StarlightHead from '@astrojs/starlight/components/Head.astro';
+import VtbotStarlight from 'astro-vtbot/components/starlight/Base.astro';
+import PageOffset from 'astro-vtbot/components/PageOffset.astro';
+---
+
+<VtbotStarlight
+	replaceSidebarContent
+	transition:name="main"
+	transition:animate="fade"
+>
+	<StarlightHead><slot /></StarlightHead>
+</VtbotStarlight>
+
+<PageOffset name="main" />
+
+<script is:inline>
+	function isSplashLayout(doc) {
+		const el = doc.documentElement;
+		return (
+			el.hasAttribute('data-has-hero') ||
+			(!el.hasAttribute('data-has-sidebar') && !el.hasAttribute('data-has-toc'))
+		);
+	}
+	document.addEventListener('astro:before-swap', (event) => {
+		const fromSplash = isSplashLayout(document);
+		const toSplash = isSplashLayout(event.newDocument);
+		if (fromSplash !== toSplash) {
+			event.viewTransition?.skipTransition();
+		}
+	});
+</script>
+
+<style is:global>
+	@media (prefers-reduced-motion: no-preference) {
+		::view-transition-group(main) {
+			overflow: hidden;
+		}
+	}
+</style>
