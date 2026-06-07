@@ -6,7 +6,7 @@ tag: networking-theory
 
 PAT allows many devices to go out to the internet using only 1 Public IP address.
 
-### 1.How it works
+## 1. How it works
 
 When your devices all try to browse the internet from your house, they all hit your home router. Your ISP only gave your house one public IP address.
 
@@ -20,20 +20,20 @@ When the web server replies, it sends the packet back to your Public IP on port 
 
 This allows up to 65,000 internal devices to share a single public IP address simultaneously!
 
-### 2.Configuration
+## 2. Configuration
 
-#### Step 1: Create the ACL to define who is allowed out.
+### Step 1: Create the ACL to define who is allowed out.
 ```txt
 Router(config)# access-list 1 permit 192.168.1.0 0.0.0.255
 ```
 
-#### Step 2: Link the ACL to the Outside Interface.
+### Step 2: Link the ACL to the Outside Interface.
 
 ```txt
 Router(config)# ip nat inside source list 1 interface GigabitEthernet0/1 overload
 ```
 
-#### Step 3: Define the interfaces
+### Step 3: Define the interfaces
 
 ```txt
 Router(config)# interface GigabitEthernet0/0

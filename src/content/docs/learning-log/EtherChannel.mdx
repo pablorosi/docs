@@ -7,7 +7,7 @@ tag: networking-theory
 EtherChannel is a port link aggregation technology. It allows you to group multiple physical Ethernet links between two switches and treat them as a single logical link.
 That way Spanning Tree only sees this single Port-Channel, so it doesn't block anything.
 
-### 1.Protocols 
+## 1. Protocols
 
 When configuring EtherChannel, you have to choose a negotiation protocol:
 
@@ -17,24 +17,26 @@ When configuring EtherChannel, you have to choose a negotiation protocol:
 
     **Static (ON):** Forces the channel without negotiation. Dangerous because if one side is misconfigured, it can create an STP loop.
 
-### 2. Configuration of LACP
+## 2. Configuration of LACP
 
 ![EtherChannel-Diagram](/EtherChannel.svg)
 
-#### 2.1 Configure Switch A 
+### 2.1 Configure Switch A
 ```txt
 SwitchA(config)# interface range GigabitEthernet 0/1 - 2
 SwitchA(config-if-range)# channel-group 1 mode active
 SwitchA(config-if-range)# exit
-````
+```
 
-#### 2.2 Configure the Logical Port-Channel on Switch A
+### 2.2 Configure the Logical Port-Channel on Switch A
+
 Once the channel group is created, a virtual interface called Port-channel 1 appears. You configure your VLANs or trunking on this logical interface, NOT the physical ones anymore.
+
 ```txt
 SwitchA(config)# interface Port-channel 1
 SwitchA(config-if)# switchport mode trunk
 SwitchA(config-if)# exit
-````
+```
 
 ### 2.3 Configure Switch B
 ```txt
@@ -44,15 +46,13 @@ SwitchB(config-if-range)# exit
 SwitchB(config)# interface Port-channel 1
 SwitchB(config-if)# switchport mode trunk
 SwitchB(config-if)# end
-````
+```
 
-### 3.Verification commands
+## 3. Verification commands
+
 ```txt
 SwitchA# show etherchannel summary
 SwitchA# show interfaces trunk
 ```
-
-
-
 
 

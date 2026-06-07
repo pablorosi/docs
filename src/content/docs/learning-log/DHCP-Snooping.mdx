@@ -4,14 +4,14 @@ date: 2026-05-30
 tag: networking-theory
 ---
 
-### 1.The Problem
+## 1. The Problem
 Normally, when a computer connects to a network, it shouts a broadcast message (DHCP Discover) asking for an IP address. The official DHCP server hears this and replies with a valid IP, subnet mask, and default gateway (DHCP Offer).
 
 However, DHCP has no built-in authentication. If someone plugs a home router into an office wall jack, or runs a malicious script on their laptop, they can act as a Rogue DHCP Server.
 
 If a client shouts for an IP and the rogue server replies faster than the legitimate server, the client will accept the rogue's IP configuration. This often changes the client's Default Gateway to the attacker's machine, routing all of the victim's web traffic directly through the attacker.
 
-### 2.The Solution - How DHCP Snooping Works
+## 2. The Solution - How DHCP Snooping Works
 
 When you enable DHCP Snooping on a switch, it fundamentally changes how the switch handles DHCP traffic by dividing all ports into two strict categories:
 
@@ -19,46 +19,40 @@ When you enable DHCP Snooping on a switch, it fundamentally changes how the swit
 
     **Trusted Ports:** You manually configure specific ports to be trusted. These are the ports connected to your actual, legitimate DHCP servers (or the uplink trunks leading to them). Only trusted ports are allowed to forward DHCP Offers and Acknowledgments back to the clients.
 
-### 3. Configuration
+## 3. Configuration
 
-#### 3.1 Enable the feature globally
+### 3.1 Enable the feature globally
 ```txt
 Switch# configure terminal
 Switch(config)# ip dhcp snooping
 ```
-#### 3.2 Enable it for specific VLANs
+
+### 3.2 Enable it for specific VLANs
 ```txt
 Switch(config)# ip dhcp snooping vlan 10-20, 50
 ```
 
-#### 3.3 Configure the trusted ports
+### 3.3 Configure the trusted ports
 ```txt
 Switch(config)# interface GigabitEthernet0/1
 Switch(config-if)# ip dhcp snooping trust
 Switch(config-if)# exit
 ```
 
-#### 3.4 Prevent DHCP Starvation
+### 3.4 Prevent DHCP Starvation
 ```txt
 Switch(config)# interface range FastEthernet0/1 - 24
 Switch(config-if-range)# ip dhcp snooping limit rate 10
 Switch(config-if-range)# exit
 ```
 
-### 4.Verification
+## 4. Verification
 ```txt
 show ip dhcp snooping
 ```
 ```txt
 show ip dhcp snooping binding
 ```
-
-
-
-
-
-
-
 
 
 

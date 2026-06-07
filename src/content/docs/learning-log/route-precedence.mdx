@@ -14,8 +14,8 @@ Although they are overlapping the router adds both routes to the routing table.
 When a packet arrives, the router looks for the most specific match, the longest prefix.
 
 
-### Criteria for which is the best route to the exact same network/prefix:
-#### 1. Administrative Distance (lower value is better)
+## Criteria for which is the best route to the exact same network/prefix:
+### 1. Administrative Distance (lower value is better)
 
 **Table 1 — Common Administrative Distance (Cisco defaults)**
 
@@ -37,7 +37,8 @@ Lower values are preferred — the route with the lowest administrative distance
 
 If there is a tie:
 
-#### 2. Metric (lower value is better)
+### 2. Metric (lower value is better)
+
 **Table 2 — Common Metric Types and How They Work**
 
 | Protocol / Source | Metric Type | How it's calculated / used |

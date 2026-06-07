@@ -5,17 +5,17 @@ tag: networking-theory
 ---
 StackWise, VSS, and vPC—all represent different Cisco technologies designed to solve the same problem: combining multiple physical network switches so they act like a single logical unit.
 
-### 1.StackWise
+## 1. StackWise
 You physically connect multiple switches (like the Catalyst 3850 or 9300 series) together using special, dedicated, high-speed stacking cables on the back panel.
 
 The Result: The entire stack becomes one single logical switch. They share a single IP address for management, a single configuration file, and a single routing table. One switch becomes the "Active" commander, and the others act as line cards.
 
-### 2.VSS
+## 2. VSS
 Instead of using dedicated back-panel cables, VSS connects exactly two massive physical chassis together using standard 10G or 40G Ethernet fiber cables (called the Virtual Switch Link, or VSL).
 
 The Result: Just like StackWise, the two chassis merge into one single logical switch with one control plane. You manage them as one device. If one chassis loses power, the other instantly takes over routing without dropping traffic.
 
-### 3.vPC
+## 3. vPC
 A server or downstream switch connects to two different Nexus switches using a standard LACP PortChannel. The two Nexus switches are linked together via a "Peer Link."
 
 The Result: Unlike StackWise and VSS, the two Nexus switches do not merge into a single logical switch. They remain completely independent. They have separate IP addresses, separate configuration files, and separate control planes. They only synchronize their forwarding tables (MAC addresses and ARP) over the peer link.

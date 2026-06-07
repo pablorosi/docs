@@ -6,74 +6,83 @@ tag: networking-theory
 
 Port Security goal is simple: restrict a physical switch port so that only a specific MAC address (or a specific number of MAC addresses) can send traffic through it.
 
-### 1.How the Switch Learns MAC Addresses 
+## 1. How the Switch Learns MAC Addresses
 
- **Static:** You Manually type the exact MAC address into the configuration
- 
- **Dynamic:** The switch learns the fists Macc address it sees on the port. However. if the switch reboots, it forgets the MAC and learns a new one when it powers back up.
- **Sticky:** The switch learns the first MAC address it sees and permanently sticks it into the running configuration file.
+**Static:** You manually type the exact MAC address into the configuration.
 
-### 2.The Three Violation Modes
+**Dynamic:** The switch learns the first MAC address it sees on the port. However, if the switch reboots, it forgets the MAC and learns a new one when it powers back up.
 
-**Shutdown(Default):** The most aggressive response. The switch instantly puts the port into a an er-disable state.
+**Sticky:** The switch learns the first MAC address it sees and permanently sticks it into the running configuration file.
+
+## 2. The Three Violation Modes
+
+**Shutdown (Default):** The most aggressive response. The switch instantly puts the port into an err-disable state.
 
 **Restrict:** The port stays physically up, but the switch silently drops all packets from the unauthorized MAC address. It generates a syslog alert and increments the violation counter so administrators know an attack is happening.
 
 **Protect:** The least secure mode. The port stays up and drops the unauthorized packets, but it does not generate an alert and does not increment the violation counter. It drops the traffic silently.
 
-### 3.Configuration
+## 3. Configuration
 
-#### 3.1 Force the port into access mode
+### 3.1 Force the port into access mode
+
 ```txt
 Switch# configure terminal
 Switch(config)# interface FastEthernet0/1
 Switch(config-if)# switchport mode access
 ```
 
-#### 3.2 Turn on Port Security
+### 3.2 Turn on Port Security
+
 ```txt
 Switch(config-if)# switchport port-security
 ```
 
-#### 3.3 Define the maximum allowed MAC addresses 
+### 3.3 Define the maximum allowed MAC addresses
+
 ```txt
 Switch(config-if)# switchport port-security maximum 1
 ```
 
-#### 3.4 Set the way the switch learns the MAC
+### 3.4 Set the way the switch learns the MAC
+
 ```txt
 Switch(config-if)# switchport port-security mac-address sticky
 ```
 
-#### 3.5 Set the violation mode 
+### 3.5 Set the violation mode
+
 ```txt
 Switch(config-if)# switchport port-security violation shutdown
 ```
 
-#### 4.Verification 
+### 3.6 Verification
+
 ```txt
 Switch# show port-security interface FastEthernet0/1
 ```
 
-### 4.Advanced Port Security: The "Ghost" MAC Address & Aging
+## 4. Advanced Port Security: The "Ghost" MAC Address & Aging
 
 When configuring dynamic Port Security (without the `sticky` command), the switch normally forgets a MAC address the moment the device is unplugged and the physical link goes `DOWN`. However, there are two common scenarios where the link stays `UP` even if the user unplugs their PC:
 
 1. **The Rogue Mini-Switch:** A user connects a 5-port hub to the wall jack, and then plugs their PC into the hub.
-2. **VoIP Passthrough (Corporate Standard):** The wall jack connects to a Cisco IP Phone, and the user's PC plugs into the back of the phone. 
+2. **VoIP Passthrough (Corporate Standard):** The wall jack connects to a Cisco IP Phone, and the user's PC plugs into the back of the phone.
 
-In both cases, if the user unplugs their PC, the hub or the IP phone keeps the switch port in an `UP` state. Because the link never dropped, the switch never clears the PC's MAC address. If a new device is plugged in, it will trigger a security violation. 
+In both cases, if the user unplugs their PC, the hub or the IP phone keeps the switch port in an `UP` state. Because the link never dropped, the switch never clears the PC's MAC address. If a new device is plugged in, it will trigger a security violation.
 
-#### 4.1.The Solution: Inactivity Aging
+### 4.1 The Solution: Inactivity Aging
+
 To solve the VoIP phone issue without dropping active phone calls, we configure an inactivity timer. If a dynamically learned MAC address stops sending traffic for a specific amount of time, the switch will "age it out" and remove it from the secure table.
 
-#### 4.2.Configuration Commands:
+### 4.2 Configuration Commands
+
 ```text
 Switch(config)# interface FastEthernet0/1
 
 ! Set the timer to 5 minutes
-Switch(config-if)# switchport port-security aging time 5 
+Switch(config-if)# switchport port-security aging time 5
 
-!Ensures the timer only counts down when the device is completely silent.
+! Ensures the timer only counts down when the device is completely silent.
 Switch(config-if)# switchport port-security aging type inactivity
 ```

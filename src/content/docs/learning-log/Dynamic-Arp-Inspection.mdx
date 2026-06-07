@@ -4,7 +4,7 @@ date: 2026-05-30
 tag: networking-theory
 ---
 
-### 1.The Problem
+## 1. The Problem
 
 If your computer wants to send data to the router, it shouts an ARP Request: "Who has IP 192.168.1.1? Tell me your MAC address!" The massive security flaw in ARP is that it has zero authentication and is inherently trusting:
 
@@ -14,7 +14,7 @@ If your computer wants to send data to the router, it shouts an ARP Request: "Wh
 
 In an ARP Spoofing Attack, an attacker continuously spams the network with fake ARP Replies saying: "I am the Default Gateway (192.168.1.1), send all traffic to my MAC address!" All the computers on the network believe this lie, update their ARP tables, and start sending all their sensitive web traffic directly to the attacker's laptop instead of the real router.
 
-### 2.The Solution: Dynamic ARP Inspection
+## 2. The Solution: Dynamic ARP Inspection
 
 DAI fixes this vulnerability by intercepting every single ARP packet that passes through the switch and validating it before forwarding it.
 But how does the switch know which ARP packets are telling the truth and which are lying? It looks at the DHCP Snooping Binding Database.
@@ -27,38 +27,39 @@ How it works in action:
     If it matches: The switch allows the ARP packet through.
     If it does NOT match: The switch instantly drops the malicious ARP packet and logs a severe security violation. The attacker's lie never reaches the other computers.
 
-### 3.Configuration
+## 3. Configuration
+
 To configure DAI, DHCP Snooping has to be already configured.
 
-### 1. Enable DAI on the validating
+### 3.1 Enable DAI on the validating VLAN
+
 ```txt
 Switch# configure terminal
 Switch(config)# ip arp inspection vlan 10
 ```
 
-### 2.Configure the Trusted Port 
+### 3.2 Configure the Trusted Port
+
 ```txt
 Switch(config)# interface GigabitEthernet0/1
 Switch(config-if)# ip arp inspection trust
 Switch(config-if)# exit
 ```
-### 3.Configure ARP Rate Limiting
+
+### 3.3 Configure ARP Rate Limiting
+
 ```txt
 Switch(config)# interface range FastEthernet0/1 - 24
 Switch(config-if-range)# ip arp inspection limit rate 15
 Switch(config-if-range)# exit
 ```
 
-### 3.Verification
+## 4. Verification
+
 ```txt
 Switch# show ip arp inspection vlan 10
 ```
+
 ```txt
 Switch# show ip arp inspection statistics
 ```
-
-
-
-
-    
-

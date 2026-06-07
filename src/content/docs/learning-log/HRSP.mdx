@@ -7,9 +7,9 @@ tag: networking-theory
 HSRP is a Cisco proprietary protocol that creates the illusion of a single gateway. Two (or more) routers share a virtual IP and MAC so hosts always use the same default gateway. One router is active and forwards traffic, while the other stays in standby and takes over if the active router fails.
 
 
-### 1.Configuration
+## 1. Configuration
 
-#### 1.1 Configure the active router
+### 1.1 Configure the active router
 ```txt
 R1(config)# interface GigabitEthernet 0/1
 R1(config-if)# ip address 192.168.1.252 255.255.255.0
@@ -22,8 +22,9 @@ R1(config-if)# standby 1 priority 110
 
 ! 1.1.3 Enable preemption (forces takeover when it comes back online)
 R1(config-if)# standby 1 preempt
-````
-#### 1.2 Configure the standby router
+```
+
+### 1.2 Configure the standby router
 ```txt
 R2(config)# interface GigabitEthernet 0/1
 R2(config-if)# ip address 192.168.1.253 255.255.255.0
@@ -36,19 +37,21 @@ R2(config-if)# standby 1 ip 192.168.1.254
 R2(config-if)# standby 1 preempt
 ```
 
-### 2. Verification and Troubleshooting
-#### 2.1 Quick summary
+## 2. Verification and Troubleshooting
+
+### 2.1 Quick summary
 ```txt
 R1# show standby brief
 ```
-#### 2.2 Detailed summary
+
+### 2.2 Detailed summary
 ```txt
 R1# show standby
 ```
 
-### 3.Alternatives
+## 3. Alternatives
 
-#### 3.1 VRRP (Virtual Router Redundancy Protocol)
+### 3.1 VRRP (Virtual Router Redundancy Protocol)
 
 VRRP is the direct, open-standard alternative to Cisco's HSRP. It is used when a network contains hardware from multiple vendors (e.g., mixing Cisco switches with Juniper or MikroTik routers).
 
@@ -66,7 +69,7 @@ VRRP is the direct, open-standard alternative to Cisco's HSRP. It is used when a
 
     **Multicast Address:** 224.0.0.18.
 
-#### 3.2 GLBP (Gateway Load Balancing Protocol)
+### 3.2 GLBP (Gateway Load Balancing Protocol)
 
 GLBP solves the main inefficiency of HSRP and VRRP. Instead of having a powerful backup router sitting completely idle, GLBP uses all available routers at the same time to route traffic.
 

@@ -7,14 +7,14 @@ tag: networking-theory
 When you connect your Cisco router's WAN interface to upstream ISP equipment, the ISP's equipment dynamically assigns a public IP address, a subnet mask, and a default gateway to your router.
 By configuring your router's outward-facing interface as a DHCP client, it can automatically negotiate and receive this public IP address from the ISP, ensuring you have Internet connectivity even if the ISP changes your IP address later.
 
-### 1. Configuration
+## 1. Configuration
 
-#### 1.1 Enter the specific interface connected to the ISP/upstream network:
+### 1.1 Enter the specific interface connected to the ISP/upstream network:
 ```txt
 Router(config)# interface GigabitEthernet0/0
 ```
 
-#### 1.2 Set the IP address to be assigned via DHCP:
+### 1.2 Set the IP address to be assigned via DHCP:
 ```txt
 Router(config-if)# ip address dhcp
 ```
