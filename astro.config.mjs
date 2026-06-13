@@ -12,6 +12,7 @@ export default defineConfig({
     defaultStrategy: 'hover'
   },
 	integrations: [
+		mermaid(),
 		sitemap(),
 		starlight({
 			customCss: [
@@ -39,25 +40,45 @@ export default defineConfig({
 					collapsed: true,
 					items: [
 						{
-                            label: 'Project Overview',
-                            link: '/enterprise-homelab/', 
-                        },
-            			{	
-              			label: '1 Systems',
-						collapsed: true,
-              			autogenerate: { directory: 'enterprise-homelab/1 Systems', collapsed: true },
-            			},
-            			{
-              			label: '2 Network',
-						collapsed: true,
-              			autogenerate: { directory: 'enterprise-homelab/2 Network', collapsed: true },
-            			},
+							label: 'Project Overview',
+							link: '/enterprise-homelab/',
+						},
 						{
-              			label: '3 Troubleshooting',
-						collapsed: true,
-              			autogenerate: { directory: 'enterprise-homelab/3 Troubleshooting', collapsed: true },
-            			},
-          					],
+							label: '1 Architecture',
+							collapsed: true,
+							autogenerate: { directory: 'enterprise-homelab/1 Architecture', collapsed: true },
+						},
+						{
+							label: '2 Hypervisor',
+							collapsed: true,
+							autogenerate: { directory: 'enterprise-homelab/2 Hypervisor', collapsed: true },
+						},
+						{
+							label: '3 Networking',
+							collapsed: true,
+							autogenerate: { directory: 'enterprise-homelab/3 Networking', collapsed: true },
+						},
+						{
+							label: '4 Emulation',
+							collapsed: true,
+							autogenerate: { directory: 'enterprise-homelab/4 Emulation', collapsed: true },
+						},
+						{
+							label: '5 Compute',
+							collapsed: true,
+							autogenerate: { directory: 'enterprise-homelab/5 Compute', collapsed: true },
+						},
+						{
+							label: '6 Observability',
+							collapsed: true,
+							autogenerate: { directory: 'enterprise-homelab/6 Observability', collapsed: true },
+						},
+						{
+							label: '7 Troubleshooting',
+							collapsed: true,
+							autogenerate: { directory: 'enterprise-homelab/7 Troubleshooting', collapsed: true },
+						},
+					],
 				},
 				{
 					label: 'Cloud Infrastructure',
@@ -67,7 +88,32 @@ export default defineConfig({
 				{
 					label: 'Learning Log',
 					collapsed: true,
-					autogenerate: { directory: 'learning-log', collapsed: true },
+					items: [
+						{
+							label: 'All Notes',
+							link: '/learning-log/',
+						},
+						{
+							label: 'Networking Theory',
+							collapsed: true,
+							autogenerate: { directory: 'learning-log/networking-theory', collapsed: true },
+						},
+						{
+							label: 'Networking Labs',
+							collapsed: true,
+							autogenerate: { directory: 'learning-log/networking-lab', collapsed: true },
+						},
+						{
+							label: 'Python',
+							collapsed: true,
+							autogenerate: { directory: 'learning-log/python', collapsed: true },
+						},
+						{
+							label: 'Docker',
+							collapsed: true,
+							autogenerate: { directory: 'learning-log/docker', collapsed: true },
+						},
+					],
 				},
 				
 			],
