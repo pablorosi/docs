@@ -1,0 +1,161 @@
+---
+title: "Docker CLI Cheat Sheet"
+date: 2026-06-13
+tag: docker
+---
+
+Quick reference for building an image, running a container, and managing its lifecycle after it stops.
+
+## 1. Build the Docker Image
+
+Build an image from the Dockerfile in the current directory and tag it as `my-java-app`.
+
+```bash
+docker build -t my-java-app .
+```
+
+### 1.1 Flags
+
+| Flag | Description |
+|------|-------------|
+| `-t <name>:<tag>` | Name and tag the image (e.g., `-t my-java-app:1.0`) |
+| `-f <path>` | Path to the Dockerfile (default: `./Dockerfile`) |
+| `--build-arg <KEY>=<VALUE>` | Pass a build-time variable to the Dockerfile |
+| `--no-cache` | Build without using cached layers |
+| `--target <stage>` | Build a specific stage in a multi-stage Dockerfile |
+| `--platform <platform>` | Target platform (e.g., `linux/amd64`, `linux/arm64`) |
+| `--pull` | Always pull the latest base image before building |
+| `-q` | Suppress build output and print only the image ID |
+| `--progress <type>` | Output format: `auto`, `plain`, or `quiet` |
+| `--label <key>=<value>` | Add metadata to the image |
+
+Build from a custom Dockerfile with a build argument and no cache:
+
+```bash
+docker build -f docker/Dockerfile.prod \
+  --build-arg JAVA_VERSION=21 \
+  --no-cache \
+  -t my-java-app:prod .
+```
+
+## 2. Run the Container
+
+```bash
+docker run my-java-app
+```
+
+### 2.1 Flags
+
+| Flag | Description |
+|------|-------------|
+| `-i` | Keep STDIN open (interactive input) |
+| `-t` | Allocate a pseudo-TTY (terminal) |
+| `-it` | Interactive mode — combine both flags for shells and CLI apps |
+| `-d` | Run in detached mode (background) |
+| `--rm` | Remove the container automatically when it stops |
+| `--name <name>` | Assign a name to the container |
+| `-p <host>:<container>` | Publish a port (e.g., `-p 8080:80`) |
+| `-P` | Publish all exposed ports to random host ports |
+| `-v <host>:<container>` | Mount a volume or bind mount |
+| `-e <KEY>=<VALUE>` | Set an environment variable |
+| `--env-file <file>` | Load environment variables from a file |
+| `-w <path>` | Set the working directory inside the container |
+| `-u <user>` | Run as a specific user (e.g., `-u 1000:1000`) |
+| `--network <name>` | Connect the container to a network |
+| `--restart <policy>` | Restart policy: `no`, `on-failure`, `always`, `unless-stopped` |
+| `--entrypoint <cmd>` | Override the image default entrypoint |
+| `-h <hostname>` | Set the container hostname |
+| `--cpus <n>` | Limit CPU usage |
+| `--memory <bytes>` | Limit memory (e.g., `--memory 512m`) |
+
+Use `-it` for interactive sessions. Add `--rm` to clean up the container when it exits.
+
+```bash
+docker run -it --rm my-java-app
+```
+
+Run a web app in the background with a port mapping and a custom name:
+
+```bash
+docker run -d --name my-app -p 8080:80 --restart unless-stopped my-java-app
+```
+
+Mount a config file and pass an environment variable:
+
+```bash
+docker run -d \
+  -v ./config.yml:/app/config.yml \
+  -e APP_ENV=production \
+  --name my-app \
+  my-java-app
+```
+
+## 3. Restart the Container
+
+When you type `exit` inside a container started without `--rm`, it stops but is not deleted. The container keeps its filesystem, name, and configuration — you can start it again instead of creating a new one with `docker run`.
+
+List all containers, including stopped ones:
+
+```bash
+docker ps -a
+```
+
+Start a stopped container by name or ID:
+
+```bash
+docker start my-app
+```
+
+Reattach to an interactive session (equivalent to `-it` on `docker run`):
+
+```bash
+docker start -ai my-app
+```
+
+Stop a running container gracefully (sends SIGTERM, then SIGKILL after a timeout):
+
+```bash
+docker stop my-app
+```
+
+Stop and start in one step:
+
+```bash
+docker restart my-app
+```
+
+Remove a stopped container when you no longer need it:
+
+```bash
+docker rm my-app
+```
+
+### 3.1 Commands
+
+| Command | Description |
+|---------|-------------|
+| `docker ps` | List running containers |
+| `docker ps -a` | List all containers, including stopped |
+| `docker start <name>` | Start a stopped container |
+| `docker start -a <name>` | Start and attach stdout/stderr |
+| `docker start -ai <name>` | Start and attach interactively |
+| `docker stop <name>` | Gracefully stop a running container |
+| `docker restart <name>` | Stop and start a running container |
+| `docker rm <name>` | Delete a stopped container |
+| `docker rm -f <name>` | Force-remove a running container |
+
+### 3.2 Flags
+
+| Flag | Command | Description |
+|------|---------|-------------|
+| `-a` | `start` | Attach stdout and stderr |
+| `-i` | `start` | Attach stdin (use with `-a` for interactive) |
+| `-t <seconds>` | `stop` | Seconds to wait before killing (default: 10) |
+| `-f` | `rm` | Force removal of a running container |
+| `-v` | `rm` | Remove anonymous volumes attached to the container |
+
+Force-remove a running container and its anonymous volumes:
+
+```bash
+docker rm -fv my-app
+```
