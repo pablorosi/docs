@@ -1,0 +1,265 @@
+---
+title: "Writing Docker Compose"
+date: 2026-06-13
+tag: docker
+sidebar:
+  order: 3
+---
+
+**Docker Compose** defines and runs multi-container applications from a single YAML file. Instead of starting each container manually with `docker run`, Compose orchestrates services, networks, and volumes together.
+
+For single-container workflows, see the [Docker CLI Cheat Sheet](/learning-log/docker/docker-cli-cheat-sheet). For building custom images, see [Writing Dockerfiles](/learning-log/docker/writing-dockerfiles).
+
+## 1. Basic structure
+
+Create a `compose.yaml` (or `docker-compose.yaml`) in your project root:
+
+```yaml
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      APP_ENV: production
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: appdb
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:
+```
+
+Start the stack:
+
+```bash
+docker compose up -d
+```
+
+## 2. Top-level keys
+
+| Key | Description |
+|-----|-------------|
+| `services` | Containers that make up the application (required) |
+| `networks` | Custom networks for service communication |
+| `volumes` | Named volumes for persistent data |
+| `configs` | External configuration files mounted into services |
+| `secrets` | Sensitive data (passwords, tokens) managed separately |
+
+## 3. Service options
+
+| Option | Description |
+|--------|-------------|
+| `image` | Use a pre-built image from a registry |
+| `build` | Build from a Dockerfile (`.` or `{ context: ., dockerfile: Dockerfile.prod }`) |
+| `ports` | Publish ports (`"host:container"`) |
+| `expose` | Expose ports to other services only (not the host) |
+| `environment` | Environment variables (map or list) |
+| `env_file` | Load variables from a `.env` file |
+| `volumes` | Mount named volumes or bind mounts |
+| `networks` | Attach the service to one or more networks |
+| `depends_on` | Start order dependency (does not wait for the service to be ready) |
+| `restart` | Restart policy: `no`, `always`, `on-failure`, `unless-stopped` |
+| `command` | Override the default container command |
+| `entrypoint` | Override the default entrypoint |
+| `healthcheck` | Define a health probe for the service |
+| `profiles` | Optional services activated with `--profile` |
+
+### 3.1 `build` context
+
+Build from the current directory:
+
+```yaml
+services:
+  api:
+    build: .
+```
+
+Build with a custom Dockerfile and build arguments:
+
+```yaml
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+      args:
+        JAVA_VERSION: "21"
+```
+
+### 3.2 Volumes
+
+**Named volume** — managed by Docker, survives container restarts:
+
+```yaml
+services:
+  db:
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:
+```
+
+**Bind mount** — maps a host path into the container (common in development):
+
+```yaml
+services:
+  api:
+    volumes:
+      - ./src:/app/src
+```
+
+### 3.3 Networks
+
+By default, all services join a default network and can reach each other by service name. Define custom networks to isolate groups:
+
+```yaml
+services:
+  frontend:
+    networks:
+      - public
+
+  backend:
+    networks:
+      - public
+      - internal
+
+  db:
+    networks:
+      - internal
+
+networks:
+  public:
+  internal:
+    internal: true
+```
+
+`backend` can talk to both `frontend` and `db`; `db` is only reachable from `internal`.
+
+### 3.4 Environment variables
+
+Inline map:
+
+```yaml
+environment:
+  APP_ENV: production
+  LOG_LEVEL: info
+```
+
+From a file:
+
+```yaml
+env_file:
+  - .env
+  - .env.production
+```
+
+Use a `.env` file in the same directory for local defaults (not committed if it contains secrets):
+
+```text
+APP_ENV=development
+POSTGRES_PASSWORD=localdev
+```
+
+## 4. Common commands
+
+| Command | Description |
+|---------|-------------|
+| `docker compose up` | Create and start all services |
+| `docker compose up -d` | Start in detached mode (background) |
+| `docker compose down` | Stop and remove containers, networks |
+| `docker compose down -v` | Also remove named volumes |
+| `docker compose ps` | List running services |
+| `docker compose logs` | View logs from all services |
+| `docker compose logs -f api` | Follow logs for a single service |
+| `docker compose build` | Build or rebuild service images |
+| `docker compose pull` | Pull images for all services |
+| `docker compose restart api` | Restart a single service |
+| `docker compose exec api sh` | Run a command inside a running container |
+
+Rebuild after Dockerfile changes:
+
+```bash
+docker compose up -d --build
+```
+
+## 5. Example: web app with cache and database
+
+```yaml
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: postgres://app:secret@db:5432/appdb
+      REDIS_URL: redis://cache:6379
+    depends_on:
+      - db
+      - cache
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: appdb
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  cache:
+    image: redis:7-alpine
+    volumes:
+      - redis-data:/data
+
+volumes:
+  db-data:
+  redis-data:
+```
+
+Services resolve each other by name — `app` connects to `db:5432` and `cache:6379` over the default network.
+
+## 6. Profiles
+
+Run optional services only when needed (e.g., debugging tools):
+
+```yaml
+services:
+  api:
+    image: my-api:latest
+
+  debug:
+    image: nicolaka/netshoot
+    profiles:
+      - debug
+    network_mode: service:api
+```
+
+```bash
+docker compose --profile debug up -d
+```
+
+## 7. Quick checklist
+
+1. Use service names as hostnames — no need for hardcoded IPs.
+2. Store secrets in `.env` or Docker secrets, not in the compose file itself.
+3. Pin image tags (`postgres:16-alpine`, not `postgres:latest`).
+4. Use named volumes for database persistence.
+5. Add `restart: unless-stopped` for services that should survive host reboots.
+6. Use `docker compose config` to validate and render the final YAML before deploying.
