@@ -1,0 +1,166 @@
+---
+title: "Writing Dockerfiles"
+date: 2026-06-13
+tag: docker
+sidebar:
+  order: 2
+---
+
+A **Dockerfile** is a text file of instructions Docker uses to build an image layer by layer. Each instruction creates a cached layer; order matters for build speed and image size.
+
+For build and run commands, see the [Docker CLI Cheat Sheet](/learning-log/docker/docker-cli-cheat-sheet).
+
+## 1. Basic structure
+
+Create a file named `Dockerfile` (no extension) in your project root:
+
+```dockerfile
+# Base image
+FROM eclipse-temurin:21-jdk-alpine
+
+# Working directory inside the container
+WORKDIR /app
+
+# Copy source and build
+COPY pom.xml .
+COPY src ./src
+RUN mvn package -DskipTests
+
+# Runtime command
+CMD ["java", "-jar", "target/app.jar"]
+```
+
+Build it:
+
+```bash
+docker build -t my-java-app .
+```
+
+## 2. Instructions
+
+| Instruction | Description |
+|-------------|-------------|
+| `FROM <image>` | Base image for all following layers (required as first instruction) |
+| `WORKDIR <path>` | Set the working directory for `RUN`, `CMD`, `ENTRYPOINT`, `COPY`, and `ADD` |
+| `COPY <src> <dest>` | Copy files from the build context into the image |
+| `ADD <src> <dest>` | Like `COPY`, but can also extract tar archives and fetch remote URLs (prefer `COPY` when possible) |
+| `RUN <command>` | Execute a command during the build and commit the result as a new layer |
+| `CMD ["exec", "form"]` | Default command when the container starts (can be overridden at `docker run`) |
+| `ENTRYPOINT ["exec", "form"]` | Main process of the container; pairs with `CMD` for default arguments |
+| `EXPOSE <port>` | Document which port the container listens on (does not publish it — use `-p` on `docker run`) |
+| `ENV <KEY>=<value>` | Set an environment variable available at build and runtime |
+| `ARG <name>[=<default>]` | Build-time variable; passed with `--build-arg` (not available after the image is built) |
+| `USER <name>` | Run subsequent instructions and the container process as this user |
+| `VOLUME <path>` | Declare a mount point for persistent or shared data |
+| `HEALTHCHECK` | Define a command Docker runs periodically to check container health |
+
+### 2.1 `CMD` vs `ENTRYPOINT`
+
+- **`CMD`** — default command; overridden by arguments passed to `docker run`.
+- **`ENTRYPOINT`** — fixed executable; `docker run` arguments are appended as parameters.
+
+```dockerfile
+ENTRYPOINT ["java", "-jar", "app.jar"]
+CMD ["--spring.profiles.active=prod"]
+```
+
+```bash
+docker run my-java-app --spring.profiles.active=dev
+# Runs: java -jar app.jar --spring.profiles.active=dev
+```
+
+### 2.2 `ENV` vs `ARG`
+
+- **`ARG`** — only during `docker build` (e.g., version pins, build flags).
+- **`ENV`** — persists in the final image and is available to running containers.
+
+```dockerfile
+ARG JAVA_VERSION=21
+FROM eclipse-temurin:${JAVA_VERSION}-jdk-alpine
+
+ENV APP_ENV=production
+```
+
+```bash
+docker build --build-arg JAVA_VERSION=17 -t my-java-app .
+```
+
+## 3. Layer caching
+
+Docker reuses a layer if the instruction and its inputs have not changed. Put instructions that change often **last**, and stable steps **first**:
+
+```dockerfile
+FROM node:22-alpine
+WORKDIR /app
+
+# Dependencies change less often than source code
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+CMD ["node", "dist/index.js"]
+```
+
+## 4. Multi-stage builds
+
+Use multiple `FROM` stages to keep the final image small — compile in one stage, copy only the artifact into a minimal runtime image:
+
+```dockerfile
+# Stage 1: build
+FROM eclipse-temurin:21-jdk-alpine AS builder
+WORKDIR /app
+COPY . .
+RUN mvn package -DskipTests
+
+# Stage 2: runtime
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+COPY --from=builder /app/target/app.jar .
+EXPOSE 8080
+CMD ["java", "-jar", "app.jar"]
+```
+
+Build a specific stage:
+
+```bash
+docker build --target builder -t my-java-app:builder .
+```
+
+## 5. `.dockerignore`
+
+Exclude files from the build context (similar to `.gitignore`). Smaller context means faster builds and fewer accidental cache invalidations:
+
+```text
+.git
+node_modules
+target
+*.md
+.env
+```
+
+## 6. Example: Python app
+
+```dockerfile
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 8000
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+## 7. Quick checklist
+
+1. Choose a minimal base image (`-alpine`, `-slim`, or `-distroless` when possible).
+2. Use `COPY` instead of `ADD` unless you need archive extraction.
+3. Do not run as root in production — add a `USER` directive.
+4. Pin base image tags (`node:22-alpine`, not `node:latest`).
+5. Add a `.dockerignore` file.
+6. Use multi-stage builds for compiled languages.
