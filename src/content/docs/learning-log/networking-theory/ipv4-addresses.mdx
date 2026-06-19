@@ -1,0 +1,34 @@
+---
+title: "Public vs. Private IP Addresses"
+date: 2026-06-08
+tag: networking-theory
+---
+
+## 1. Public IP Addresses
+
+Public addresses are globally unique identifiers and are **Internet-routable**.
+
+
+
+### Key Characteristics:
+- **Assignment:** They are assigned and regulated by Internet Service Providers (**ISPs**) under the coordination of global authorities like IANA and RIRs (such as RIPE, ARIN, etc.).
+- **Visibility:** Any device directly connected to the global network requires a public IP to be reachable from the outside (web servers, edge routers, etc.).
+- **Cost:** They are usually limited and often have an associated cost, especially commercial static IPs.
+
+---
+
+## 2. Private IP Addresses
+
+Private addresses are reserved exclusively for use within a **Local Area Network (LAN)**.
+
+
+  **Routing Rule:** **They are not routable on the Internet**. If a core internet router detects a packet with a private IP as its source or destination, it drops it immediately for security reasons.
+
+### RFC 1918 Standard
+The private addressing space is defined by the **RFC 1918** standard, which divides these IPs into three main blocks based on network size (adapted classful addressing):
+
+| Class | Private Network Range | Available IPs per Block | Typical Use / Use Cases |
+| :--- | :--- | :--- | :--- |
+| **Class A** | `10.0.0.0` – `10.255.255.255` | ~16.7 million | Large corporations (Enterprise), cloud infrastructures (AWS/Azure VPCs). |
+| **Class B** | `172.16.0.0` – `172.31.255.255` | ~65,536 per subnet | Medium-sized networks, educational campuses, container environments (Docker/LXC). |
+| **Class C** | `192.168.0.0` – `192.168.255.255` | 256 per subnet | Home networks (SOHO residential routers) and small offices. |
