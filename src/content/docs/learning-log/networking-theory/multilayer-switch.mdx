@@ -1,0 +1,61 @@
+---
+title: Quick Notes - Layer 3 Switch
+date: 2026-06
+tag: networking-theory
+---
+
+# Layer 3 Switch (Multilayer) - Cheat Sheet
+
+## 1. Base Activation
+An L3 switch acts as an L2 device by default. Routing must be enabled globally.
+```cisco
+Switch(config)# ip routing
+```
+
+## 2. Ports and IP Addressing
+Two methods to configure L3 addressing:
+
+**A. SVI (Switch Virtual Interface)** Acts as the *Default Gateway* for devices within a VLAN.
+```cisco
+Switch(config)# interface vlan 10
+Switch(config-if)# ip address 192.168.10.1 255.255.255.0
+Switch(config-if)# no shutdown
+```
+
+**B. Routed Port** Converts a switch port into a physical router port (used for point-to-point links).
+```cisco
+Switch(config)# interface g0/1
+Switch(config-if)# no switchport
+Switch(config-if)# ip address 10.0.0.1 255.255.255.252
+Switch(config-if)# no shutdown
+```
+
+## 3. DHCP Relay Agent
+Converts *Broadcast* DHCP messages into *Unicast* to forward them to a server on a different network.
+```cisco
+Switch(config)# interface vlan 10
+Switch(config-if)# ip helper-address 10.0.0.50
+```
+
+## 4. Default Route (Internet Access)
+Defines where to send unknown traffic (e.g., towards the ISP router). *(In L3, do not use `ip default-gateway`)*.
+```cisco
+Switch(config)# ip route 0.0.0.0 0.0.0.0 192.168.100.1
+```
+
+## 5. Security: Isolate VLANs with Internet Access
+Block native Inter-VLAN routing using an extended ACL, while permitting all other traffic.
+
+**Create the rule:**
+```cisco
+Switch(config)# ip access-list extended ISOLATE_VLANS
+Switch(config-ext-nacl)# deny ip any 192.168.0.0 0.0.255.255  ! Blocks internal traffic
+Switch(config-ext-nacl)# permit ip any any                   ! Permits Internet
+Switch(config-ext-nacl)# exit
+```
+
+**Apply the rule (as an inbound filter on the SVI):**
+```cisco
+Switch(config)# interface vlan 10
+Switch(config-if)# ip access-group ISOLATE_VLANS in
+```
