@@ -7,66 +7,64 @@ sidebar:
 
 ## Infrastructure Overview
 
-To ensure reliable performance and complete control over the environment, the foundation of this project is built on a **Hetzner Virtual Private Server (VPS)**. To maintain a reproducible and isolated environment, all services are containerized using **Docker** and managed via **Docker Compose**.
+The foundation of this project is a **Hetzner Virtual Private Server (VPS)**. All services are containerized with **Docker** and managed via **Docker Compose** for reproducible deployments.
 
-### Hardware & OS Specifications
-* **Provider:** Hetzner Cloud
+### Hardware and OS Specifications
+
+* **Provider:** Hetzner Cloud (EU-based, GDPR-applicable infrastructure)
 * **OS:** Ubuntu 24.04 LTS
-* **Location:** Nuremberg
+* **Location:** Nuremberg, Germany — low latency for users in the DACH region
 
 ---
 
-## Server Provisioning & Hardening
+## Server Provisioning and Hardening
 
-Before deploying any containers, the host machine requires basic security hardening to prevent unauthorized access.
+Before deploying containers, the host requires basic security hardening.
 
-### Secure SSH & Zero Trust Access
-To secure remote access, password authentication is completely disabled in favor of cryptographic keys. 
+### Secure SSH Access
 
-Furthermore, the server does not accept SSH connections from the public IP. Administrative access is strictly routed through the private Tailscale overlay network (`100.x.x.x`), rendering the server completely invisible to automated bot scanners.
+Password authentication is disabled in favor of cryptographic keys. SSH is not reachable on the server's public IP; it is available only via the Tailscale overlay (`100.x.x.x`). The Hetzner firewall rules and Tailscale setup are detailed in chapters 3 and 5.
 
 ```bash
-# Connecting via the secure ZTNA tunnel
+# Connecting via the Tailscale interface
 ssh root@100.x.x.x
 apt update && apt upgrade -y
 ```
 
-:::note[Security Decision]
-By disabling PasswordAuthentication in the sshd_config and dropping all public traffic to port 22 at the edge, the server's attack surface is drastically reduced. The exact network policies are detailed in the Cloud Firewall & Zero Trust architecture page.
+:::note[Reading order]
+This chapter introduces SSH-over-Tailscale early because it is part of server provisioning. The firewall rules that block public SSH and the full Tailscale configuration are covered in **[Cloud Firewall](/cloud-infrastructure/1-secure-cloud-routing/3-firewall)** and **[Tailscale Private Admin Access](/cloud-infrastructure/1-secure-cloud-routing/5-tailscale-admin-security)**.
 :::
+
+---
 
 ## Docker Environment Setup
 
 ### Installing the Container Engine
-
-The official Docker engine is installed to manage the application lifecycle.
 
 ```bash
 docker --version
 docker compose version
 ```
 
-
 ### Infrastructure as Code (Docker Compose)
 
-The infrastructure is managed using modular, decoupled `docker-compose.yml` files for each service. To ensure maximum isolation while allowing traffic routing, containers that need to communicate with the Nginx Proxy Manager are connected via an external Docker network named `proxy-network`. Instead of running heavy Node.js servers, the built static files for the Astro portfolio and Starlight documentation are served using ultra-fast, lightweight Alpine Nginx containers.
+The infrastructure uses modular `docker-compose.yml` files per service. Containers that receive traffic from Nginx Proxy Manager join an external Docker network named `proxy-network`.
+
+Static builds for the Astro portfolio and Starlight documentation are served by lightweight Alpine Nginx containers instead of Node.js runtime servers:
 
 ```yaml
 # Snippet: Static Site Containers
 services:
-  # Astro portfolio
   web-portfolio:
-    image: nginx:alpine 
+    image: nginx:alpine
     container_name: astro-site
     restart: unless-stopped
     networks:
       - proxy-network
     volumes:
-      # Serves the actual static build via read-only mounts
       - ./public_html:/usr/share/nginx/html:ro
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
 
-  # Starlight docs
   web-docs:
     image: nginx:alpine
     container_name: starlight-docs
@@ -79,14 +77,18 @@ services:
 ```
 
 :::tip[Explore the Modular Infrastructure]
-The complete infrastructure configuration, including the ingress routing, is version-controlled and decoupled for maximum isolation. You can view the specific `docker-compose.yml` files for each service in their respective GitHub repositories:
+Each service has its own version-controlled `docker-compose.yml`:
 
 - [Portfolio Infrastructure](https://github.com/pablorosi/portfolio)
 - [Documentation Infrastructure](https://github.com/pablorosi/docs)
 :::
 
-### Validation
+---
 
-To verify the foundation is solid, running `docker info` should return the active server parameters without permission errors.
+## Validation
+
+- `docker info` and `docker compose version` run without permission errors.
+- `docker ps` shows `astro-site`, `starlight-docs`, and `nginx-proxy-manager` in a running state.
+- SSH over the public IP times out; `ssh root@100.x.x.x` succeeds only from an authenticated Tailscale device.
 
 Proceed to **[Cloudflare DNS & Edge Routing](/cloud-infrastructure/1-secure-cloud-routing/2-cloudflare-dns-routing)** to see how public traffic is directed to this server.

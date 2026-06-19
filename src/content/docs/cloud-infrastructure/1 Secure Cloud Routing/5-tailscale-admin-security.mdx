@@ -35,8 +35,13 @@ To manage the infrastructure, the administrator navigates directly to the Tailsc
 
 `http://100.x.x.x:81`
 
-:::tip[Security Validation]
-Attempting to access port 81 from a public connection is impossible. The Docker port binding ensures the container only listens to the Tailscale network interface. Furthermore, the traffic is inherently encrypted end-to-end by WireGuard, satisfying strict Zero Trust requirements without relying on a public SSL certificate.
-:::
+---
+
+## Validation
+
+- `http://100.x.x.x:81` loads the NPM dashboard from a device connected to the Tailnet.
+- Accessing port `81` on the Hetzner public IP times out; the port is not reachable from the internet.
+- `tailscale status` on the server shows the VPS as an active peer in the Tailnet.
+- SSH to `100.x.x.x` works from authenticated devices and fails on the public IP.
 
 Proceed to **[GitHub Actions CI/CD Pipeline](/cloud-infrastructure/1-secure-cloud-routing/6-github-cicd-pipelines)** to review the automated deployment lifecycle.

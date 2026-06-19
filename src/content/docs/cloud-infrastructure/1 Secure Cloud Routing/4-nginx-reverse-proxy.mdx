@@ -7,15 +7,13 @@ sidebar:
 
 ## Traffic Ingress Architecture
 
-Once traffic passes through Cloudflare, it hits the Hetzner server. **Nginx Proxy Manager (NPM)** is deployed as the primary ingress point, listening on ports 80 and 443. Its job is to analyze the HTTP headers and route the request to the corresponding Docker container.
+Once traffic passes through Cloudflare, it hits the Hetzner server. **Nginx Proxy Manager (NPM)** is the primary ingress point, listening on ports `80` and `443`. It reads the `Host` header and routes each request to the correct Docker container on `proxy-network`.
 
 ---
 
 ## Nginx Proxy Manager Setup
 
-NPM is deployed via its own isolated `docker-compose.yml` file. It connects to the `proxy-network` alongside the web containers, allowing it to route traffic securely without exposing the internal web servers to the outside world. 
-
-Here is the exact ingress configuration, highlighting the Out-of-Band (OOB) management binding:
+NPM runs in its own `docker-compose.yml` and connects to the `proxy-network` alongside the web containers. This keeps internal web servers off the public interface.
 
 ```yaml
 # Snippet: NPM Ingress configuration
@@ -27,7 +25,7 @@ services:
     ports:
       - '80:80'   # Public HTTP routing
       - '443:443' # Public HTTPS routing
-      - '100.x.x.x:81:81' # OOB Management: Bound strictly to Tailscale IP
+      - '100.x.x.x:81:81' # OOB Management: bound to Tailscale IP only
     volumes:
       - ./data:/data
       - ./letsencrypt:/etc/letsencrypt
@@ -35,23 +33,51 @@ services:
       - proxy-network
 ```
 
+---
 
-## Proxy Hosts & SSL Certificates
+## Proxy Hosts
 
-Inside the NPM dashboard, incoming public traffic is routed using Docker's internal DNS resolver (container names) over the shared `proxy-network`. For example, to route traffic to the Astro portfolio:
+Inside the NPM dashboard, public traffic is routed using Docker's internal DNS resolver (container names) over `proxy-network`:
 
-    Domain: pablorosi.dev
+| Domain | Forward Host | Forward Port | Container |
+| :--- | :--- | :--- | :--- |
+| `pablorosi.dev` | `astro-site` | `80` | Portfolio (Astro) |
+| `docs.pablorosi.dev` | `starlight-docs` | `80` | Documentation (Starlight) |
 
-    Forward Host: astro-site (Internal Docker DNS)
+Legacy `.com` domains are **not** configured here. Their 301 redirects are handled at the Cloudflare edge — see **[Cloudflare DNS & Edge Routing](/cloud-infrastructure/1-secure-cloud-routing/2-cloudflare-dns-routing)**.
 
-    Forward Port: 80
+---
 
-## Automated Let's Encrypt SSL
+## SSL: Cloudflare to Origin
 
-Although Cloudflare encrypts traffic from the user to the edge, NPM generates Let's Encrypt certificates to ensure Strict SSL (Full Encryption) from Cloudflare to the Hetzner server.
+Traffic is encrypted in two hops:
 
-:::note[Security Decision]
-By forcing SSL renewal through NPM, we ensure end-to-end encryption without relying entirely on Cloudflare's shared edge certificates. Furthermore, the administrative GUI is deliberately removed from public DNS routing to prevent Hairpin NAT loops and enforce a strict Zero-Trust security model via the VPN.
+1. **Browser → Cloudflare:** TLS terminated at the Cloudflare edge.
+2. **Cloudflare → Hetzner:** TLS terminated at NPM using a Let's Encrypt certificate.
+
+Cloudflare SSL/TLS mode is set to **Full (strict)**. NPM must present a valid origin certificate; self-signed certs are rejected. Let's Encrypt certificates are issued per domain inside NPM.
+
+:::note[Why origin certificates matter]
+Full (strict) mode ensures encryption end-to-end. Cloudflare's edge certificate alone does not protect traffic between Cloudflare and the Hetzner origin.
 :::
 
-Proceed to **[Tailscale Private Admin Access](/cloud-infrastructure/1-secure-cloud-routing/5-tailscale-admin-security)** to see exactly how the Nginx administrative dashboard is secured using this architecture.
+---
+
+## Real Client IP
+
+Because Cloudflare sits in front of the origin, NPM receives Cloudflare proxy IPs unless configured otherwise. Enable **Trust Proxy** in NPM (or equivalent forwarded-header settings) so logs and access rules see the real client IP from `CF-Connecting-IP` / `X-Forwarded-For`.
+
+:::note[Security Decision]
+The NPM administrative GUI is deliberately excluded from public DNS routing to prevent Hairpin NAT loops and to enforce Zero Trust access via Tailscale. See **[Tailscale Private Admin Access](/cloud-infrastructure/1-secure-cloud-routing/5-tailscale-admin-security)**.
+:::
+
+---
+
+## Validation
+
+- Both proxy hosts (`pablorosi.dev`, `docs.pablorosi.dev`) show a valid Let's Encrypt certificate in the NPM dashboard.
+- `curl -I https://pablorosi.dev` and `curl -I https://docs.pablorosi.dev` return `200` with no certificate warnings in the browser.
+- Cloudflare SSL/TLS mode is **Full (strict)** and the origin handshake succeeds without errors.
+- NPM access logs show real client IPs (not only Cloudflare ranges) when Trust Proxy is enabled.
+
+Proceed to **[Tailscale Private Admin Access](/cloud-infrastructure/1-secure-cloud-routing/5-tailscale-admin-security)** for the management-plane architecture.

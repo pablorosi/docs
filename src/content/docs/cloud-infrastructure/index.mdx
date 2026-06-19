@@ -1,18 +1,18 @@
 ---
-title: "Architecture Overview"
+title: "Cloud Infrastructure"
 description: A high-level summary of the cloud infrastructure, security layers, and deployment pipelines.
 sidebar:
   order: 0
 ---
 
-:::caution[Work In Progress]
-This documentation is currently under active development. The architectural designs, code snippets, and technical specifications are continuously being updated as the infrastructure evolves.
-:::
-
 ## Infrastructure Pillars
 
-This section of the documentation covers the core components that power the backend environment.
+This section documents the backend environment that hosts [pablorosi.dev](https://pablorosi.dev) and [docs.pablorosi.dev](https://docs.pablorosi.dev).
 
 ### 1. Secure Cloud Routing
+
 This layer handles all incoming traffic, edge security, and internal service routing. It details the **Defense in Depth** strategy, including the Hetzner Cloud Firewall, Nginx Reverse Proxy configurations, and the Zero Trust Tailscale overlay network used to secure administrative access.
 
+### 2. Troubleshooting
+
+Operational guides for diagnosing and resolving common issues in the production environment.

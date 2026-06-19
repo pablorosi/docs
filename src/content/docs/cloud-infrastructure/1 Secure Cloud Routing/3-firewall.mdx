@@ -1,19 +1,19 @@
 ---
-title: "Cloud Firewall & Zero Trust"
-description: Implementation of Layer 4 security and private management overlays.
+title: "Cloud Firewall"
+description: Implementation of Layer 4 security on the Hetzner public interface.
 sidebar:
   order: 3
 ---
 
 ## Infrastructure Security Strategy
 
-This project follows the **Defense in Depth** principle. Security is not handled by a single tool, but by multiple redundant layers. Even if a service is misconfigured at the Docker level, the external network infrastructure provides a secondary "hard shell" that drops unauthorized traffic.
+This project follows the **Defense in Depth** principle. Security is not handled by a single tool, but by multiple redundant layers. Even if a service is misconfigured at the Docker level, the external network infrastructure provides a secondary hard shell that drops unauthorized traffic.
 
 ---
 
 ## Hetzner Cloud Firewall
 
-The first line of defense is the **Hetzner Cloud Firewall**, a stateful firewall that filters traffic at the edge before it reaches the Virtual Private Server (VPS).
+The first line of defense is the **Hetzner Cloud Firewall**, a stateful firewall that filters traffic before it reaches the Virtual Private Server (VPS).
 
 ### Inbound Rules (Ingress)
 
@@ -21,37 +21,30 @@ The first line of defense is the **Hetzner Cloud Firewall**, a stateful firewall
 | :--- | :--- | :--- | :--- |
 | **TCP** | `80` | Any IPv4/v6 | Public HTTP (Let's Encrypt validation) |
 | **TCP** | `443` | Any IPv4/v6 | Public HTTPS (Web Traffic) |
-| **UDP** | `41641` | Any IPv4/v6 | **Tailscale:** Direct P2P VPN Handshake |
+| **UDP** | `41641` | Any IPv4/v6 | **Tailscale:** Direct P2P VPN handshake |
 
 ### The "Default Drop" Policy
 
 To minimize the attack surface, all other ports are strictly blocked by default. This includes:
+
 * **SSH (TCP 22):** Public access is denied to prevent brute-force attacks.
 * **NPM Admin (TCP 81):** The management UI is hidden from the public internet.
 * **Database Ports:** No database management ports are exposed externally.
 
 ---
 
-## Zero Trust Implementation
+## Management Access Preview
 
-Since management ports are blocked from the public internet, all administrative tasks are performed via a **Zero Trust Network Access (ZTNA)** model using **Tailscale**.
-
-### Access Workflow
-
-Instead of connecting to the server's public IP, we utilize a private WireGuard-based overlay network. 
-
-1. **Authentication:** The administrator authenticates via a secure SSO provider.
-2. **Encrypted Tunnel:** A peer-to-peer tunnel is established between the admin machine and the VPS.
-3. **Internal Routing:** Services are accessed via the server's internal Tailscale IP (`100.x.x.x`).
+Management ports are blocked on the public interface. Administrative access (SSH, NPM GUI, CI/CD) is routed through **Tailscale** instead. The full Zero Trust setup — Tailnet authentication, OOB management, and Docker port binding — is documented in **[Tailscale Private Admin Access](/cloud-infrastructure/1-secure-cloud-routing/5-tailscale-admin-security)**.
 
 :::note[Security Decision]
-By routing SSH and NPM management through the Tailscale interface (`tailscale0`) and blocking the public interface (`eth0`) at the firewall level, we eliminate 100% of automated bot scans and unauthorized access attempts on management ports.
+By blocking SSH and NPM on the public interface (`eth0`) and allowing them only on the Tailscale interface (`tailscale0`), management ports are never directly exposed to the public internet. Automated scanners cannot reach them on the Hetzner public IP.
 :::
 
 ---
 
-## Redundancy Check
+## Validation
 
-To verify the setup, a port scan from the public internet should only show ports 80, 443, and the UDP ranges as open. Any attempt to reach port 22 or 81 will result in a timeout, as packets are dropped at the Hetzner edge before reaching the OS.
+A port scan from the public internet should only show ports `80`, `443`, and the Tailscale UDP range as reachable. Attempts to reach port `22` or `81` on the public IP should time out, as packets are dropped at the Hetzner edge before reaching the OS.
 
-Proceed to **[Nginx Reverse Proxy & Public SSL](/cloud-infrastructure/1-secure-cloud-routing/4-nginx-reverse-proxy)** to see how public traffic is handled once it passes through this firewall.
+Proceed to **[Nginx Reverse Proxy & Public SSL](/cloud-infrastructure/1-secure-cloud-routing/4-nginx-reverse-proxy)** to see how public web traffic is handled once it passes through this firewall.
