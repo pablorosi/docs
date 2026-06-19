@@ -1,0 +1,28 @@
+---
+title: "PCIe Passthrough"
+description: Passing network cards to VMs and EVE-NG for physical lab integration.
+sidebar:
+  order: 2
+---
+
+## Role in the Homelab
+
+The HP t740 uses **multiple NICs** to bridge Proxmox workloads — especially **EVE-NG** — to physical ports on the Catalyst 3560-CX. This enables virtual routers and switches to communicate with real hardware in the hybrid lab.
+
+## Current Approach
+
+EVE-NG runs as a nested VM with:
+
+* **CPU mode:** `host-passthrough` — exposes physical hardware acceleration to the guest.
+* **Network bridges:** VirtIO interfaces bridged to physical NICs connected to the 3560-CX.
+
+This is documented in detail in **[EVE-NG Deployment](/enterprise-homelab/4-emulation/eve-ng-deployment)**.
+
+## PCIe Passthrough (Planned)
+
+Dedicated PCIe NIC passthrough to the EVE-NG VM (bypassing Linux bridge overhead) will be documented here once configured. Target use cases:
+
+* Direct attachment of a physical NIC to EVE-NG cloud interfaces.
+* Lower latency for high-throughput lab scenarios.
+
+See **[Proxmox Installation](/enterprise-homelab/2-hypervisor/proxmox-installation)** for hypervisor setup and resource allocation.

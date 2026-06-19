@@ -1,0 +1,42 @@
+---
+title: "Cisco Switches"
+description: VLANs, LACP, trunking, and switch configurations in the homelab.
+sidebar:
+  order: 1
+---
+
+## Switch Roles
+
+| Switch | Layer | Role |
+| :--- | :--- | :--- |
+| **Catalyst 3560-CX** | L3 | Core — inter-VLAN routing, aggregation, SVIs |
+| **Catalyst 2960-8TC-L** | L2 | Access — endpoint connectivity, trunk to core |
+
+Hardware specifications and port plans are in **[Hardware Specs](/enterprise-homelab/1-architecture/hardware-specs)**.
+
+## VLAN Configuration
+
+VLANs separate traffic by function. The 3560-CX provides Layer 3 gateways via SVIs.
+
+* **Management VLAN:** Switch management, Proxmox, out-of-band access.
+* **Lab VLANs:** EVE-NG bridges, LXC containers, physical test endpoints.
+* **802.1Q trunking:** Gi0/1 on the 2960 carries tagged VLANs to the 3560-CX core.
+
+### Current Status
+
+VLAN databases and SVIs are provisioned on the 3560-CX. Access VLAN assignments on the 2960 are in the backlog.
+
+## Trunking
+
+* **Core ↔ Access:** 802.1Q trunk on Gi0/1 (2960) to the 3560-CX.
+* **Core ↔ Compute:** Physical ports on the 3560-CX bridged to Proxmox NICs for EVE-NG integration.
+
+## LACP
+
+EtherChannel / LACP configuration will be documented here when uplinks are aggregated.
+
+## Troubleshooting
+
+* **[Layer 1 Failure: Autonegotiation & Auto-MDIX](/enterprise-homelab/7-troubleshooting/catalyst-autonegotiation)** — Link failure from hardcoded speed on the Catalyst 2960.
+
+See **[Network Topology](/enterprise-homelab/1-architecture/network-topology)** for the physical design.

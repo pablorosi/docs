@@ -1,0 +1,34 @@
+---
+title: "Tailscale Mesh"
+description: Remote access, subnet routers, and ACLs for the homelab Tailnet.
+sidebar:
+  order: 2
+---
+
+## Role in the Homelab
+
+**Tailscale** provides encrypted remote access to the homelab without exposing management ports on the public internet. It connects personal devices and the homelab node into a private WireGuard mesh (Tailnet).
+
+## Deployment
+
+| Property | Value |
+| :--- | :--- |
+| **Platform** | LXC container on Proxmox |
+| **Resources** | 1 vCPU, 512 MB RAM, 8 GB storage |
+| **Role** | Mesh VPN gateway for secure remote access |
+
+## Use Cases
+
+* Remote SSH and CLI access to Cisco switches and Proxmox.
+* Secure reachability to management VLAN endpoints from outside the LAN.
+* Same Zero Trust pattern used in [Cloud Infrastructure](/cloud-infrastructure/1-secure-cloud-routing/5-tailscale-admin-security) for production VPS admin access.
+
+## Subnet Routers & ACLs
+
+Subnet routing and ACL policies will be documented here as the Tailnet grows. Current focus is basic mesh connectivity from the Proxmox LXC gateway.
+
+## Current Status
+
+Tailscale is running on the Proxmox cluster.
+
+See **[Proxmox Installation](/enterprise-homelab/2-hypervisor/proxmox-installation)** for resource allocation.

@@ -1,0 +1,37 @@
+---
+title: "EVE-NG Deployment"
+description: EVE-NG VM sizing, CPU virtualization flags, and physical network integration.
+sidebar:
+  order: 1
+---
+
+EVE-NG (Emulated Virtual Environment — Next Generation) runs as a **nested VM** on Proxmox, bridging virtual Cisco IOS nodes with physical switch ports on the Catalyst 3560-CX. This hybrid approach is essential for realistic lab testing.
+
+## Host Environment
+
+| Component | Details |
+| :--- | :--- |
+| **Hardware** | HP t740 Thin Client — AMD Ryzen Embedded V1756B, 16 GB DDR4 |
+| **Hypervisor** | Proxmox VE — nested virtualization enabled, KVM |
+
+## VM Sizing
+
+| Resource | Allocation | Notes |
+| :--- | :--- | :--- |
+| **vCPU** | 4 | `host-passthrough` mode for hardware acceleration |
+| **RAM** | 8 GB | Handles Cisco IOL and QEMU node overhead |
+| **Disk** | 50 GB | VirtIO-SCSI, thin-provisioned |
+
+## CPU Virtualization Flags
+
+* **Nested virtualization** enabled on the Proxmox host.
+* **CPU type:** `host-passthrough` — allows EVE-NG to access physical CPU features required by QEMU nodes.
+
+## Network Integration
+
+The EVE-NG instance is fully integrated into the physical network:
+
+* **Management Interface:** Static IP within the management VLAN.
+* **External Cloud:** Bridged to **Catalyst 3560-CX** physical ports — virtual routers communicate with physical hardware.
+
+See **[PCIe Passthrough](/enterprise-homelab/2-hypervisor/pcie-passthrough)** for NIC passthrough plans and **[Cisco Images](/enterprise-homelab/4-emulation/cisco-images)** for IOU/QEMU image loading.

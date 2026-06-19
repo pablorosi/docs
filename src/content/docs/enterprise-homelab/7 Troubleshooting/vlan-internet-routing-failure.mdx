@@ -1,0 +1,80 @@
+---
+title: "Layer 3 Failure: Missing Return Route on Edge Gateway"
+description: "Root cause analysis of internet connectivity failure for a downstream VLAN when inter-VLAN routing works but return traffic is dropped by the upstream router."
+sidebar:
+  order: 2
+---
+
+## The Incident
+
+During deployment of a Management VLAN (VLAN 102, `10.0.102.0/24`) across a Cisco dual-switch stack — Catalyst 2960 (Layer 2 access) and Catalyst 3560-CX (Layer 3 core) — devices on the new subnet could reach other internal VLANs but could not reach the internet.
+
+The failure was isolated to **return traffic**: outbound packets left the lab correctly, but ICMP Echo Replies (and all other return flows) never made it back to VLAN 102.
+
+## The Symptoms
+
+| Test | Result |
+| --- | --- |
+| L2 switch → L3 SVI on VLAN 102 (`10.0.102.2` → `10.0.102.1`) | Pass |
+| Inter-VLAN routing through Switch-L3 SVIs | Pass |
+| Ping to `8.8.8.8` from Switch-L3 using its **native management IP** on `192.168.8.0/24` | Pass |
+| Ping to `8.8.8.8` **sourced from** `interface Vlan102` | Fail (0% success) |
+
+```text
+Switch-L2# ping 8.8.8.8 source Vlan102
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 8.8.8.8, timeout is 2 seconds:
+.....
+Success rate is 0 percent (0/5)
+```
+
+This pattern is the key clue: **local routing works, but internet return paths do not** when the packet source belongs to a subnet the edge router does not know how to reach.
+
+## Root Cause Analysis (RCA)
+
+### Topology and routing boundaries
+
+The lab uses two independent routing domains:
+
+* **Switch-L3 (3560-CX):** Runs `ip routing` with SVIs for every internal VLAN, including VLAN 102 (`10.0.102.0/24`) and the uplink subnet (`192.168.8.0/24`). A default route points upstream: `ip route 0.0.0.0 0.0.0.0 192.168.8.1`.
+* **Edge gateway (GL.iNet GL-AXT1800, OpenWrt 4.8):** Performs NAT for the lab. It is **directly connected** only to `192.168.8.0/24` on its LAN interface (`192.168.8.1`).
+
+
+### What happens on the wire
+
+1. A host on VLAN 102 sends traffic to `8.8.8.8`. Switch-L3 routes it out its SVI on `192.168.8.0/24` toward `192.168.8.1`.
+2. The GL.iNet router NATs the packet and forwards it to the internet. So far, so good.
+3. When the reply arrives, NAT rewrites the destination back to `10.0.102.x`.
+4. The router looks up `10.0.102.0/24` in its routing table. **That prefix is not present** — the router only knows `192.168.8.0/24` as a connected network and has no static or dynamic route for downstream subnets behind Switch-L3.
+5. The packet is dropped as unroutable. The ping shows 100% loss even though the request reached Google.
+
+### Why the management ping succeeded
+
+When Switch-L3 pings `8.8.8.8` without specifying a source, IOS uses the IP address of the **outbound interface** toward the default gateway — an address on `192.168.8.0/24`. The GL.iNet router already has a connected route for that subnet, so return traffic is delivered normally.
+
+Sourcing the ping from `Vlan102` forces the **source IP to `10.0.102.x`**, exposing the missing return route on the edge gateway.
+
+## The Solution
+
+### Immediate fix: static return route on the edge gateway
+
+Add a static route on the GL.iNet router so return traffic for `10.0.0.0/8` — the address space used in the lab — is forwarded back to Switch-L3.
+
+On GL.iNet firmware 4.8, inject the route through the OpenWrt LuCI advanced panel:
+
+| Field | Value |
+| --- | --- |
+| Target subnet | `10.0.0.0` |
+| Netmask | `255.0.0.0` |
+| Gateway (next hop) | Switch-L3 SVI IP on the uplink subnet (e.g. `192.168.8.2`) |
+| Interface | `lan` |
+
+### Verification
+
+```text
+Switch-L2# ping 8.8.8.8 source Vlan102
+Success rate is 100 percent (5/5)
+```
+
+
+See **[Network Topology](/enterprise-homelab/1-architecture/network-topology)** and **[Cisco Switches](/enterprise-homelab/3-networking/cisco-switches)** for lab context.

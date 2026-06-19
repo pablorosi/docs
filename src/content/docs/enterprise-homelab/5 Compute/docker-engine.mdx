@@ -1,0 +1,25 @@
+---
+title: "Docker Engine"
+description: Docker installation on LXC or VM in the homelab.
+sidebar:
+  order: 1
+---
+
+## Role in the Homelab
+
+Docker runs alongside **LXC** on the Proxmox node for lightweight, reproducible services. Containers are preferred when a full VM is unnecessary or when compose-based stacks simplify deployment.
+
+## Deployment Options
+
+| Platform | Use Case |
+| :--- | :--- |
+| **LXC** | Native Proxmox containers (e.g. Tailscale gateway) — minimal overhead |
+| **VM / LXC + Docker** | Compose-managed multi-service stacks |
+
+## Current Usage
+
+Docker is part of the planned **Local SRE Platform** stack (monitoring, alerting, automation). Engine installation details and host selection (dedicated VM vs. LXC) will be documented here as services are deployed.
+
+## Current Status
+
+Not yet fully documented. See **[Docker Compose](/enterprise-homelab/5-compute/docker-compose)** for the planned stack layout and **[Local SRE Platform](/local-sre-platform/)** for the observability roadmap.

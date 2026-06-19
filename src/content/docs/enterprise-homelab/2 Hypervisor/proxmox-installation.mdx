@@ -1,0 +1,38 @@
+---
+title: "Proxmox Installation"
+description: Base OS setup, storage configuration, and resource allocation on the HP t740.
+sidebar:
+  order: 1
+---
+
+This section documents the **Proxmox VE** hypervisor that powers the homelab. The design prioritizes **performance-per-watt** on small-form-factor hardware.
+
+> **Philosophy:** The HP t740 thin client was selected as the primary node for its efficiency and nested virtualization support (EVE-NG).
+
+## Hardware Inventory
+
+| Node | Specs | Role |
+| :--- | :--- | :--- |
+| **HP t740 Thin Client** | AMD Ryzen Embedded V1756B (4C/8T), 16 GB DDR4, 512 GB NVMe | Compute node |
+| **MacBook Pro** | — | Management console — CLI, diagramming, code |
+
+See **[Hardware Specs](/enterprise-homelab/1-architecture/hardware-specs)** for switch and NIC details.
+
+## Software Stack
+
+* **Hypervisor:** Proxmox VE (Debian-based)
+* **Virtualization:** KVM / QEMU with nested virtualization for EVE-NG
+* **Containers:** LXC (native) and Docker (planned stacks) — see [Docker Engine](/enterprise-homelab/5-compute/docker-engine)
+
+## Resource Allocation
+
+| Service | vCPU | RAM | Storage | Role |
+| :--- | :--- | :--- | :--- | :--- |
+| **EVE-NG** | 4 | 8 GB | 50 GB | Network emulation — see [EVE-NG](/enterprise-homelab/4-emulation/eve-ng-deployment) |
+| **Tailscale** | 1 | 512 MB | 8 GB | Mesh VPN — see [Tailscale](/enterprise-homelab/3-networking/tailscale-mesh) |
+| **MariaDB** | 1 | 1 GB | 20 GB | Database |
+| **Reserved** | 2 | 6 GB | — | Growth capacity |
+
+## Storage
+
+Storage configuration (ZFS/LVM layout and pool sizing) will be documented here as the node setup is finalized.

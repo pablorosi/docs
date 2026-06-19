@@ -1,0 +1,43 @@
+---
+title: "Network Topology"
+description: IP schemas, subnets, and physical cabling in the homelab.
+sidebar:
+  order: 2
+---
+
+## Physical Topology Diagram
+
+![Hybrid Lab Network Topology](/network-topology.svg)
+
+*Figure 1: Physical network architecture with collapsed core design.*
+
+## Architecture Overview
+
+The lab follows a hierarchical design separating edge routing, core switching, and compute resources.
+
+* **Edge Gateway (GL.iNet):** Upstream ISP connectivity, external NAT/DHCP for the lab.
+* **Core Switch (Catalyst 3560-CX):** High-speed backbone; inter-VLAN routing and aggregation — see [Hardware Specs](/enterprise-homelab/1-architecture/hardware-specs).
+* **Compute Node (HP t740):** Proxmox hypervisor and EVE-NG, bridged to physical ports via multiple NICs.
+* **Access Switch (Catalyst 2960):** Layer 2 access for downstream devices.
+* **Management Console:** Out-of-band and in-band configuration workstation.
+
+## VLAN Design
+
+VLANs separate traffic by function: management, lab workloads, and emulated networks. The **Catalyst 3560-CX** acts as the Layer 3 gateway using Switch Virtual Interfaces (SVIs) for inter-VLAN routing.
+
+### Design Principles
+
+* **Management VLAN:** Dedicated subnet for switch management, Proxmox, and out-of-band access.
+* **Lab VLANs:** Isolated segments for EVE-NG bridges, LXC containers, and physical test endpoints.
+* **802.1Q trunking:** Uplinks between the 3560-CX (core) and 2960 (access) carry tagged VLANs.
+
+### Current Status
+
+VLAN databases and SVIs are provisioned on the Catalyst 3560-CX. Access VLAN assignments on the 2960 are in the backlog.
+
+A detailed multi-switch VLAN lab with Proxmox LXCs is documented in the [Learning Log: Lab VLANs](/learning-log/networking-lab/lab-vlans).
+
+## Related Sections
+
+* **[Cisco Switches](/enterprise-homelab/3-networking/cisco-switches)** — VLAN, LACP, and trunking configurations.
+* **[EVE-NG Deployment](/enterprise-homelab/4-emulation/eve-ng-deployment)** — Virtual-to-physical network integration.

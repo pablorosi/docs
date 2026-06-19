@@ -1,0 +1,60 @@
+---
+title: "macOS Local Routing: Blank Gateway Drop"
+description: "Resolving local ping failures on macOS when the default gateway is unconfigured."
+---
+
+## The Symptom
+
+When configuring a static IP manually on a macOS network adapter (e.g., a USB Ethernet hub) for an isolated lab environment or a specific Management VLAN, ICMP Echo Requests (pings) to devices on the **same local subnet** — such as the Layer 3 switch SVI — fail completely with `Request timeout`.
+
+This behavior contradicts standard Layer 2 networking theory: local subnet communication should rely on ARP and should not require a default gateway.
+
+### Trigger condition
+
+The issue appears, disappears, and reappears consistently by adding or removing the target gateway IP in the macOS network settings panel, while keeping the IP address and subnet mask unchanged.
+
+## Root Cause Analysis (RCA)
+
+This issue is caused by an architectural quirk in the macOS network stack and its configuration daemon (`SystemConfiguration`).
+
+While a standard Linux or Windows kernel populates the local routing table as long as an IP and subnet mask are assigned to an active interface, macOS enforces strict validation rules on interfaces configured in **Manually (Static)** mode.
+
+If the **Router (Default Gateway)** field is left blank:
+
+* **Invalidated profile:** macOS flags the interface configuration as incomplete or unvalidated.
+* **Routing table block:** The OS refuses to inject the local subnet route into the kernel routing table.
+* **Packet drop:** With no active route mapping the subnet (e.g. `10.0.10.0/24`) to that interface, macOS either drops the packet at the kernel level or attempts to forward it through another active interface (such as Wi-Fi), causing an immediate timeout.
+
+## The Troubleshooting Journey
+
+This bug was particularly insidious because it defied standard networking logic. During deployment, the following checks all looked healthy:
+
+My initial troubleshooting followed standard Layer 2 / Layer 3 isolation protocols:
+1. **Layer 2 Verification:** I verified the physical link from the Mac to the Access Switch. I ran `show vlan brief` and `show interfaces status` to confirm the port was actively assigned to VLAN 10 and forwarding traffic.
+2. **Layer 3 Verification:** I checked the Core Switch. `show ip interface brief` confirmed the VLAN 10 SVI (`10.0.10.1`) was `up/up`. 
+3. **Trunk Link Validation:** I verified the 802.1Q trunk between the L2 and L3 switches was passing VLAN 10 traffic.
+
+The root cause turned out to be entirely on the macOS host — not the switches.
+
+## The Solution
+
+When statically assigning IP addresses in macOS for homelab environments or isolated VLAN testing, **never leave the Router field empty**, even if the subnet has no actual path to the internet.
+
+Assign any reachable IP on the same subnet as the default gateway — typically the SVI address of the local Layer 3 switch (e.g. `10.0.10.1`). The gateway does not need to provide internet access; it only needs to be present so macOS validates the interface profile.
+
+The moment the profile is saved with a non-empty Router field, macOS injects the proper local subnet routes into the kernel and local pings succeed immediately.
+
+## Video Demonstration
+
+Because this behavior defies standard Layer 2 logic, a video was recorded to document the exact transition from a failing local ping to a successful one — purely by toggling the Default Gateway field.
+
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; margin-block: 1.5rem; border-radius: 0.5rem;">
+  <iframe
+    src="https://www.youtube.com/embed/gx4Elr2qcv4"
+    title="macOS blank gateway local routing demonstration"
+    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    allowfullscreen
+  />
+</div>
+

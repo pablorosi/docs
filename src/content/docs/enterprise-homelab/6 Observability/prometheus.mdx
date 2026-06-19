@@ -1,0 +1,26 @@
+---
+title: "Prometheus"
+description: Node exporters and scraping targets for homelab metrics.
+sidebar:
+  order: 1
+---
+
+## Role in the Homelab
+
+**Prometheus** will collect time-series metrics from network devices, Proxmox hosts, and containerized services. It is the metrics backbone of the planned **Local SRE Platform**.
+
+## Planned Scope
+
+* Node and VM metrics from the Proxmox hypervisor.
+* SNMP or exporter-based metrics from Cisco switches.
+* Container and application metrics from Docker workloads.
+
+## Scrape Targets
+
+Target inventory and `prometheus.yml` configuration will be documented here once deployed.
+
+## Current Status
+
+Not yet deployed. Architecture and scrape targets will be documented as part of the [Local SRE Platform](/local-sre-platform/) rollout.
+
+See **[Grafana](/enterprise-homelab/6-observability/grafana)** for the visualization layer.

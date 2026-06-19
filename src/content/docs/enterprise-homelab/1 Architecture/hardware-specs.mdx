@@ -1,0 +1,72 @@
+---
+title: "Hardware Specs"
+description: HP t740 details, extra NICs, and Cisco switch models in the homelab.
+sidebar:
+  order: 1
+---
+
+## Compute Node
+
+| Property | Value |
+| :--- | :--- |
+| **Model** | HP t740 Thin Client |
+| **CPU** | AMD Ryzen Embedded V1756B (4C/8T) |
+| **RAM** | 16 GB DDR4 |
+| **Storage** | 512 GB NVMe |
+| **Role** | Proxmox hypervisor — KVM, LXC, nested EVE-NG |
+
+The **HP t740** was selected for **performance-per-watt** and nested virtualization support. Extra NICs bridge the host to physical switch ports on the Catalyst 3560-CX for hybrid lab testing.
+
+## Management Console
+
+| Property | Value |
+| :--- | :--- |
+| **Model** | MacBook Pro |
+| **Role** | CLI access, Draw.io diagramming, code management |
+
+## Edge Gateway
+
+| Property | Value |
+| :--- | :--- |
+| **Model** | GL.iNet |
+| **Role** | Upstream ISP connectivity, external NAT/DHCP for the lab |
+
+## Core Switch — Catalyst 3560-CX
+
+The **Cisco Catalyst 3560-CX** serves as the **Core/Distribution** layer. As a multilayer switch, it handles all physical inter-VLAN routing and acts as the high-speed backbone.
+
+| Feature | Specification |
+| :--- | :--- |
+| **Model** | Cisco Catalyst 3560-CX Series |
+| **Form Factor** | Compact, Fanless |
+| **Network Layer** | Layer 3 (Multilayer) |
+| **Port Configuration** | 16 total ports (Copper + SFP) |
+| **Throughput** | 32 Gbps |
+
+### Planned Port Mapping
+
+* **SFP Ports:** Reserved for future high-speed fiber uplinks.
+* **Gigabit Copper:** Uplinks to the Catalyst 2960 and the HP t740.
+
+Currently in initial provisioning — primary management switch connecting the Proxmox host to the rest of the infrastructure.
+
+## Access Switch — Catalyst 2960
+
+The **Cisco Catalyst 2960-8TC-L** acts as the **Access Layer** switch, providing Layer 2 connectivity for endpoints and management interfaces.
+
+| Feature | Specification |
+| :--- | :--- |
+| **Model** | Cisco Catalyst 2960-8TC-L |
+| **Form Factor** | Compact / Fixed Configuration |
+| **Network Layer** | Layer 2 |
+| **Port Configuration** | 8 × FastEthernet (10/100) + 1 × Gigabit Dual-purpose |
+| **Forwarding Bandwidth** | 16 Gbps |
+
+### Planned Port Mapping
+
+* **Gi0/1 (Uplink):** Trunk port connecting back to the Catalyst 3560-CX.
+* **Fa0/1 – Fa0/8:** Access-level testing, console management loops, and future lab endpoints.
+
+Advanced configurations (Port-Security, Access VLANs) are in the backlog.
+
+See **[Network Topology](/enterprise-homelab/1-architecture/network-topology)** for cabling and IP design.
