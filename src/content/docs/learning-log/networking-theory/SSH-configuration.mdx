@@ -1,0 +1,107 @@
+---
+title: "Configure SSH in Cisco IOS"
+date: 2026-06-08
+tag: networking-theory
+---
+
+SSH (Secure Shell) replaces unencrypted remote access protocols like Telnet. It encrypts the session between your workstation and the network device, so credentials and configuration commands cannot be read in transit. On Cisco IOS, enabling SSH is the standard way to manage switches and routers remotely over the network.
+
+Before SSH can work, the device needs a reachable **management IP address**. The approach differs between switches and routers.
+
+## 1. Management access
+
+### 1.1 Switches — VLAN interface (SVI)
+
+A Layer 2 switch does not assign an IP address to individual access ports. SSH traffic must terminate on a **Switch Virtual Interface (SVI)** tied to a VLAN — typically the management VLAN (e.g., VLAN 1 or a dedicated management VLAN).
+
+Without an SVI, the switch has no IP address to connect to, even if SSH is fully configured.
+
+```txt
+S1(config)# interface vlan 99
+S1(config-if)# ip address 192.168.99.10 255.255.255.0
+S1(config-if)# no shutdown
+S1(config-if)# exit
+S1(config)# ip default-gateway 192.168.99.1
+```
+
+The `ip default-gateway` command is required on a Layer 2 switch so it can reach SSH clients on other subnets.
+
+On a **multilayer switch** with `ip routing` enabled, use a static route or routed SVI instead of `ip default-gateway`.
+
+### 1.2 Routers — loopback interface (recommended)
+
+A router assigns IP addresses to its physical interfaces, so in theory you could connect via SSH to any routed port that is `up/up` and reachable from your management network. In practice, that is fragile: if the physical interface goes down, you lose remote access.
+
+The recommended approach is a **loopback interface** — a virtual interface that never goes down. It provides a stable management address independent of any single physical link.
+
+```txt
+R1(config)# interface loopback 0
+R1(config-if)# ip address 10.255.0.1 255.255.255.255
+R1(config-if)# exit
+```
+
+Connect to the loopback address from your management workstation once routing is in place.
+
+## 2. SSH configuration
+
+The steps below are the same for switches and routers once a management IP is configured.
+
+### 2.1 Verify SSH support
+
+```txt
+S1# show ip ssh
+```
+
+### 2.2 Configure the IP domain
+
+RSA key generation requires a domain name.
+
+```txt
+S1(config)# ip domain-name cisco.com
+```
+
+### 2.3 Generate RSA key pairs
+
+SSH cannot start until RSA keys exist. Cisco IOS generates them automatically when you run this command.
+
+```txt
+S1(config)# crypto key generate rsa general-keys modulus 2048
+```
+
+### 2.4 Configure user authentication
+
+```txt
+S1(config)# username admin secret ccna
+```
+
+### 2.5 Configure the VTY lines
+
+Apply SSH to all virtual terminal lines and require local username authentication.
+
+```txt
+S1(config)# line vty 0 15
+S1(config-line)# transport input ssh
+S1(config-line)# login local
+S1(config-line)# exit
+```
+
+### 2.6 Enable SSH version 2
+
+```txt
+S1(config)# ip ssh version 2
+```
+
+## 3. Verify SSH is operational
+
+```txt
+S1# show ip ssh
+S1# show users
+```
+
+From a client on the same network (or a routed path), test the connection:
+
+```txt
+ssh -l admin 192.168.99.10
+```
+
+Replace the IP with the SVI address on a switch or the loopback address on a router.
