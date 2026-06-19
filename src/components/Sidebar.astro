@@ -2,7 +2,6 @@
 import MobileMenuFooter from '@astrojs/starlight/components/MobileMenuFooter.astro';
 import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.astro';
 import SidebarSublist from '@astrojs/starlight/components/SidebarSublist.astro';
-import { getCollection } from 'astro:content';
 
 type SidebarEntry = {
   type: 'link' | 'group';
@@ -20,7 +19,7 @@ const pathname = Astro.url.pathname;
 
 const projectKeys = [
   'cloud-infrastructure',
-  'enterprise-homelab', 
+  'enterprise-homelab',
   'learning-log',
 ] as const;
 
@@ -32,30 +31,6 @@ const projectLabels: Record<(typeof projectKeys)[number], string> = {
 
 const currentProject =
   projectKeys.find((key) => pathname.includes(`/${key}/`) || pathname.endsWith(`/${key}`)) ?? null;
-
-const learningLogNotes = currentProject === 'learning-log'
-  ? (await getCollection('docs', ({ id, data }) => {
-      return id.startsWith('learning-log/') && !data.draft && !id.endsWith('/index');
-    }))
-      .sort((a, b) => {
-        const aTime = a.data.date ? new Date(a.data.date).getTime() : 0;
-        const bTime = b.data.date ? new Date(b.data.date).getTime() : 0;
-        return bTime - aTime;
-      })
-      .map((note) => {
-        const href = note.slug
-          ? `/${note.slug}/`
-          : `/${note.id.replace(/\\/g, '/').replace(/\.mdx?$/, '')}/`;
-        return {
-          type: 'link',
-          label: note.data.title,
-          href,
-          isCurrent: pathname === href || pathname === href.replace(/\/$/, ''),
-          badge: undefined,
-          attrs: {},
-        };
-      })
-  : [];
 
 function entryMatchesProject(entry: SidebarEntry, projectKey: string): boolean {
   if (entry.type === 'link') {
@@ -78,50 +53,21 @@ function pruneSidebar(entries: SidebarEntry[], projectKey: string): SidebarEntry
   });
 }
 
-function collectProjectLinks(entries: SidebarEntry[], projectKey: string): SidebarEntry[] {
-  return entries.flatMap((entry) => {
-    if (entry.type === 'group') {
-      return collectProjectLinks(entry.entries ?? [], projectKey);
-    }
-    const href = entry.href ?? '';
-    if (href.includes(`/${projectKey}/`) || href.endsWith(`/${projectKey}`)) {
-      return [entry];
-    }
-    return [];
-  });
-}
-
 let filteredSidebar: SidebarEntry[] = [];
 if (currentProject) {
-  // Try to find the top-level group for this project (the autogenerate group)
   const projectLabel = projectLabels[currentProject];
   const projectGroup = sidebar.find(
-    (entry: any) => entry.type === 'group' && entry.label === projectLabel
-  ) as SidebarEntry | undefined;
+    (entry: SidebarEntry) => entry.type === 'group' && entry.label === projectLabel
+  );
 
-  if (currentProject === 'learning-log') {
-    const indexHref = '/learning-log/';
-    const indexEntry: SidebarEntry = {
-      type: 'link',
-      label: 'View all notes',
-      href: indexHref,
-      isCurrent: pathname === indexHref || pathname === indexHref.replace(/\/$/, ''),
-      badge: undefined,
-      attrs: {},
-    };
-    filteredSidebar = [indexEntry, ...learningLogNotes];
-  } else if (projectGroup && projectGroup.entries) {
-    // Use the group's entries directly (flattened), pruning any root links
-    filteredSidebar = pruneSidebar(projectGroup.entries as SidebarEntry[], currentProject);
+  if (projectGroup?.entries) {
+    filteredSidebar = pruneSidebar(projectGroup.entries, currentProject);
   } else {
-    // Fallback: filter and prune from entire sidebar
     filteredSidebar = pruneSidebar(
       sidebar.filter((entry: SidebarEntry) => entryMatchesProject(entry, currentProject)),
       currentProject
     );
   }
-} else {
-  filteredSidebar = [];
 }
 
 const currentProjectLabel = currentProject ? projectLabels[currentProject] : null;

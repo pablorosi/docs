@@ -1,47 +1,47 @@
-# 📚 Lab Docs - Knowledge Base and Portfolio
+# Lab Docs
 
-Welcome to the source code repository of my technical documentation portal and portfolio. This platform is statically built with **Astro** and **Starlight**, and serves as a living record of my infrastructure projects.
+Personal documentation site for infrastructure projects, lab notes, and things I want to remember later.
 
-🌐 **Live Documentation:** [docs.pablorosi.dev](https://docs.pablorosi.dev)
+**Live site:** [docs.pablorosi.dev](https://docs.pablorosi.dev)
 
-## 🛠️ Tech Stack
+Built with [Astro](https://astro.build/) and [Starlight](https://starlight.astro.build/). Content is mostly MDX under `src/content/docs/`. Pushes to `main` trigger a GitHub Actions workflow that builds the site and deploys it to a Hetzner VPS over Tailscale.
 
-* **Framework:** [Astro](https://astro.build/)
-* **Documentation Theme:** [Starlight](https://starlight.astro.build/)
-* **Content:** Markdown / MDX
-* **Deployment:** GitHub Actions (CI/CD)
+## What's here
 
-## 📁 Project Structure
+| Section | Contents |
+| :--- | :--- |
+| **Enterprise Homelab** | Physical Cisco lab, Proxmox, EVE-NG, Tailscale, Docker |
+| **Cloud Infrastructure** | Hetzner VPS, Cloudflare, Nginx Proxy Manager, CI/CD |
+| **Learning Log** | Networking theory, Python notes, lab write-ups |
+| **Local SRE Platform** | Observability and automation stack (in progress) |
 
-This repository follows the standard structure of an Astro project, integrating the **Diátaxis** framework within the content folder (`src/content/docs/`) to organize documentation logically:
-```text
-├── .github/workflows/       # CI/CD Automation (GitHub Actions)
-├── public/                  # Raw static resources (favicon.ico)
-├── src/
-│   ├── assets/              # Processed images and diagrams
-│   └── content/
-│       └── docs/            # 📝 Documentation core (Markdown/MDX)
-│           └── index.mdx    # Home page (Landing Page)
-├── astro.config.mjs         # Main Astro and Starlight configuration
-├── package.json             # Dependencies and scripts (npm run dev/build)
-└── README.md                 
-````
+## Requirements
 
-## 🚀 Local Development Guide
+- Node.js 22+
+- [pnpm](https://pnpm.io/) 10+
 
-If you want to clone this repository and run the documentation in your local environment to make changes, follow these steps:
+## Local development
 
-### 1. Prerequisites
-Make sure you have [Node.js](https://nodejs.org/) installed (version 18 or higher).
-
-### 2. Installation
-Clone the repository and install dependencies:
 ```bash
-git clone [https://github.com/pablorosi/docs.git](https://github.com/pablorosi/docs.git)
-```
-```bash
+git clone https://github.com/pablorosi/docs.git
 cd docs
-````
-```bash
-npm install
+pnpm install
+pnpm dev
 ```
+
+The dev server starts at `http://localhost:4321`.
+
+
+## Repository layout
+
+```text
+.github/workflows/     CI/CD (build + deploy to Hetzner)
+public/                Static assets (SVGs, favicon, robots.txt)
+src/
+  components/          Custom Starlight overrides (header, sidebar, …)
+  content/docs/        All documentation (MDX)
+  styles/              Site CSS
+astro.config.mjs       Starlight sidebar, integrations (Mermaid, sitemap)
+```
+
+Content lives in `src/content/docs/`. The sidebar order and section grouping are configured in `astro.config.mjs`, not inferred from the filesystem alone.
