@@ -1,0 +1,152 @@
+---
+title: "IPv6 Neighbor Discovery Protocol (NDP)"
+date: 2026-06-13
+tag: networking-theory
+---
+
+In IPv4, a host uses **ARP** to resolve an IP address to a MAC address and **ICMP Router Discovery** to find its default gateway. IPv6 replaces both with a single protocol: **Neighbor Discovery Protocol (NDP)**, defined in RFC 4861 and carried inside **ICMPv6**.
+
+NDP operates on the local link only — it does not route across subnets.
+
+## 1. What NDP does
+
+| Function | IPv4 equivalent | NDP mechanism |
+|----------|-----------------|---------------|
+| Address resolution | ARP Request / Reply | Neighbor Solicitation / Advertisement |
+| Default gateway discovery | ICMP Router Discovery / DHCP | Router Solicitation / Advertisement |
+| Duplicate address check | Gratuitous ARP | Duplicate Address Detection (DAD) |
+| Redirect to a better next hop | ICMP Redirect | ICMPv6 Redirect |
+| Keep neighbor info fresh | ARP cache timeout | Neighbor Unreachability Detection (NUD) |
+
+## 2. ICMPv6 message types
+
+NDP uses five ICMPv6 message types (type 133–137):
+
+| Type | Name | Purpose |
+|------|------|---------|
+| 133 | **Router Solicitation (RS)** | Host asks: "Are there any routers on this link?" |
+| 134 | **Router Advertisement (RA)** | Router announces its presence, prefix, and flags |
+| 135 | **Neighbor Solicitation (NS)** | Host asks: "Who owns this IPv6 address?" |
+| 136 | **Neighbor Advertisement (NA)** | Host replies with its link-layer (MAC) address |
+| 137 | **Redirect** | Router tells a host to use a different next hop for a destination |
+
+All NDP messages are sent to **link-local** scope — they never leave the local segment.
+
+## 3. Address resolution (NS / NA)
+
+When Host A wants to send traffic to Host B on the same link, it must learn B's MAC address. The process mirrors ARP:
+
+1. Host A sends a **Neighbor Solicitation** to the **solicited-node multicast address** of Host B's IPv6 address.
+2. Host B responds with a **Neighbor Advertisement** containing its MAC address.
+3. Host A stores the mapping in its **neighbor cache** (the IPv6 equivalent of an ARP table).
+
+```text
+Host A (2001:db8::1)  →  NS: "Who has 2001:db8::2?"
+Host B (2001:db8::2)  →  NA: "2001:db8::2 is at aa:bb:cc:dd:ee:ff"
+```
+
+A **gratuitous NA** (unsolicited advertisement) can also update neighbor caches when a host's MAC changes — similar to gratuitous ARP in IPv4.
+
+## 4. Router discovery (RS / RA)
+
+When an IPv6 host comes online, it needs a default gateway and network prefix. Two methods exist:
+
+### 4.1 Stateless Address Autoconfiguration (SLAAC)
+
+1. Host sends a **Router Solicitation** to `FF02::2` (all routers multicast).
+2. Router replies with a **Router Advertisement** containing:
+   - Network prefix (e.g., `2001:db8:1::/64`)
+   - Default gateway address
+   - Flags: **M** (Managed — use DHCPv6), **O** (Other — use DHCPv6 for DNS), **A** (Autonomous — build address via SLAAC)
+3. Host builds its global address by combining the prefix with its interface identifier (often EUI-64 from the MAC).
+
+### 4.2 Router Advertisement flags
+
+| Flag | Meaning |
+|------|---------|
+| **A** (Autonomous) | Host may auto-configure an address from the advertised prefix (SLAAC) |
+| **M** (Managed) | Host must use DHCPv6 for address configuration |
+| **O** (Other) | Host must use DHCPv6 for other config (DNS, etc.) |
+
+If no RA is received, the host can only communicate using its **link-local** address (`fe80::/10`).
+
+## 5. Duplicate Address Detection (DAD)
+
+Before using a newly assigned address, an IPv6 node verifies it is not already in use on the link:
+
+1. Send a **Neighbor Solicitation** for its own address (target = self).
+2. If no **Neighbor Advertisement** comes back, the address is unique and safe to use.
+3. If a reply arrives, the address is a duplicate and must not be used.
+
+DAD runs automatically when an address is added to an interface — whether via SLAAC, DHCPv6, or manual configuration.
+
+## 6. Link-local addresses
+
+Every IPv6 interface automatically gets a **link-local address** in the `fe80::/10` range. NDP always uses link-local addresses as the source for its messages, even when communicating about global addresses.
+
+Link-local addresses are never routed beyond the local segment and are the foundation for NDP to work.
+
+## 7. Key multicast addresses
+
+| Address | Purpose |
+|---------|---------|
+| `FF02::1` | All nodes on the local link |
+| `FF02::2` | All routers on the local link |
+| `FF02::1:FFxx:xxxx` | Solicited-node multicast (last 24 bits of target IPv6 address) |
+
+The solicited-node address ensures NS messages are delivered only to the node that owns the target address, not broadcast to every device on the link.
+
+## 8. Neighbor cache
+
+Each IPv6 node maintains a **neighbor cache** — a table mapping IPv6 addresses to link-layer addresses and reachability state:
+
+| State | Meaning |
+|-------|---------|
+| **INCOMPLETE** | Address resolution in progress (NS sent, waiting for NA) |
+| **REACHABLE** | Neighbor confirmed reachable; entry is fresh |
+| **STALE** | Entry exists but has not been verified recently |
+| **DELAY** | Waiting to verify reachability before marking unreachable |
+| **PROBE** | Actively sending NS to confirm reachability |
+
+**Neighbor Unreachability Detection (NUD)** periodically probes stale entries to detect failed neighbors without waiting for traffic to fail.
+
+## 9. NDP vs ARP
+
+| | ARP (IPv4) | NDP (IPv6) |
+|-|------------|------------|
+| Protocol | Layer 2 broadcast (Ethernet broadcast) | ICMPv6 multicast (solicited-node) |
+| Scope | Broadcast to all hosts on segment | Targeted multicast — less noise |
+| Gateway discovery | Separate mechanism (DHCP / ICMP) | Built into NDP (RS / RA) |
+| Address check | Gratuitous ARP (optional) | DAD (mandatory) |
+| Cache table | ARP table | Neighbor cache |
+| Security | Vulnerable to spoofing (see DAI) | Same class of attacks (NDP spoofing) |
+
+## 10. Verification (Cisco IOS)
+
+View the IPv6 neighbor table:
+
+```txt
+Router# show ipv6 neighbors
+```
+
+View interface IPv6 addresses and link-local:
+
+```txt
+Router# show ipv6 interface brief
+```
+
+View Router Advertisement details on an interface:
+
+```txt
+Router# show ipv6 routers
+```
+
+On a host (Linux):
+
+```bash
+ip -6 neighbor show
+```
+
+```bash
+ip -6 route show
+```
