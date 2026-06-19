@@ -4,6 +4,7 @@ description: The core vision and roadmap for the enterprise homelab environment.
 ---
 
 import { Aside, CardGrid, LinkCard, Steps } from '@astrojs/starlight/components';
+import ThemeImage from '../../../components/ThemeImage.astro';
 
 Welcome to the **Enterprise Homelab** documentation. This environment is the foundation for **NetDevOps** experiments, Cisco networking labs, Linux systems administration, and the future [Local SRE Platform](/local-sre-platform/).
 
@@ -13,7 +14,11 @@ The lab is continuously evolving. Documentation is updated as new services (Ansi
 
 ## Architecture
 
-![Hybrid Lab Network Topology](/network-topology.svg)
+<ThemeImage
+  lightSrc="/network-topology-light.svg"
+  darkSrc="/network-topology.svg"
+  alt="Hybrid Lab Network Topology"
+/>
 
 *Figure 1: Physical network architecture with collapsed core design.*
 

@@ -1,0 +1,55 @@
+---
+interface Props {
+	lightSrc: string;
+	darkSrc: string;
+	alt: string;
+	class?: string;
+}
+
+const { lightSrc, darkSrc, alt, class: className } = Astro.props;
+---
+
+<figure class:list={['theme-image', className]} data-theme-image>
+	<img
+		class="theme-image__variant theme-image__variant--light"
+		src={lightSrc}
+		alt={alt}
+		loading="lazy"
+		decoding="async"
+	/>
+	<img
+		class="theme-image__variant theme-image__variant--dark"
+		src={darkSrc}
+		alt={alt}
+		loading="lazy"
+		decoding="async"
+	/>
+</figure>
+
+<style>
+	.theme-image {
+		margin: 1.5rem 0;
+	}
+
+	.theme-image__variant {
+		width: 100%;
+		height: auto;
+		display: block;
+	}
+
+	.theme-image__variant--light {
+		display: none;
+	}
+
+	.theme-image__variant--dark {
+		display: block;
+	}
+
+	:global([data-theme='light']) .theme-image__variant--light {
+		display: block;
+	}
+
+	:global([data-theme='light']) .theme-image__variant--dark {
+		display: none;
+	}
+</style>
