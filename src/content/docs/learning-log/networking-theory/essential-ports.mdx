@@ -1,0 +1,31 @@
+---
+title: 'Essential Ports and Services'
+date: '2026-06-08'
+tag: networking-theory
+---
+
+# Essential Network Ports and Services
+
+  **What is a port?** A port is a logical communication endpoint within an operating system. It allows computers to differentiate between different types of network traffic arriving over the same network interface.
+
+
+## Core Ports and Protocols Reference Table
+
+Below is a detailed list of the most critical network ports you need to know:
+
+| Port | Protocol | Service Name | Description |
+| :--- | :--- | :--- | :--- |
+| **20, 21** | TCP | **FTP** (File Transfer Protocol) | Transfers files between a client and a server. Port 20 is used for data transfer, and port 21 is used for connection control/commands. |
+| **22** | TCP | **SSH** (Secure Shell) | Provides an encrypted and secure channel for remote console login and command execution. It is the standard for managing Linux servers securely. |
+| **23** | TCP | **Telnet** | Provides **unencrypted** remote console access. It is considered highly insecure because credentials and data travel in cleartext. |
+| **25** | TCP | **SMTP** (Simple Mail Transfer Protocol) | The standard protocol used for routing and sending (*pushing*) email messages between mail servers (MTAs). |
+| **53** | TCP / UDP | **DNS** (Domain Name System) | Translates human-readable domain names (like *google.com*) into their corresponding numerical IP addresses. |
+| **67, 68** | UDP | **DHCP** (Dynamic Host Configuration Protocol) | Automatically assigns IP addresses, default gateways, and DNS settings to client devices. Port **67** listens on the server; **68** listens on the client. |
+| **80** | TCP | **HTTP** (Hypertext Transfer Protocol) | Transmits web page data in cleartext (unencrypted) across the internet. |
+| **110** | TCP | **POP3** (Post Office Protocol v3) | Retrieves (*pulls*) email from a remote server to a local client. Traditionally downloads the email and deletes it from the server. |
+| **143** | TCP | **IMAP** (Internet Message Access Protocol) | Retrieves email while maintaining a synced connection with the server, allowing simultaneous access from multiple devices. |
+| **443** | TCP | **HTTPS** (Hypertext Transfer Protocol Secure) | Transmits encrypted web traffic using SSL/TLS certificates, ensuring data privacy and integrity. |
+| **445** | TCP | **SMB** (Server Message Block) | Primarily used in Windows environments for file sharing, printer sharing, and accessing remote network resources. |
+| **3389** | TCP / UDP | **RDP** (Remote Desktop Protocol) | Microsoft's proprietary protocol designed to provide a graphical user interface when connecting to another computer over the network. |
+
+
