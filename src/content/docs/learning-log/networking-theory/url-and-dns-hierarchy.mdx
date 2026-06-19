@@ -1,0 +1,144 @@
+---
+title: "URL Structure and DNS Hierarchy"
+date: 2026-06-13
+tag: networking-theory
+---
+
+Every web address is built from distinct parts. Understanding how they fit together — and how DNS resolves them — makes troubleshooting connectivity and naming issues much easier.
+
+## 1. Anatomy of a URL
+
+Take this example:
+
+```text
+http://www.cisco.com/index.html
+```
+
+Each segment has a specific role:
+
+| Part | Name | Role |
+|------|------|------|
+| `http://` | **Protocol / scheme** | Rules the browser and server use to communicate. Here: HyperText Transfer Protocol. Other examples: `https://`, `ftp://`, `ssh://`. |
+| `www` | **Subdomain / host** | Identifies a specific server or service within the organization's domain. Could also be `mail.cisco.com`, `store.cisco.com`, etc. |
+| `cisco` | **Second-Level Domain (SLD)** | The main name of the site — the brand or organization that registers and owns the domain. |
+| `.com` | **Top-Level Domain (TLD)** | The highest category in the Internet naming hierarchy. Groups domains by purpose (`.com` commercial, `.edu` educational, `.gov` government) or by country (`.es`, `.mx`, `.uk`). |
+| `/index.html` | **Path and file** | Once the correct server is reached, this tells it exactly which document or directory to return. |
+
+The **Fully Qualified Domain Name (FQDN)** is the complete hostname: `www.cisco.com` — including every label from the host down to the root.
+
+## 2. DNS reads right to left
+
+The **Domain Name System (DNS)** resolves names by walking the hierarchy from **right to left**, stopping just before the first `/` in a URL.
+
+For `www.cisco.com`:
+
+```text
+.com  →  cisco  →  www
+ TLD      SLD     host
+```
+
+Think of DNS as a postal system:
+
+1. **TLD (`.com`)** — the country or district: which global namespace does this name belong to?
+2. **SLD (`cisco`)** — the street: which registered organization owns this name?
+3. **Subdomain (`www`)** — the building number: which specific server or service inside that organization?
+
+Only after DNS returns an IP address for `www.cisco.com` does the browser open a TCP connection and send an HTTP request for `/index.html`.
+
+## 3. The DNS hierarchy
+
+```
+                    .  (root)
+                    |
+          +---------+---------+
+          |         |         |
+        .com       .org       .es
+          |         |         |
+        cisco     wikipedia  google
+          |
+    +-----+-----+
+    |           |
+   www         mail
+```
+
+Each level is managed by a different authority:
+
+| Level | Example | Managed by |
+|-------|---------|------------|
+| Root (`.`) | — | Root DNS servers (IANA) |
+| TLD | `.com`, `.org`, `.es` | Registry operators (Verisign, Red.es, etc.) |
+| SLD | `cisco.com` | The organization that registered the domain |
+| Subdomain | `www.cisco.com` | The organization itself (via its DNS zone file) |
+
+When you register `cisco.com`, you control all subdomains beneath it: `www.cisco.com`, `api.cisco.com`, `vpn.cisco.com`, and so on.
+
+## 4. Common TLD categories
+
+| Type | Examples | Purpose |
+|------|----------|---------|
+| **Generic (gTLD)** | `.com`, `.org`, `.net`, `.io` | General use; `.com` is the most common for commercial sites |
+| **Sponsored** | `.edu`, `.gov`, `.mil` | Restricted to specific communities (education, US government, military) |
+| **Country-code (ccTLD)** | `.es`, `.mx`, `.de`, `.uk` | Tied to a specific country or territory |
+
+The correct TLD for a commercial company like Cisco is **`.com`**.
+
+## 5. What DNS does not resolve
+
+DNS only maps **hostnames to IP addresses**. It does not handle:
+
+- The **protocol** (`http://` vs `https://`) — chosen by the browser or application.
+- The **path** (`/index.html`) — sent by the browser after the TCP/TLS connection is established.
+- The **port** — defaults to 80 for HTTP and 443 for HTTPS unless specified (`https://example.com:8443`).
+
+```text
+http://www.cisco.com/index.html
+|____||_______________||__________|
+ proto   DNS resolves     HTTP path
+         this part        (not DNS)
+```
+
+## 6. Quick reference
+
+```text
+http://www.cisco.com/index.html
+└─┬─┘ └──────┬──────┘ └────┬────┘
+protocol   FQDN         resource path
+           (DNS scope)
+              └─┬─┘└┬┘
+               SLD TLD
+              └┬┘
+            subdomain
+```
+
+1. DNS resolves `www.cisco.com` → IP address (e.g., `198.18.1.1`).
+2. Browser connects to that IP on port 80 (HTTP).
+3. Browser sends: `GET /index.html HTTP/1.1`.
+4. Server returns the HTML document.
+
+## 7. Verification
+
+Query DNS from a terminal:
+
+```bash
+nslookup www.cisco.com
+```
+
+```bash
+dig www.cisco.com
+```
+
+Trace the full resolution path:
+
+```bash
+dig +trace www.cisco.com
+```
+
+On Cisco IOS:
+
+```txt
+Router# ping www.cisco.com
+```
+
+```txt
+Router# show ip dns view
+```
