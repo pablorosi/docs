@@ -1,0 +1,53 @@
+---
+title: "Open Shortest Path First (OSPF)"
+date: 2026-05-31
+tag: networking-theory
+---
+
+OSPF is a Link-State protocol. An OSPF router does not rely on rumors. It demands to see the entire map of the network so it can calculate the absolute best path itself.
+
+## 1. The Three Tables
+
+When OSPF starts up on a router, it goes through a specific process to build three distinct tables:
+
+**The Neighbor Table (Adjacency Database):** The router sends out "Hello" packets to find other OSPF routers directly connected to it. Once they agree to be friends, they become neighbors. (Command: show ip ospf neighbor)
+
+**The Topology Table (Link-State Database / LSDB):** Every router floods the network with LSAs (Link-State Advertisements) containing information about their connected links. Every router collects these LSAs until they all have an identical, complete map of the entire network. (Command: show ip ospf database)
+
+**The Routing Table (Forwarding Database):** The router takes that complete map and runs a mathematical formula over it to find the fastest routes. The winning routes are injected into the final routing table. (Command: show ip route)
+
+## 2. The Algorithm (Dijkstra's SPF)
+
+The mathematical formula OSPF uses to process the map is called the Shortest Path First (SPF) algorithm, invented by Edsger Dijkstra.
+Imagine looking at a GPS map. The SPF algorithm calculates every possible combination of roads to get from your router to the destination, and it strictly selects the path with the lowest total "Cost".
+
+## 3. The Metric (Cost)
+
+OSPF measures the "distance" to a network using Cost, which is entirely based on bandwidth.
+
+Faster links (like Gigabit) have a lower cost.
+
+Slower links (like Serial) have a higher cost.
+
+The Rule: OSPF will always choose the path with the lowest cumulative cost, even if that path requires hopping through more routers.
+
+
+## 4. OSPF Default Cost Table
+
+OSPF calculates the cost of a link using the formula: `Reference Bandwidth / Interface Bandwidth`. By default, Cisco uses a reference bandwidth of **100 Mbps** ($10^8$ bps).
+
+Here are the default costs you need to memorize:
+
+| Interface Type | Bandwidth | Default OSPF Cost |
+| :--- | :--- | :--- |
+| **10 Gigabit Ethernet** | 10 Gbps | **1** *(Minimum cost is 1)* |
+| **Gigabit Ethernet** | 1 Gbps | **1** *(Minimum cost is 1)* |
+| **Fast Ethernet** | 100 Mbps | **1** |
+| **Ethernet** | 10 Mbps | **10** |
+| **T1 Serial** | 1.544 Mbps | **64** |
+| **Slow Serial** | 128 kbps | **781** |
+| **ISDN / Slow Serial** | 64 kbps | **1562** |
+
+
+## 5. DR (Designated Router) and BDR (Backup Designated Router)
+
