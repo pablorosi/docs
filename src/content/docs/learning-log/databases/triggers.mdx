@@ -1,0 +1,71 @@
+---
+title: Triggers (Fundamentals)
+date: 2026-06-24
+tag: databases
+sidebar:
+  order: 5
+---
+
+A **Trigger** is a database object that automatically "fires" (executes) when a specific event (`INSERT`, `UPDATE`, or `DELETE`) occurs on a table. It is used for background automation and ensuring data integrity without needing a manual `CALL`.
+
+## 1. The Trigger Structure
+
+Like Stored Procedures, you must change the `DELIMITER` to define a Trigger so the engine doesn't stop reading at the first semicolon.
+
+```sql
+DELIMITER $$
+
+CREATE TRIGGER TriggerName
+AFTER INSERT ON TargetTable      -- 1. Timing (AFTER/BEFORE) + Action + Table
+FOR EACH ROW                     -- 2. Mandatory in MySQL (Row-level execution)
+BEGIN
+    -- 3. Your automatic SQL logic goes here
+    -- Use NEW.column_name to access the incoming data
+END $$
+
+DELIMITER ;
+```
+
+## 2. The Magic Variables: `NEW` and `OLD`
+
+When a trigger fires, MySQL temporarily holds the data being modified in two special records. You don't need to declare them; they are always available.
+
+* **`NEW`**: Contains the *incoming* data. Used in `INSERT` and `UPDATE` triggers. (e.g., `NEW.idSerie` gives you the ID of the series the user just interacted with).
+* **`OLD`**: Contains the *previous* data before the change. Used in `UPDATE` and `DELETE` triggers.
+
+## 3. Practical Example: Auto-updating a Counter
+
+This trigger automatically updates the number of unique users who have rated a series whenever a new comment is inserted.
+
+```sql
+DELIMITER $$
+
+CREATE TRIGGER UpdateUserCount
+AFTER INSERT ON Comentario
+FOR EACH ROW
+BEGIN
+    -- We update the parent table directly using a subquery
+    UPDATE Serie
+    SET amountOfUsers = (
+        -- Count unique users for this specific series
+        SELECT COUNT(DISTINCT idUsuario)
+        FROM Comentario
+        WHERE idSerie = NEW.idSerie AND valoracion IS NOT NULL
+    )
+    -- CRITICAL: Only update the exact series that received the comment!
+    WHERE id = NEW.idSerie;
+
+END $$
+
+DELIMITER ;
+```
+
+### Breaking down the `WHERE` clauses:
+1.  **Inner `WHERE` (The Subquery):** `WHERE idSerie = NEW.idSerie` ensures we only count comments for the specific series being interacted with.
+2.  **Outer `WHERE` (The `UPDATE`):** `WHERE id = NEW.idSerie` acts as the "handbrake". It ensures we don't accidentally overwrite the user count for all the series in the database, modifying only the single series that triggered the event.
+
+## 4. Important Rules
+
+1.  **`FOR EACH ROW` is mandatory:** MySQL only supports row-level triggers. If you run an `INSERT` command that adds 5 rows at once, the trigger runs 5 separate times.
+2.  **No `CALL` needed:** Triggers are invisible to the Backend application (like Python, PHP, or Slim Framework). They live entirely inside the database and run silently.
+3.  **Keep it lightweight:** Never put complex business logic inside a trigger. They should be short, fast, and focused on maintaining data consistency.
