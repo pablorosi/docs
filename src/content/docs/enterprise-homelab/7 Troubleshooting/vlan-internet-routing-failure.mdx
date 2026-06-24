@@ -39,7 +39,6 @@ The lab uses two independent routing domains:
 * **Switch-L3 (3560-CX):** Runs `ip routing` with SVIs for every internal VLAN, including VLAN 102 (`10.0.102.0/24`) and the uplink subnet (`192.168.8.0/24`). A default route points upstream: `ip route 0.0.0.0 0.0.0.0 192.168.8.1`.
 * **Edge gateway (GL.iNet GL-AXT1800, OpenWrt 4.8):** Performs NAT for the lab. It is **directly connected** only to `192.168.8.0/24` on its LAN interface (`192.168.8.1`).
 
-
 ### What happens on the wire
 
 1. A host on VLAN 102 sends traffic to `8.8.8.8`. Switch-L3 routes it out its SVI on `192.168.8.0/24` toward `192.168.8.1`.
@@ -75,6 +74,5 @@ On GL.iNet firmware 4.8, inject the route through the OpenWrt LuCI advanced pane
 Switch-L2# ping 8.8.8.8 source Vlan102
 Success rate is 100 percent (5/5)
 ```
-
 
 See **[Network Topology](/enterprise-homelab/1-architecture/network-topology)** and **[Cisco Switches](/enterprise-homelab/3-networking/cisco-switches)** for lab context.

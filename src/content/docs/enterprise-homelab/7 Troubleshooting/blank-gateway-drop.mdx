@@ -30,8 +30,9 @@ If the **Router (Default Gateway)** field is left blank:
 This bug was particularly insidious because it defied standard networking logic. During deployment, the following checks all looked healthy:
 
 My initial troubleshooting followed standard Layer 2 / Layer 3 isolation protocols:
+
 1. **Layer 2 Verification:** I verified the physical link from the Mac to the Access Switch. I ran `show vlan brief` and `show interfaces status` to confirm the port was actively assigned to VLAN 10 and forwarding traffic.
-2. **Layer 3 Verification:** I checked the Core Switch. `show ip interface brief` confirmed the VLAN 10 SVI (`10.0.10.1`) was `up/up`. 
+2. **Layer 3 Verification:** I checked the Core Switch. `show ip interface brief` confirmed the VLAN 10 SVI (`10.0.10.1`) was `up/up`.
 3. **Trunk Link Validation:** I verified the 802.1Q trunk between the L2 and L3 switches was passing VLAN 10 traffic.
 
 The root cause turned out to be entirely on the macOS host — not the switches.

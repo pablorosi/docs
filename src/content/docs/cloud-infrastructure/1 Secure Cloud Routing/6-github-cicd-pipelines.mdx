@@ -69,7 +69,7 @@ The portfolio pipeline follows the same Tailscale-first pattern with repo-specif
 | Artifacts copied | `dist/`, `docker-compose.yml` | `dist/`, `docker-compose.yml` |
 | Post-deploy | `docker compose up -d` | `docker compose up -d` |
 
-Both workflows connect to `secrets.SERVER_IP`, which holds the **internal Tailscale IP**, not the Hetzner public address.
+Both workflows connect to `secrets.SERVER_IP`, which holds the **internal Tailscale IP**, not the Hetzner public address. Deploy paths are defined in the workflow files themselves — they are operational layout, not secrets. Access still requires Tailscale authentication and the SSH private key stored in GitHub Secrets.
 
 :::tip[View the Complete Workflows]
 - [Documentation Deployment Workflow](https://github.com/pablorosi/docs/blob/main/.github/workflows/deploy.yml)

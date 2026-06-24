@@ -26,8 +26,8 @@ Before deploying containers, the host requires basic security hardening.
 Password authentication is disabled in favor of cryptographic keys. SSH is not reachable on the server's public IP; it is available only via the Tailscale overlay (`100.x.x.x`). The Hetzner firewall rules and Tailscale setup are detailed in chapters 3 and 5.
 
 ```bash
-# Connecting via the Tailscale interface
-ssh root@100.x.x.x
+# Connecting via the Tailscale interface (username comes from GitHub Secrets in CI)
+ssh $USER@100.x.x.x
 apt update && apt upgrade -y
 ```
 
@@ -89,6 +89,6 @@ Each service has its own version-controlled `docker-compose.yml`:
 
 - `docker info` and `docker compose version` run without permission errors.
 - `docker ps` shows `astro-site`, `starlight-docs`, and `nginx-proxy-manager` in a running state.
-- SSH over the public IP times out; `ssh root@100.x.x.x` succeeds only from an authenticated Tailscale device.
+- SSH over the public IP times out; SSH over Tailscale (`100.x.x.x`) succeeds only from an authenticated device.
 
 Proceed to **[Cloudflare DNS & Edge Routing](/cloud-infrastructure/1-secure-cloud-routing/2-cloudflare-dns-routing)** to see how public traffic is directed to this server.
