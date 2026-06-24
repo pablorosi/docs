@@ -1,0 +1,91 @@
+---
+title: Local database with Docker
+date: 2026-06-24
+tag: databases
+sidebar:
+  order: 1
+---
+
+Spin up a database locally with Docker to practice SQL without installing MySQL on the host. 
+
+## MySQL with Docker Compose
+
+Create a `compose.yaml` in a project folder (e.g. `sql-lab/`):
+
+```yaml
+services:
+  db:
+    image: mysql:8
+    container_name: sql-lab-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: localdev
+      MYSQL_DATABASE: labdb
+      MYSQL_USER: student
+      MYSQL_PASSWORD: localdev
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:
+```
+
+Start and check status:
+
+```bash
+docker compose up -d
+docker compose ps
+```
+
+Connect from the host (requires a MySQL client) or from inside the container:
+
+```bash
+mysql -h 127.0.0.1 -P 3306 -u student -p labdb
+
+docker exec -it sql-lab-mysql mysql -u student -p labdb
+```
+
+## Quick start with docker run
+
+Fastest option — one line, no Compose file, no volume (data is lost when the container is removed):
+
+```bash
+docker run --name local-mysql -e MYSQL_ROOT_PASSWORD=admin -p 3306:3306 -d mysql:latest
+```
+
+Connect as root:
+
+```bash
+mysql -h 127.0.0.1 -P 3306 -u root -p
+
+docker exec -it local-mysql mysql -u root -p
+```
+
+For a named database, extra user, and persistent storage:
+
+```bash
+docker run -d \
+  --name sql-lab-mysql \
+  -e MYSQL_ROOT_PASSWORD=localdev \
+  -e MYSQL_DATABASE=labdb \
+  -e MYSQL_USER=student \
+  -e MYSQL_PASSWORD=localdev \
+  -p 3306:3306 \
+  -v mysql-data:/var/lib/mysql \
+  mysql:8
+```
+
+## Persist data
+
+The named volume `mysql-data` keeps data across container restarts. Removing the container does **not** delete the volume unless you run `docker compose down -v` or `docker volume rm mysql-data`.
+
+## Stop and reset
+
+```bash
+docker compose down          # stop containers, keep data
+docker compose down -v       # stop and delete volumes (fresh database)
+
+docker stop local-mysql && docker rm local-mysql   # remove quick-start container
+```
