@@ -1,0 +1,126 @@
+---
+title: DML operations
+date: 2026-06-21
+tag: databases
+sidebar:
+  order: 3
+---
+
+## INSERT
+
+Add new rows to a table. Specify the target table, optional column list, and the values to store.
+
+### Simple insert
+
+Insert a single row. When omitting the column list, values must match the table column order.
+
+```sql
+INSERT INTO Clients
+VALUES ('Ana Garcia', 10, '123 Main Street');
+
+INSERT INTO Branches
+VALUES ('Central', 'Madrid', 1000000);
+```
+
+### Multiple insert
+
+Insert several rows in one statement. List columns explicitly when not providing every field.
+
+```sql
+INSERT INTO Employees (employeeId, employeeName, branchName)
+VALUES
+    ('16', 'John Perez', 'Central'),
+    ('17', 'Maria Lopez', 'Central'),
+    ('18', 'Peter Garcia', 'Central');
+
+INSERT INTO Accounts
+VALUES
+    (10, 50000, 'Central'),
+    (11, 75000, 'Central'),
+    (12, 90000, 'Central');
+```
+
+### Insert from a query
+
+Populate a table using the result of a `SELECT`. Useful for copying or transforming existing data.
+
+```sql
+INSERT INTO Accounts
+SELECT
+    employeeId + 100,   -- account number derived from employee id
+    50000,              -- initial balance
+    branchName          -- same branch as the employee
+FROM Employees
+WHERE branchName = 'Central';
+```
+
+## UPDATE
+
+Modify existing rows. Use `SET` for new values and `WHERE` to limit which rows change.
+
+### Simple update
+
+Apply the same change to every row that matches the condition.
+
+```sql
+UPDATE Accounts
+SET balance = balance * 1.10
+WHERE branchName = 'Central';
+```
+
+### Update with subquery
+
+Use a nested query in `WHERE` to target rows based on data from other tables.
+
+```sql
+UPDATE Accounts
+SET balance = balance * 1.05
+WHERE accountNumber IN (
+    SELECT accountNumber
+    FROM ClientAccounts
+    WHERE clientId IN (
+        SELECT clientId
+        FROM Clients
+        WHERE balance > 1000
+    )
+);
+```
+
+## DELETE
+
+Remove rows from a table. Always use `WHERE` unless you intend to delete every row.
+
+### Simple delete
+
+Remove a single row matching the condition.
+
+```sql
+DELETE FROM Clients
+WHERE clientId = 10;
+```
+
+### Delete with subquery
+
+Remove rows whose keys appear in the result of a nested query.
+
+```sql
+DELETE FROM ClientAccounts
+WHERE accountNumber IN (
+    SELECT accountNumber
+    FROM Accounts
+    WHERE status = 'CLOSED'
+);
+```
+
+### Delete with join pattern
+
+Filter deletions using related table data. Some engines require a subquery instead of a direct join in `DELETE`.
+
+```sql
+DELETE FROM Accounts
+WHERE branchName IN (
+    SELECT branchName
+    FROM Branches
+    WHERE status = 'PENDING_CLOSURE'
+);
+```
