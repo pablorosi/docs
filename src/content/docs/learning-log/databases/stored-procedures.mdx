@@ -1,0 +1,124 @@
+---
+title: Stored Procedures (Fundamentals)
+date: 2026-06-24
+tag: databases
+sidebar:
+  order: 4
+---
+
+A **Stored Procedure** is a named block of SQL code saved directly inside the database. Instead of writing long SQL scripts in the backend application over and over, you save the logic in the database and execute it with a single `CALL` command.
+
+## 1. The Universal Structure
+
+To create a stored procedure, you must change the `DELIMITER` so the database doesn't execute the code prematurely when it sees a semicolon (`;`).
+
+```sql
+-- 1. Change delimiter
+DELIMITER //
+
+-- 2. Define the name and IN parameters (the inputs)
+CREATE PROCEDURE ProcedureName(
+    IN p_parameter1 INT,
+    IN p_parameter2 VARCHAR(45)
+)
+BEGIN
+    -- 3. Declare temporary variables (if needed)
+    DECLARE v_tempVariable INT;
+
+    -- 4. Your SQL logic goes here (INSERT, UPDATE, SELECT INTO)
+    -- Every statement inside must end with a semicolon!
+
+END //
+
+-- 5. Restore the default delimiter
+DELIMITER ;
+```
+
+## 2. Parameters (`IN`)
+
+In basic procedures, we use `IN` parameters. Think of them as empty mailboxes. The user or application must provide values for these parameters when calling the procedure.
+
+* **Best Practice:** Prefix them with `p_` so you don't confuse them with actual table column names.
+
+## 3. Practical Example: INSERT + UPDATE
+
+A very common exam scenario is inserting a new record and immediately updating a related table (like calculating a new total or average).
+
+### Method A: Using a Variable (`SELECT ... INTO`)
+
+This method calculates a value, stores it in a temporary variable (`DECLARE`), and then uses that variable for the `UPDATE`.
+
+```sql
+DELIMITER //
+
+CREATE PROCEDURE RegisterChapter(
+    IN p_idSerie INT,
+    IN p_chapterTitle VARCHAR(45),
+    IN p_duration INT
+)
+BEGIN
+    DECLARE v_totalChapters INT;
+
+    -- Step 1: Insert the new data
+    INSERT INTO Chapter (idSerie, title, duration)
+    VALUES (p_idSerie, p_chapterTitle, p_duration);
+
+    -- Step 2: Calculate the new total and store it in the variable
+    SELECT COUNT(*)
+    INTO v_totalChapters
+    FROM Chapter
+    WHERE idSerie = p_idSerie;
+
+    -- Step 3: Update the parent table using the variable
+    UPDATE Serie
+    SET totalChapters = v_totalChapters
+    WHERE id = p_idSerie;
+
+END //
+
+DELIMITER ;
+```
+
+### Method B: The "Short-Cut" UPDATE
+
+If you only need to add or subtract from an existing number, you can skip the variable entirely and do the math directly inside the `SET` clause.
+
+```sql
+DELIMITER //
+
+CREATE PROCEDURE AddWatchTime(
+    IN p_idUser INT,
+    IN p_idSerie INT,
+    IN p_minutes INT
+)
+BEGIN
+    -- Insert the history record (Using NOW() for the current time)
+    INSERT INTO History (idUser, idSerie, viewDate)
+    VALUES (p_idUser, p_idSerie, NOW());
+
+    -- Direct update: Add the new minutes to the existing total
+    UPDATE User
+    SET totalWatchTime = totalWatchTime + p_minutes
+    WHERE idUser = p_idUser;
+
+END //
+
+DELIMITER ;
+```
+
+## 4. How to Execute (Call) a Procedure
+
+Once the procedure is created in the database, you execute it using the `CALL` command, passing the exact arguments in the same order as the parameters you defined.
+
+```sql
+-- Syntax: CALL ProcedureName(arg1, arg2, arg3);
+CALL AddWatchTime(14, 3, 45);
+```
+
+## 5. Stored Procedures vs. Triggers
+
+| Feature | Stored Procedure | Trigger |
+| :--- | :--- | :--- |
+| **Execution** | **Manual:** Must be called explicitly with `CALL`. | **Automatic:** Runs on its own after an `INSERT`, `UPDATE`, or `DELETE`. |
+| **Use Case** | Complex business logic triggered by a user (e.g., checkout, registering a view). | Silent background tasks for data integrity (e.g., audit logs, auto-counters). |
+| **Control** | Controlled by the application Backend. | Controlled strictly by the Database Engine. |
