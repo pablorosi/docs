@@ -1,0 +1,581 @@
+---
+title: SQL Queries 
+date: 2026-06-19
+tag: databases
+sidebar:
+  order: 2
+---
+
+import ThemeImage from '../../../../components/ThemeImage.astro';
+
+## SQL order of execution
+
+SQL is **written** top to bottom, but the engine does **not** run clauses in that order.
+
+| Step | Clause | What happens |
+| :--- | :--- | :--- |
+| 1 | `FROM` / `JOIN` | Load tables and combine rows |
+| 2 | `WHERE` | Filter individual rows |
+| 3 | `GROUP BY` | Build groups for aggregation |
+| 4 | `HAVING` | Filter groups after aggregation |
+| 5 | `SELECT` | Project columns and expressions |
+| 6 | `DISTINCT` | Remove duplicate result rows |
+| 7 | `ORDER BY` | Sort the final result set |
+| 8 | `LIMIT` / `OFFSET` | Return a slice of rows |
+
+Example — the engine processes this query in the order above, not as written:
+
+```sql
+SELECT branchName, COUNT(*) AS employeeCount
+FROM Employees
+WHERE status = 'Active'
+GROUP BY branchName
+HAVING COUNT(*) > 2
+ORDER BY employeeCount DESC
+LIMIT 5;
+```
+
+`WHERE` runs before grouping (row filter); `HAVING` runs after (group filter); `ORDER BY` and `LIMIT` run last.
+
+## Basic SELECT
+
+Retrieve data from one or more tables. Request every column or only the ones you need.
+
+### All columns
+
+`SELECT *` returns every field in the table.
+
+```sql
+SELECT *
+FROM Clients;
+```
+
+### Specific columns
+
+List only the fields you want in the result set.
+
+```sql
+SELECT clientName, clientSurname 
+FROM Clients;
+```
+
+## DISTINCT
+
+Removes duplicate rows and returns only unique values for the given column.
+
+```sql
+SELECT DISTINCT (branchName)
+FROM Employees;
+```
+
+## Filtering with WHERE
+
+Restrict results with conditions. Combine them using `AND`, `OR`, `IN`, and `BETWEEN`.
+
+### Simple filter
+
+```sql
+SELECT employeeName, employeeSurname
+FROM Employees 
+WHERE branchName = 'Downtown';
+```
+
+### Combined operators
+
+```sql
+SELECT accountNumber, balance
+FROM Accounts 
+WHERE branchName = 'Random'
+AND balance > 1000
+OR balance
+balance IN ('1000', '2000')
+balance BETWEEN 2000 AND 5000;
+```
+
+## Pattern matching with LIKE
+
+Filter by text patterns. `%` matches any sequence of characters.
+
+```sql
+SELECT *
+FROM Clients
+WHERE address LIKE '%Frigate%';
+```
+
+## Pattern matching with REGEXP
+
+Match text using regular expressions. More powerful than `LIKE` for complex patterns (digit sequences, alternation, anchors). Syntax varies by engine: MySQL uses `REGEXP` / `RLIKE`; PostgreSQL uses `~` and `~*`; SQL Server uses `LIKE` with limited wildcards or CLR/functions for full regex.
+
+### Basic match
+
+Find rows where a column matches a regex pattern.
+
+```sql
+SELECT *
+FROM Clients
+WHERE clientName REGEXP '^John';
+```
+
+`^` anchors the match to the start of the string.
+
+### Common patterns
+
+| Pattern | Meaning |
+| :--- | :--- |
+| `^John` | Starts with "John" |
+| `son$` | Ends with "son" |
+| `[0-9]+` | One or more digits |
+| `John|Jane` | "John" or "Jane" |
+| `^.{5}$` | Exactly 5 characters |
+
+```sql
+SELECT accountNumber, balance
+FROM Accounts
+WHERE CAST(accountNumber AS CHAR) REGEXP '^10[0-9]{2}$';
+```
+
+### Case sensitivity
+
+In MySQL, `REGEXP` is case-insensitive by default for non-binary strings. Use `REGEXP BINARY` or `RLIKE BINARY` for case-sensitive matching.
+
+```sql
+SELECT *
+FROM Employees
+WHERE employeeName REGEXP BINARY '^Smith';
+```
+
+## Sorting with ORDER BY
+
+Sort rows by one or more columns. `DESC` reverses the order (highest to lowest).
+
+```sql
+SELECT *
+FROM Accounts
+ORDER BY branchName, balance DESC;
+```
+
+## LIMIT and OFFSET
+
+Paginate results: `LIMIT` sets how many rows to return; `OFFSET` skips rows from the start.
+
+```sql
+SELECT *
+FROM Branches
+ORDER BY active DESC;
+LIMIT 3 OFFSET 2;
+```
+
+<ThemeImage
+  lightSrc="/limit-offset-light.svg"
+  darkSrc="/limit-offset.svg"
+  alt="LIMIT and OFFSET: skip 2 rows (OFFSET 2) and return 3 (LIMIT 3)"
+  class="diagram-limit-offset"
+/>
+
+## Table joins
+
+Combine rows from two or more tables on a shared condition, usually a foreign key.
+
+<ThemeImage
+  lightSrc="/joins-light.svg"
+  darkSrc="/joins.svg"
+  alt="SQL join types diagram"
+/>
+
+### INNER JOIN
+
+Only rows that match in both tables.
+
+```sql
+SELECT Employees.name, Departments.dept_name
+FROM Employees
+INNER JOIN Departments ON Employees.dept_id = Departments.dept_id;
+```
+
+### LEFT JOIN
+
+All rows from the left table; unmatched right-side fields are `NULL`.
+
+```sql
+SELECT Employees.name, Departments.dept_name
+FROM Employees
+LEFT JOIN Departments ON Employees.dept_id = Departments.dept_id;
+```
+
+### RIGHT JOIN
+
+All rows from the right table; the left side fills with `NULL` when there is no match.
+
+```sql
+SELECT Employees.name, Departments.dept_name
+FROM Employees
+RIGHT JOIN Departments ON Employees.dept_id = Departments.dept_id;
+```
+
+### CROSS JOIN
+
+Cartesian product: every row from the first table paired with every row from the second.
+
+```sql
+SELECT Employees.name, Departments.dept_name
+FROM Employees
+CROSS JOIN Departments;
+```
+
+### BETWEEN in JOIN
+
+Use `BETWEEN` in the `ON` clause when the match is a **range** instead of equality — e.g. a value must fall between two columns in the other table. Both bounds are **inclusive**, same as `BETWEEN` in `WHERE`.
+
+```sql
+SELECT  e.employeeName, e.salary, b.bandLabel
+FROM    Employees e
+        INNER JOIN SalaryBands b
+            ON e.salary BETWEEN b.minSalary AND b.maxSalary;
+```
+
+Common use cases: salary or price tiers, date ranges (event falls within a promotion period), version intervals. Prefer indexed range columns on the right table for performance on large datasets.
+
+## Table aliases
+
+Short names for tables or columns. Keeps multi-table queries readable and lets you rename computed values in the result.
+
+```sql
+SELECT  Accounts.*, balance * 1.08 AS balanceInDollars
+FROM    Accounts;
+```
+
+## UNION operator
+
+Stack result sets from two or more queries into one. `UNION` removes duplicates; `UNION ALL` keeps them.
+
+```sql
+SELECT employee_email FROM sales_department
+UNION
+SELECT employee_email FROM marketing_department;
+```
+
+## Subquery in the WHERE clause
+
+Filter rows using a nested query. The inner query runs first and its result is used as a condition for the outer query.
+
+```sql
+SELECT  employeeName
+FROM    Employees
+WHERE   branchName IN (
+    SELECT branchName
+    FROM Employees
+    WHERE employeeName = 'Smith'
+);
+```
+
+## Subquery in the FROM clause
+
+Treat a nested query as a temporary table (derived table). Must be aliased before joining or selecting from it.
+
+```sql
+SELECT  employeeName
+FROM    (SELECT branchName
+          FROM   Employees
+          WHERE  employeeName = 'Smith') AS SmithBranch
+        INNER JOIN Employees ON Employees.branchName = SmithBranch.branchName;
+```
+
+## Subquery in the SELECT clause
+
+Compute a scalar value per row in the outer query. Often used for aggregates tied to the current row.
+
+```sql
+SELECT clientName, (
+    SELECT      Ac.accountNumber
+    FROM        Accounts Ac
+                INNER JOIN ClientAccounts CA ON Ac.accountNumber = CA.accountNumber
+    WHERE       Clients.clientId = CA.clientId
+    ORDER BY    balance DESC
+    LIMIT 1
+)
+FROM Clients;
+```
+
+## Common Table Expressions (CTE)
+
+Name a subquery with `WITH` and reference it like a temporary view. Improves readability in complex, multi-step queries.
+
+```sql
+WITH high_balance_accounts AS (
+    SELECT accountNumber, balance
+    FROM Accounts
+    WHERE balance > 1000
+)
+SELECT *
+FROM high_balance_accounts
+WHERE balance > 5000;
+```
+
+## EXISTS, ALL, and ANY
+
+Comparison operators that work with subqueries. `EXISTS` checks for matching rows; `ALL` and `ANY` compare a value against every or at least one value from the subquery.
+
+### EXISTS
+
+Returns rows from the outer query when the subquery finds at least one match.
+
+```sql
+SELECT  branchName
+FROM    Branches
+WHERE   EXISTS (
+    SELECT  *
+    FROM    Employees
+    WHERE   Branches.branchName = Employees.branchName
+);
+```
+
+### ALL
+
+True when the comparison holds for every value returned by the subquery.
+
+```sql
+SELECT clientName, Accounts.accountNumber, balance
+FROM Clients
+        INNER JOIN ClientAccounts ON Clients.clientId = ClientAccounts.clientId
+        INNER JOIN Accounts ON ClientAccounts.accountNumber = Accounts.accountNumber
+WHERE balance > ALL (
+    SELECT balance
+    FROM Accounts
+            INNER JOIN ClientAccounts ON Accounts.accountNumber = ClientAccounts.accountNumber
+            INNER JOIN Clients ON ClientAccounts.clientId = Clients.clientId
+    WHERE clientName = 'Smith'
+);
+```
+
+### ANY
+
+True when the comparison holds for at least one value from the subquery. Equivalent to `IN` for equality checks.
+
+```sql
+SELECT  clientName, Accounts.accountNumber, balance
+FROM    Clients
+        INNER JOIN ClientAccounts ON Clients.clientId = ClientAccounts.clientId
+        INNER JOIN Accounts ON ClientAccounts.accountNumber = Accounts.accountNumber
+WHERE   balance > ANY (
+    SELECT balance
+    FROM    Accounts
+            INNER JOIN ClientAccounts ON Accounts.accountNumber = ClientAccounts.accountNumber
+            INNER JOIN Clients ON ClientAccounts.clientId = Clients.clientId
+    WHERE clientName = 'Smith'
+);
+```
+
+## Aggregate functions
+
+Compute summary values over a set of rows. Often combined with `GROUP BY` to aggregate per group.
+
+### COUNT
+
+Counts the number of rows in a result set.
+
+```sql
+SELECT  COUNT(*) AS employeeCount
+FROM    Employees;
+```
+
+### SUM
+
+Adds the values of a numeric column.
+
+```sql
+SELECT  SUM(balance) AS totalBalance
+FROM    Accounts
+        INNER JOIN ClientAccounts ON Accounts.accountNumber = ClientAccounts.accountNumber
+        INNER JOIN Clients ON ClientAccounts.clientId = Clients.clientId
+WHERE   clientName = 'Johnson';
+```
+
+### AVG
+
+Calculates the average of a numeric column.
+
+```sql
+SELECT  AVG(balance) AS averageBalance
+FROM    Accounts
+WHERE   branchName = 'Downtown';
+```
+
+### MIN and MAX
+
+Return the smallest or largest value in a column.
+
+```sql
+SELECT  MAX(balance) AS maxBalance
+FROM    Accounts
+WHERE   branchName = 'Downtown';
+```
+
+### ROUND, CEIL, and FLOOR
+
+Round numeric values for display or calculations. `ROUND` rounds to the nearest value; `CEIL` (or `CEILING` in SQL Server) rounds up; `FLOOR` rounds down.
+
+```sql
+SELECT balance,
+       ROUND(balance, 2)   AS balanceRounded,
+       CEIL(balance)       AS balanceCeil,
+       FLOOR(balance)      AS balanceFloor
+FROM Accounts;
+```
+
+`ROUND(value, decimals)` controls precision — `ROUND(1234.567, 1)` returns `1234.6`. Omit the second argument to round to an integer.
+
+### TRUNCATE
+
+Cuts off decimal places without rounding toward the nearest value. `TRUNCATE(1234.567, 1)` returns `1234.5`; `ROUND(1234.567, 1)` returns `1234.6`.
+
+```sql
+SELECT balance,
+       TRUNCATE(balance, 2) AS balanceTruncated
+FROM Accounts;
+```
+
+PostgreSQL uses `TRUNC()`; SQL Server uses `TRUNC()` or `ROUND()` with a truncation mode. Do not confuse with `TRUNCATE TABLE` — that is a DDL command that removes all rows from a table.
+
+### GROUP_CONCAT
+
+Concatenates column values within each group into a single string. MySQL-specific; use `STRING_AGG` in PostgreSQL or `GROUP_CONCAT` equivalents in other engines.
+
+```sql
+SELECT  branchName, GROUP_CONCAT(employeeName) AS employees
+FROM    Employees
+GROUP BY branchName;
+```
+
+### CHAR_LENGTH
+
+Returns the number of characters in a string. Useful for validation rules (e.g. minimum name length) or reporting. In PostgreSQL use `CHAR_LENGTH` or `LENGTH`; SQL Server uses `LEN`.
+
+```sql
+SELECT clientName, CHAR_LENGTH(clientName) AS nameLength
+FROM Clients;
+```
+
+### LEFT and RIGHT
+
+Extract a fixed number of characters from the start (`LEFT`) or end (`RIGHT`) of a string. Handy for prefixes, suffixes, or parsing fixed-width codes.
+
+```sql
+SELECT clientName, LEFT(clientName, 3) AS namePrefix
+FROM Clients;
+
+SELECT accountNumber, RIGHT(CAST(accountNumber AS CHAR), 4) AS lastFourDigits
+FROM Accounts;
+```
+
+If the length exceeds the string size, the function returns the whole string.
+
+### LOWER and UPPER
+
+Convert text to lowercase (`LOWER`) or uppercase (`UPPER`). Useful for case-insensitive comparisons and consistent display formatting.
+
+```sql
+SELECT clientName, LOWER(clientName) AS clientNameLower
+FROM Clients;
+
+SELECT employeeName, UPPER(branchName) AS branchNameUpper
+FROM Employees;
+```
+
+Compare without caring about case:
+
+```sql
+SELECT *
+FROM Clients
+WHERE LOWER(clientName) = 'johnson';
+```
+
+### CONCAT
+
+Joins two or more strings into one. In MySQL use `CONCAT()`; PostgreSQL also supports `||`; SQL Server uses `CONCAT()` or `+` (with null-handling differences).
+
+```sql
+SELECT CONCAT(clientName, ' ', clientSurname) AS fullName
+FROM Clients;
+
+SELECT CONCAT(branchName, ' - ', accountNumber) AS accountLabel
+FROM Accounts
+        INNER JOIN ClientAccounts ON Accounts.accountNumber = ClientAccounts.accountNumber
+        INNER JOIN Clients ON ClientAccounts.clientId = Clients.clientId;
+```
+
+`CONCAT` treats `NULL` as an empty string in MySQL; in standard SQL, any `NULL` argument may make the whole result `NULL` — use `CONCAT_WS` or `COALESCE` when needed.
+
+### REPLACE
+
+Substitutes every occurrence of a substring with another. Syntax: `REPLACE(string, old_text, new_text)`.
+
+```sql
+SELECT address, REPLACE(address, 'Street', 'St.') AS shortAddress
+FROM Clients;
+
+SELECT phone, REPLACE(phone, '-', '') AS phoneDigitsOnly
+FROM Clients;
+```
+
+Useful for normalizing data in queries without changing the stored values. `REPLACE` is case-sensitive; combine with `LOWER`/`UPPER` if you need case-insensitive replacement.
+
+## CASE statement
+
+Conditional logic inside a query. Returns different values based on `WHEN` conditions — useful for labels, bucketing, or computed columns in `SELECT`, `ORDER BY`, and `HAVING`.
+
+### Simple CASE
+
+Compares one expression against a list of values (like a multi-branch `IF`).
+
+```sql
+SELECT employeeName,
+       CASE branchName
+           WHEN 'Downtown' THEN 'City'
+           WHEN 'Central'  THEN 'HQ'
+           ELSE 'Regional'
+       END AS branchType
+FROM Employees;
+```
+
+### Searched CASE
+
+Each `WHEN` is a full condition. Use when comparisons are not all against the same expression.
+
+```sql
+SELECT accountNumber, balance,
+       CASE
+           WHEN balance >= 10000 THEN 'High'
+           WHEN balance >= 1000  THEN 'Medium'
+           ELSE 'Low'
+       END AS balanceTier
+FROM Accounts;
+```
+
+## HAVING
+
+Filter groups after aggregation. Unlike `WHERE`, which excludes individual rows before grouping, `HAVING` applies to the summarized results produced by `GROUP BY`.
+
+```sql
+SELECT department_name, COUNT(employee_id) AS total_active
+FROM employees
+WHERE status = 'Active'
+GROUP BY department_name
+HAVING COUNT(employee_id) > 2;
+```
+
+## Views
+
+A saved `SELECT` query exposed as a virtual table. Views do not store data themselves; they run the underlying query each time they are accessed.
+
+```sql
+CREATE VIEW ActiveSalesEmployees AS
+SELECT employee_id, first_name, last_name, email
+FROM employees
+WHERE department_name = 'Sales' AND status = 'Active';
+```
+
+Query a view like any other table:
+
+```sql
+SELECT * FROM ActiveSalesEmployees;
+```

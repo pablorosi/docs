@@ -113,6 +113,11 @@ export default defineConfig({
 							collapsed: true,
 							autogenerate: { directory: 'learning-log/docker', collapsed: true },
 						},
+						{
+							label: 'Databases',
+							collapsed: true,
+							autogenerate: { directory: 'learning-log/databases', collapsed: true },
+						},
 					],
 				},
 				

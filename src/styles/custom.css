@@ -62,3 +62,8 @@
 .sl-markdown-content .sl-heading-wrapper > :first-child {
   padding-inline-end: 0;
 }
+
+.diagram-limit-offset {
+  max-width: 400px;
+  margin-inline: auto;
+}
