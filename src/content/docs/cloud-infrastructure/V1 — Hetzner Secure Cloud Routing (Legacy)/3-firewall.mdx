@@ -35,7 +35,7 @@ To minimize the attack surface, all other ports are strictly blocked by default.
 
 ## Management Access Preview
 
-Management ports are blocked on the public interface. Administrative access (SSH, NPM GUI, CI/CD) is routed through **Tailscale** instead. The full Zero Trust setup — Tailnet authentication, OOB management, and Docker port binding — is documented in **[Tailscale Private Admin Access](/cloud-infrastructure/1-secure-cloud-routing/5-tailscale-admin-security)**.
+Management ports are blocked on the public interface. Administrative access (SSH, NPM GUI, CI/CD) is routed through **Tailscale** instead. The full Zero Trust setup — Tailnet authentication, OOB management, and Docker port binding — is documented in **[Tailscale Private Admin Access](/cloud-infrastructure/v1--hetzner-secure-cloud-routing-legacy/5-tailscale-admin-security)**.
 
 :::note[Security Decision]
 By blocking SSH and NPM on the public interface (`eth0`) and allowing them only on the Tailscale interface (`tailscale0`), management ports are never directly exposed to the public internet. Automated scanners cannot reach them on the Hetzner public IP.
@@ -47,4 +47,4 @@ By blocking SSH and NPM on the public interface (`eth0`) and allowing them only 
 
 A port scan from the public internet should only show ports `80`, `443`, and the Tailscale UDP range as reachable. Attempts to reach port `22` or `81` on the public IP should time out, as packets are dropped at the Hetzner edge before reaching the OS.
 
-Proceed to **[Nginx Reverse Proxy & Public SSL](/cloud-infrastructure/1-secure-cloud-routing/4-nginx-reverse-proxy)** to see how public web traffic is handled once it passes through this firewall.
+Proceed to **[Nginx Reverse Proxy & Public SSL](/cloud-infrastructure/v1--hetzner-secure-cloud-routing-legacy/4-nginx-reverse-proxy)** to see how public web traffic is handled once it passes through this firewall.

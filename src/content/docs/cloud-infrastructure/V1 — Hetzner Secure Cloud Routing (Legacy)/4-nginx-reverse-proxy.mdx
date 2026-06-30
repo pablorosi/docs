@@ -44,7 +44,7 @@ Inside the NPM dashboard, public traffic is routed using Docker's internal DNS r
 | `pablorosi.dev` | `astro-site` | `80` | Portfolio (Astro) |
 | `docs.pablorosi.dev` | `starlight-docs` | `80` | Documentation (Starlight) |
 
-Legacy `.com` domains are **not** configured here. Their 301 redirects are handled at the Cloudflare edge — see **[Cloudflare DNS & Edge Routing](/cloud-infrastructure/1-secure-cloud-routing/2-cloudflare-dns-routing)**.
+Legacy `.com` domains are **not** configured here. Their 301 redirects are handled at the Cloudflare edge — see **[Cloudflare DNS & Edge Routing](/cloud-infrastructure/v1--hetzner-secure-cloud-routing-legacy/2-cloudflare-dns-routing)**.
 
 ---
 
@@ -68,7 +68,7 @@ Full (strict) mode ensures encryption end-to-end. Cloudflare's edge certificate 
 Because Cloudflare sits in front of the origin, NPM receives Cloudflare proxy IPs unless configured otherwise. Enable **Trust Proxy** in NPM (or equivalent forwarded-header settings) so logs and access rules see the real client IP from `CF-Connecting-IP` / `X-Forwarded-For`.
 
 :::note[Security Decision]
-The NPM administrative GUI is deliberately excluded from public DNS routing to prevent Hairpin NAT loops and to enforce Zero Trust access via Tailscale. See **[Tailscale Private Admin Access](/cloud-infrastructure/1-secure-cloud-routing/5-tailscale-admin-security)**.
+The NPM administrative GUI is deliberately excluded from public DNS routing to prevent Hairpin NAT loops and to enforce Zero Trust access via Tailscale. See **[Tailscale Private Admin Access](/cloud-infrastructure/v1--hetzner-secure-cloud-routing-legacy/5-tailscale-admin-security)**.
 :::
 
 ---
@@ -80,4 +80,4 @@ The NPM administrative GUI is deliberately excluded from public DNS routing to p
 - Cloudflare SSL/TLS mode is **Full (strict)** and the origin handshake succeeds without errors.
 - NPM access logs show real client IPs (not only Cloudflare ranges) when Trust Proxy is enabled.
 
-Proceed to **[Tailscale Private Admin Access](/cloud-infrastructure/1-secure-cloud-routing/5-tailscale-admin-security)** for the management-plane architecture.
+Proceed to **[Tailscale Private Admin Access](/cloud-infrastructure/v1--hetzner-secure-cloud-routing-legacy/5-tailscale-admin-security)** for the management-plane architecture.

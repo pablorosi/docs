@@ -1,0 +1,54 @@
+---
+title: "DNS & Routing"
+description: DNS records and traffic routing for static frontends on Cloudflare Pages.
+sidebar:
+  order: 2
+---
+
+## Routing overview
+
+Static frontends are served from **Cloudflare Pages**. Traffic never reaches the Hetzner VPS for those hostnames — Cloudflare terminates TLS at the edge and serves pre-built files from its CDN.
+
+```text
+User → docs.pablorosi.dev → Cloudflare DNS → Pages project → edge CDN → dist/
+```
+
+---
+
+## DNS records
+
+After creating a Pages project, Cloudflare provides a target hostname (e.g. `<project>.pages.dev`). Point the custom domain with:
+
+| Type | Name | Content | Proxy |
+| :--- | :--- | :--- | :--- |
+| CNAME | `docs` | `<project>.pages.dev` | Proxied (orange cloud) |
+
+Alternatively, add the domain under **Pages → Custom domains** in the Cloudflare dashboard. When the zone lives on the same account, Cloudflare creates the DNS record automatically.
+
+---
+
+## Hostname map
+
+| Hostname | Destination | Notes |
+| :--- | :--- | :--- |
+| `docs.pablorosi.dev` | Cloudflare Pages | Documentation site (Astro + Starlight) |
+| `pablorosi.dev` | Hetzner VPS | Portfolio and other dynamic workloads |
+| `docs.pablorosi.com` | Cloudflare edge redirect | 301 → `docs.pablorosi.dev` |
+
+Legacy `.com` domains are handled by **Redirect Rules** at the Cloudflare edge. Only the final `.dev` hostname needs a Pages custom domain.
+
+---
+
+## TLS
+
+Cloudflare Pages provisions and renews TLS certificates for custom domains automatically. No origin certificate or reverse proxy configuration is required on the server for static frontends.
+
+---
+
+## Adding another static site
+
+1. Create a new Pages project connected to the repository.
+2. Add a CNAME (or use Custom domains) for the new hostname.
+3. Keep backend or API routes on separate hostnames that point to the Hetzner origin.
+
+Each static frontend gets its own Pages project and DNS record. The VPS handles only hostnames that need a running process.

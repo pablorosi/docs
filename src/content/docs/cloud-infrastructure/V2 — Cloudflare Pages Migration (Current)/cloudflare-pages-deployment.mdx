@@ -1,0 +1,68 @@
+---
+title: "Cloudflare Pages Deployment"
+description: Build configuration and deploy pipeline for static frontends on Cloudflare Pages.
+sidebar:
+  order: 1
+---
+
+## Stack
+
+The documentation site is a static **Astro + Starlight** project. The build produces HTML, CSS, JavaScript, and assets under `dist/`. Nothing runs server-side in production.
+
+---
+
+## Cloudflare dashboard
+
+Connect the GitHub repository in **Workers & Pages → Create → Pages → Connect to Git**:
+
+| Setting | Value |
+| :--- | :--- |
+| **Framework preset** | Astro |
+| **Build command** | `pnpm run build` |
+| **Build output directory** | `dist` |
+| **Root directory** | `/` (repository root) |
+| **Node.js version** | `22` |
+
+Cloudflare detects `pnpm-lock.yaml` and runs `pnpm install` before the build. The `package.json` `engines` field pins Node `>=22`.
+
+---
+
+## Deploy pipeline
+
+```text
+git push → Cloudflare webhook → pnpm install → pnpm run build → dist/ uploaded → live
+```
+
+Each push to the production branch triggers a new deployment. Cloudflare also builds preview deployments for other branches.
+
+The Astro build output includes:
+
+* Static HTML pages (Starlight)
+* Pagefind search index
+* `sitemap-index.xml` via `@astrojs/sitemap`
+* Assets from `public/`
+
+---
+
+## Local development
+
+```bash
+pnpm install
+pnpm dev          # http://localhost:4321
+pnpm build        # output to dist/
+pnpm preview      # serve production build locally
+```
+
+Use `pnpm dev` while writing content. Run `pnpm build` before merging if you want to catch build errors locally.
+
+---
+
+## Rollback
+
+In the Cloudflare Pages dashboard, every deployment is versioned. To revert a bad release, open the project → **Deployments** → select a previous successful build → **Rollback to this deployment**.
+
+---
+
+## Environment variables
+
+This project does not require runtime secrets on Pages — the site is fully static. If a future static site needs build-time variables (e.g. analytics IDs), add them under **Settings → Environment variables** in the Pages project. They are injected during the build step only.

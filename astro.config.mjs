@@ -83,7 +83,27 @@ export default defineConfig({
 				{
 					label: 'Cloud Infrastructure',
 					collapsed: true,
-					autogenerate: { directory: 'cloud-infrastructure', collapsed: true },
+					items: [
+						{
+							label: 'Project Overview',
+							link: '/cloud-infrastructure/',
+						},
+						{
+							label: 'V2 — Cloudflare Pages (Current)',
+							collapsed: true,
+							autogenerate: { directory: 'cloud-infrastructure/V2 — Cloudflare Pages Migration (Current)', collapsed: true },
+						},
+						{
+							label: 'V1 — Hetzner (Legacy)',
+							collapsed: true,
+							autogenerate: { directory: 'cloud-infrastructure/V1 — Hetzner Secure Cloud Routing (Legacy)', collapsed: true },
+						},
+						{
+							label: 'Troubleshooting',
+							collapsed: true,
+							autogenerate: { directory: 'cloud-infrastructure/2 Troubleshooting', collapsed: true },
+						},
+					],
 				},
 				{
 					label: 'Learning Log',

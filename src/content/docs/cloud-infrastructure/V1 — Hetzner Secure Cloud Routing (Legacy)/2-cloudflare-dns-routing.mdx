@@ -1,9 +1,13 @@
 ---
-title: "Cloudflare DNS & Edge Routing"
-description: DNS, edge proxy, and Redirect Rules for legacy domains at the Cloudflare edge.
+title: "Cloudflare DNS & Edge Routing (v1)"
+description: Version 1 DNS — edge proxy and redirects with docs origin on Hetzner.
 sidebar:
   order: 2
 ---
+
+:::note[Version 1 DNS]
+This page describes DNS when **both** portfolio and docs pointed to the Hetzner VPS. Current docs DNS is documented in **[DNS & Routing for Docs (v2)](/cloud-infrastructure/v2--cloudflare-pages-migration-current/dns-routing)**.
+:::
 
 ## Edge Network Strategy
 
@@ -73,4 +77,4 @@ Traffic for active `.dev` domains is proxied to the Hetzner public IP. Legacy `.
 - `curl -I https://docs.pablorosi.com` returns `301` with `Location: https://docs.pablorosi.dev/`.
 - In the Cloudflare dashboard, `.dev` A/CNAME records show the orange cloud (proxied); Redirect Rules for `.com` zones are active.
 
-Proceed to **[Cloud Firewall](/cloud-infrastructure/1-secure-cloud-routing/3-firewall)** to see how incoming traffic is filtered at the network layer before it reaches the operating system.
+Proceed to **[Cloud Firewall](/cloud-infrastructure/v1--hetzner-secure-cloud-routing-legacy/3-firewall)** to see how incoming traffic is filtered at the network layer before it reaches the operating system.

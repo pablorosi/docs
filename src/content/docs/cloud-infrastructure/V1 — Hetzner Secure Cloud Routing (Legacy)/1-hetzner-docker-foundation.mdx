@@ -32,7 +32,7 @@ apt update && apt upgrade -y
 ```
 
 :::note[Reading order]
-This chapter introduces SSH-over-Tailscale early because it is part of server provisioning. The firewall rules that block public SSH and the full Tailscale configuration are covered in **[Cloud Firewall](/cloud-infrastructure/1-secure-cloud-routing/3-firewall)** and **[Tailscale Private Admin Access](/cloud-infrastructure/1-secure-cloud-routing/5-tailscale-admin-security)**.
+This chapter introduces SSH-over-Tailscale early because it is part of server provisioning. The firewall rules that block public SSH and the full Tailscale configuration are covered in **[Cloud Firewall](/cloud-infrastructure/v1--hetzner-secure-cloud-routing-legacy/3-firewall)** and **[Tailscale Private Admin Access](/cloud-infrastructure/v1--hetzner-secure-cloud-routing-legacy/5-tailscale-admin-security)**.
 :::
 
 ---
@@ -91,4 +91,4 @@ Each service has its own version-controlled `docker-compose.yml`:
 - `docker ps` shows `astro-site`, `starlight-docs`, and `nginx-proxy-manager` in a running state.
 - SSH over the public IP times out; SSH over Tailscale (`100.x.x.x`) succeeds only from an authenticated device.
 
-Proceed to **[Cloudflare DNS & Edge Routing](/cloud-infrastructure/1-secure-cloud-routing/2-cloudflare-dns-routing)** to see how public traffic is directed to this server.
+Proceed to **[Cloudflare DNS & Edge Routing](/cloud-infrastructure/v1--hetzner-secure-cloud-routing-legacy/2-cloudflare-dns-routing)** to see how public traffic is directed to this server.

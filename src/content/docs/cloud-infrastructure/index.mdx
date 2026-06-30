@@ -1,18 +1,32 @@
 ---
 title: "Cloud Infrastructure"
-description: A high-level summary of the cloud infrastructure, security layers, and deployment pipelines.
+description: Architecture, security layers, and deployment pipelines for pablorosi.dev.
 sidebar:
   order: 0
 ---
 
-## Infrastructure Pillars
+## Overview
 
-This section documents the backend environment that hosts [pablorosi.dev](https://pablorosi.dev) and [docs.pablorosi.dev](https://docs.pablorosi.dev).
+This section documents the cloud environment behind [pablorosi.dev](https://pablorosi.dev) and [docs.pablorosi.dev](https://docs.pablorosi.dev).
 
-### 1. Secure Cloud Routing
+| Version | Scope | Status |
+| :--- | :--- | :--- |
+| **[V2 — Cloudflare Pages Migration (Current)](/cloud-infrastructure/v2--cloudflare-pages-migration-current/)** | Static frontends on Cloudflare Pages; Hetzner for backend | **Current** |
+| **[V1 — Hetzner Secure Cloud Routing (Legacy)](/cloud-infrastructure/v1--hetzner-secure-cloud-routing-legacy/)** | Hetzner VPS, Docker, Nginx Proxy Manager, Tailscale CI/CD | **Legacy** |
 
-This layer handles all incoming traffic, edge security, and internal service routing. It details the **Defense in Depth** strategy, including the Hetzner Cloud Firewall, Nginx Reverse Proxy configurations, and the Zero Trust Tailscale overlay network used to secure administrative access.
+---
 
-### 2. Troubleshooting
+## Documentation map
 
-Operational guides for diagnosing and resolving common issues in the production environment.
+### V2 — Cloudflare Pages Migration (Current)
+
+* **[V2 Overview](/cloud-infrastructure/v2--cloudflare-pages-migration-current/)** — architecture rationale and workload split
+* **[Cloudflare Pages Deployment](/cloud-infrastructure/v2--cloudflare-pages-migration-current/cloudflare-pages-deployment)**
+* **[DNS & Routing](/cloud-infrastructure/v2--cloudflare-pages-migration-current/dns-routing)**
+
+### V1 — Hetzner Secure Cloud Routing (Legacy)
+
+Historical reference for the original all-in-one Hetzner stack.
+
+* **[V1 Overview](/cloud-infrastructure/v1--hetzner-secure-cloud-routing-legacy/)**
+* **[Troubleshooting](/cloud-infrastructure/2-troubleshooting/)** — RCA guides from the production environment
