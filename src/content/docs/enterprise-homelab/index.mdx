@@ -6,10 +6,10 @@ description: The core vision and roadmap for the enterprise homelab environment.
 import { Aside, CardGrid, LinkCard, Steps } from '@astrojs/starlight/components';
 import ThemeImage from '../../../components/ThemeImage.astro';
 
-Welcome to the **Enterprise Homelab** documentation. This environment is the foundation for **NetDevOps** experiments, Cisco networking labs, Linux systems administration, and the future [Local SRE Platform](/local-sre-platform/).
+Welcome to the **Enterprise Homelab** documentation. This environment is the foundation for **NetDevOps** experiments, Cisco networking labs, and Linux systems administration.
 
 <Aside type="caution" title="Evolution in Progress">
-The lab is continuously evolving. Documentation is updated as new services (Ansible, observability stack) are integrated.
+The lab is continuously evolving. Infrastructure docs (sections 1–7) are updated as hardware and services are provisioned.
 </Aside>
 
 ## Architecture
@@ -31,8 +31,9 @@ A **hybrid infrastructure** combining physical Cisco hardware with a **Proxmox**
 2. **Hypervisor:** Proxmox VE on the t740 with nested virtualization for EVE-NG.
 3. **Networking:** VLANs, trunking on Cisco switches; Tailscale mesh for remote access.
 4. **Emulation:** EVE-NG bridging virtual IOS nodes to physical switch ports.
-5. **Observability (planned):** Prometheus and Grafana via the Local SRE Platform.
-6. **Next:** Ansible automation for VLAN and switch provisioning.
+5. **Observability:** Prometheus and Grafana — **planned (post-CCNA)**.
+6. **Phase 1 backlog:** [IPAM](/enterprise-homelab/ipam/) for address management; Ansible for VLAN/switch automation.
+7. **Phase 2 backlog:** [Autonomous SRE Agent](/local-sre-platform/) — planned architecture, requires observability baseline first.
 </Steps>
 
 ## Documentation Map
@@ -46,3 +47,15 @@ A **hybrid infrastructure** combining physical Cisco hardware with a **Proxmox**
   <LinkCard title="6 Observability" description="Prometheus scrape targets and Grafana dashboards." href="/enterprise-homelab/6-observability/prometheus/" />
   <LinkCard title="7 Troubleshooting" description="Root cause analyses and resolutions." href="/enterprise-homelab/7-troubleshooting/catalyst-autonegotiation/" />
 </CardGrid>
+
+## Homelab Platforms
+
+Planned utility applications — blueprints only, implementation post-CCNA.
+
+<CardGrid>
+  <LinkCard title="IPAM" description="Planned — centralized IP and VLAN allocation tracking." href="/enterprise-homelab/ipam/" />
+</CardGrid>
+
+## Flagship Project (Planned)
+
+The **[Autonomous SRE Agent](/local-sre-platform/)** is a planned hybrid SRE assistant — local observability, cloud LLM reasoning, and DLP-protected remediation. Architecture blueprint documented on the [homepage](/); implementation follows observability rollout.
