@@ -1,0 +1,60 @@
+---
+title: "IPAM"
+description: IP Address Management application for the enterprise homelab — subnets, VLANs, and device allocations.
+sidebar:
+  order: 0
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="note" title="Planned / Roadmap">
+Architecture blueprint — no code yet. Implementation starts after CCNA, once VLANs and subnets are stable in [Network Topology](/enterprise-homelab/1-architecture/network-topology/).
+</Aside>
+
+## Overview
+
+**IPAM** (IP Address Management) is a homelab utility for tracking IP allocations, VLAN assignments, and device addressing across the physical and virtual infrastructure.
+
+Static IP design and VLAN topology are documented in **[Network Topology](/enterprise-homelab/1-architecture/network-topology/)**. IPAM provides a **dynamic, queryable layer** on top of that schema — a single source of truth for what is assigned where.
+
+---
+
+## Goals
+
+* Centralize subnet and host records for switches, VMs, containers, and lab endpoints
+* Track VLAN-to-subnet mappings aligned with the Catalyst core design
+* Reduce manual spreadsheet drift as the lab grows
+* Expose an API and UI for quick lookups during troubleshooting and provisioning
+
+---
+
+## Planned Stack
+
+| Layer | Direction |
+| :--- | :--- |
+| **Backend** | REST API with persistent storage |
+| **Frontend** | Web UI for browsing and editing allocations |
+| **Deployment** | Docker on Proxmox ([Compute](/enterprise-homelab/5-compute/docker-engine/)) |
+| **Data model** | Subnets, VLANs, hosts, reservations, and notes per device |
+
+Specific framework and database choices will be documented as implementation progresses.
+
+---
+
+## Roadmap
+
+| Phase | Dependency | Status |
+| :--- | :--- | :--- |
+| **0** | CCNA + document real VLAN/subnet schema in Network Topology | **In progress** |
+| **1** | IPAM v0.1 — REST API + UI for VLAN → Subnet → Host | Planned (post-CCNA) |
+| **2** | Integration with [Autonomous SRE Agent](/local-sre-platform/) for incident context | Planned |
+
+**Start criteria:** CCNA complete (or near), stable lab addressing documented, clear data model (`VLAN → Subnet → Host`).
+
+---
+
+## Relationship to Other Projects
+
+* **[Network Topology](/enterprise-homelab/1-architecture/network-topology/)** — static reference for VLAN design and addressing principles
+* **[Autonomous SRE Agent](/local-sre-platform/)** — may consume IPAM data for incident context in future integrations
+* **[Cisco Switches](/enterprise-homelab/3-networking/cisco-switches/)** — VLAN and trunking configuration on physical hardware
