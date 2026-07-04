@@ -1,0 +1,62 @@
+---
+title: "Tech Stack"
+description: Languages, frameworks, APIs, and deployment environment for the Autonomous SRE Agent.
+sidebar:
+  order: 3
+---
+
+## Stack Summary
+
+| Layer | Technology |
+| :--- | :--- |
+| **Language** | Python 3.x |
+| **AI frameworks** | LangChain, LlamaIndex |
+| **Vector store** | ChromaDB or FAISS |
+| **Cloud APIs** | Groq (Llama 3) or DeepSeek |
+| **Networking / security** | Paramiko (SSH), Regex (DLP scrubber) |
+| **Notifications** | ntfy (self-hosted pub-sub) |
+| **Runtime** | LXC container or VM on Proxmox |
+
+---
+
+## Python Ecosystem
+
+All agent logic runs in **Python 3.x**:
+
+* **LlamaIndex** — document ingestion, chunking, embedding, and retrieval
+* **LangChain** — agent orchestration, tool definitions, memory, and LLM API integration
+* **Paramiko** — programmatic SSH sessions for remediation
+* **Regex (`re`)** — DLP pattern matching for IPs, credentials, MACs, and tokens
+
+---
+
+## Data Layer
+
+| Store | Purpose |
+| :--- | :--- |
+| **ChromaDB / FAISS** | Local vector database for log and runbook embeddings |
+| **Prometheus** | Metrics and alert triggers (via `query_prometheus` tool) |
+| **Local filesystem** | Source logs (`syslog`, Docker logs) and Markdown runbooks |
+
+---
+
+## External Services
+
+| Service | Role | Data exposure |
+| :--- | :--- | :--- |
+| **Groq / DeepSeek API** | LLM reasoning | Sanitized text only — no raw IPs or credentials |
+| **ntfy** | Mobile push notifications | Root-cause summary and action webhook |
+
+API keys for cloud LLM providers are stored locally and never included in prompts sent back to the model.
+
+---
+
+## Deployment Environment
+
+The agent runs as a dedicated workload on the homelab:
+
+* **LXC container** or **VM** on the Proxmox cluster ([Hypervisor docs](/enterprise-homelab/2-hypervisor/proxmox-installation/))
+* Network access to monitored nodes (SSH), ntfy server, and outbound HTTPS for cloud LLM API
+* No inbound exposure to the public internet
+
+See **[Enterprise Homelab — Compute](/enterprise-homelab/5-compute/docker-engine/)** for the broader container runtime context.

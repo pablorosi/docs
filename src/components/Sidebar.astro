@@ -20,12 +20,14 @@ const pathname = Astro.url.pathname;
 const projectKeys = [
   'cloud-infrastructure',
   'enterprise-homelab',
+  'local-sre-platform',
   'learning-log',
 ] as const;
 
 const projectLabels: Record<(typeof projectKeys)[number], string> = {
   'cloud-infrastructure': 'Cloud Infrastructure',
   'enterprise-homelab': 'Enterprise Homelab',
+  'local-sre-platform': 'Autonomous SRE Agent',
   'learning-log': 'Learning Log',
 };
 

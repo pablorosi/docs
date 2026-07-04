@@ -1,36 +1,104 @@
 ---
-title: Event-Driven Infrastructure Observability and Remediation System
-description: Autonomous monitoring, incident analysis and infrastructure remediation platform for homelab environments.
+title: "Autonomous SRE Agent"
+description: Semi-autonomous incident analysis and remediation across homelab infrastructure, with cloud LLM reasoning protected by local DLP sanitization.
+sidebar:
+  order: 0
 ---
 
-import { Aside } from '@astrojs/starlight/components';
+import { Aside, CardGrid, LinkCard } from '@astrojs/starlight/components';
 
-<Aside type="caution" title="Evolution in Progress">
-This project is currently under active development. Features, architecture, and implementation details may change as the platform evolves.
+<Aside type="note" title="Planned / Roadmap">
+Architecture blueprint — implementation has not started. Development begins after CCNA and an observability baseline (Prometheus/Grafana) is in place.
 </Aside>
 
-# Event-Driven Infrastructure Observability and Remediation System
+## Project Objective
 
-An event-driven platform designed to enhance infrastructure operations through automated monitoring, incident detection, log analysis, and remediation workflows.
+Build a **highly secure, semi-autonomous Site Reliability Engineering (SRE) assistant** that monitors local infrastructure, analyzes crash logs, and executes remediation commands via SSH.
 
-Built on top of the Enterprise Homelab environment, the system combines observability tools, infrastructure automation, and local AI capabilities to assist with troubleshooting and operational decision-making while maintaining full control of data and services.
+Local hardware cannot run large language models efficiently. To bypass that limitation while maintaining a **Zero Trust** posture, the architecture uses a **cloud-based LLM** (Groq / DeepSeek) protected by a custom **local Data Loss Prevention (DLP) middleware**. Sensitive data never leaves the network in cleartext.
 
-## Planned Features
+The agent runs on top of the [Enterprise Homelab](/enterprise-homelab/) — Prometheus, Docker logs, syslog, and internal runbooks — and shares the same security mindset as [Cloud Infrastructure](/cloud-infrastructure/) (controlled access, human-in-the-loop execution).
 
-- Real-time infrastructure monitoring using Prometheus and Grafana.
-- Event-driven alerting and notification workflows.
-- Automated log collection and incident correlation.
-- Local AI-assisted analysis powered by Ollama.
-- Secure remediation actions through controlled automation.
-- Integration with network and system management tools.
-- Fully self-hosted architecture with no dependency on external cloud AI services.
+---
 
-## Project Goals
+## Why Hybrid (Homelab + Cloud API)
 
-- Reduce incident response times.
-- Improve infrastructure visibility.
-- Automate repetitive operational tasks.
-- Provide actionable diagnostics for common failures.
-- Explore practical applications of AI in SRE and infrastructure operations.
+| Constraint | Approach |
+| :--- | :--- |
+| Limited local GPU/CPU | Offload reasoning to Groq / DeepSeek API |
+| Sensitive infra data (IPs, credentials, MACs) | Local DLP scrubber masks data **before** any cloud call |
+| Untrusted autonomous execution | Human confirms via ntfy before Paramiko runs SSH remediation |
+| Real SRE workflows | RAG over local logs and runbooks, not generic cloud prompts |
 
-This project serves as both a learning platform and an experimental implementation of modern observability, automation, and Site Reliability Engineering concepts within a self-hosted environment.
+---
+
+## Architecture Overview
+
+```mermaid
+flowchart LR
+  subgraph Local["Local Network"]
+    Logs["syslog / Docker logs / Runbooks"]
+    LlamaIndex["LlamaIndex RAG"]
+    VectorDB["ChromaDB / FAISS"]
+    DLP["Python DLP Scrubber"]
+    LangChain["LangChain Agent"]
+    ntfy["ntfy Server"]
+    Paramiko["Paramiko SSH"]
+    Node["Affected Node"]
+  end
+
+  subgraph Cloud["Cloud API"]
+    LLM["Groq / DeepSeek"]
+  end
+
+  Admin["SysAdmin Mobile"]
+
+  Logs --> LlamaIndex
+  LlamaIndex --> VectorDB
+  VectorDB --> DLP
+  DLP --> LangChain
+  LangChain --> LLM
+  LLM --> LangChain
+  LangChain --> ntfy
+  ntfy --> Admin
+  Admin -->|"Confirm and Execute"| LangChain
+  LangChain --> Paramiko
+  Paramiko --> Node
+```
+
+---
+
+## Roadmap
+
+| Phase | Focus | Status |
+| :--- | :--- | :--- |
+| **0** | CCNA + homelab networking docs | **In progress** |
+| **1** | [IPAM](/enterprise-homelab/ipam/) — IP/VLAN tracking app | Planned (post-CCNA) |
+| **2** | Prometheus + Grafana on Proxmox | Planned |
+| **3** | SRE Agent — component by component | Planned |
+
+**Implementation order** (when phase 3 starts):
+
+1. Python DLP scrubber
+2. LlamaIndex + ChromaDB (local RAG)
+3. LangChain + Groq/DeepSeek API
+4. ntfy push alerts
+5. Paramiko SSH remediation (human-in-the-loop)
+
+---
+
+## Documentation Directory
+
+<CardGrid>
+  <LinkCard title="Core Components" description="LlamaIndex, DLP scrubber, LangChain, cloud LLM, and ntfy/Paramiko." href="/local-sre-platform/components/" />
+  <LinkCard title="Execution Workflow" description="Seven-step flow from crash trigger to confirmed SSH remediation." href="/local-sre-platform/workflow/" />
+  <LinkCard title="Tech Stack" description="Python, LangChain, LlamaIndex, vector DB, and deployment target." href="/local-sre-platform/tech-stack/" />
+</CardGrid>
+
+---
+
+## Related Infrastructure
+
+* **[Enterprise Homelab](/enterprise-homelab/)** — physical and virtual infrastructure the agent monitors
+* **[Observability](/enterprise-homelab/6-observability/prometheus/)** — Prometheus scrape targets and Grafana dashboards
+* **[Compute / Docker](/enterprise-homelab/5-compute/docker-engine/)** — container runtime on Proxmox

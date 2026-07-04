@@ -1,0 +1,88 @@
+---
+title: "Core Components"
+description: The five components of the Autonomous SRE Agent — ingestion, sanitization, orchestration, reasoning, and execution.
+sidebar:
+  order: 1
+---
+
+## Component Map
+
+| Component | Role | Technology |
+| :--- | :--- | :--- |
+| **LlamaIndex** | The Librarian | RAG, chunking, vector search |
+| **Python DLP Scrubber** | The Shield | Regex-based data sanitization |
+| **LangChain** | The Orchestrator | Agent memory, prompts, tool calling |
+| **Cloud LLM API** | The Brain | Groq (Llama 3) or DeepSeek |
+| **ntfy + Paramiko** | The Control Room | Push alerts and SSH remediation |
+
+---
+
+## A. LlamaIndex — Data Ingestion and RAG
+
+**Role:** The Librarian.
+
+Ingests unstructured local data and makes it searchable when an anomaly occurs:
+
+* `/var/log/syslog`
+* Docker container logs
+* Internal Markdown runbooks
+
+**Mechanism:** Chunks documents and stores embeddings in a lightweight local vector database (**ChromaDB** or **FAISS**). On incident, performs semantic search to retrieve only the log lines and runbook sections relevant to the crash — not the entire log corpus.
+
+---
+
+## B. Python DLP Scrubber — Security Middleware
+
+**Role:** The Shield.
+
+Ensures no sensitive infrastructure data leaves the local network in cleartext. Intercepts retrieved text from LlamaIndex **before** it is sent to the cloud LLM.
+
+**Mechanism:** Python script using regular expressions to mask sensitive strings:
+
+```text
+10.0.102.15              → [REDACTED_INTERNAL_IP]
+password=db_admin_pass   → [REDACTED_CREDENTIAL]
+aa:bb:cc:dd:ee:ff        → [REDACTED_MAC]
+Bearer eyJhbGciOi...     → [REDACTED_TOKEN]
+```
+
+The cloud LLM receives enough context to reason about failure patterns without seeing real identifiers.
+
+---
+
+## C. LangChain — Agent Orchestration and Tool Calling
+
+**Role:** The Orchestrator and The Hands.
+
+Bridges sanitized local data, the cloud LLM, and infrastructure actions:
+
+* Manages conversation memory across the incident lifecycle
+* Formats prompts with sanitized logs and runbook excerpts
+* Exposes predefined **tools** to the LLM, for example:
+  * `execute_ssh_remediation`
+  * `query_prometheus`
+
+The LLM returns structured responses; LangChain decides which tool to invoke and when.
+
+---
+
+## D. Cloud LLM API — Groq / DeepSeek
+
+**Role:** The Brain.
+
+Provides senior-level reasoning, root-cause analysis, and formulates exact bash commands or PromQL queries needed to fix the issue.
+
+Because input is **pre-sanitized** by the DLP layer, the architecture can use fast cloud inference without exposing real infrastructure identifiers. API keys and outbound HTTPS are the only cloud touchpoints.
+
+---
+
+## E. Alerting and Execution — ntfy and Paramiko
+
+**Role:** The Control Room.
+
+| Tool | Function |
+| :--- | :--- |
+| **ntfy** | Self-hosted pub-sub server. Sends a push notification to the sysadmin's mobile device with root-cause summary and an interactive webhook button: **Confirm & Execute**. |
+| **Paramiko** | Python SSH library. When the admin confirms, LangChain triggers a secure SSH session to the affected node and runs the remediation command. |
+
+No remediation runs without explicit human approval — semi-autonomous, not fully autonomous.

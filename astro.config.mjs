@@ -78,6 +78,33 @@ export default defineConfig({
 							collapsed: true,
 							autogenerate: { directory: 'enterprise-homelab/7 Troubleshooting', collapsed: true },
 						},
+						{
+							label: 'IPAM',
+							collapsed: true,
+							autogenerate: { directory: 'enterprise-homelab/ipam', collapsed: true },
+						},
+					],
+				},
+				{
+					label: 'Autonomous SRE Agent',
+					collapsed: true,
+					items: [
+						{
+							label: 'Project Overview',
+							link: '/local-sre-platform/',
+						},
+						{
+							label: 'Core Components',
+							link: '/local-sre-platform/components/',
+						},
+						{
+							label: 'Execution Workflow',
+							link: '/local-sre-platform/workflow/',
+						},
+						{
+							label: 'Tech Stack',
+							link: '/local-sre-platform/tech-stack/',
+						},
 					],
 				},
 				{
@@ -132,6 +159,11 @@ export default defineConfig({
 							label: 'Docker',
 							collapsed: true,
 							autogenerate: { directory: 'learning-log/docker', collapsed: true },
+						},
+						{
+							label: 'Proxmox',
+							collapsed: true,
+							autogenerate: { directory: 'learning-log/proxmox', collapsed: true },
 						},
 						{
 							label: 'Databases',

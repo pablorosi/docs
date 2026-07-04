@@ -1,0 +1,74 @@
+---
+title: "Execution Workflow"
+description: Step-by-step incident flow from crash trigger to confirmed SSH remediation.
+sidebar:
+  order: 2
+---
+
+## End-to-End Flow
+
+```mermaid
+sequenceDiagram
+  participant Service as Docker Service
+  participant RAG as LlamaIndex
+  participant DLP as DLP Scrubber
+  participant Agent as LangChain
+  participant LLM as Groq / DeepSeek
+  participant ntfy as ntfy Server
+  participant Admin as SysAdmin
+  participant SSH as Paramiko
+
+  Service->>RAG: 1. Crash detected
+  RAG->>RAG: 2. Vector search logs + runbooks
+  RAG->>DLP: 3. Raw retrieved text
+  DLP->>Agent: 4. Sanitized context
+  Agent->>LLM: 5. Reasoning request
+  LLM->>Agent: 6. Root cause + fix command
+  Agent->>ntfy: 7. Push alert with action button
+  ntfy->>Admin: Notification on mobile
+  Admin->>Agent: Confirm and Execute
+  Agent->>SSH: Trigger remediation tool
+  SSH->>Service: Apply fix on affected node
+```
+
+---
+
+## Step-by-Step
+
+### 1. Trigger
+
+A critical service crashes on the main Proxmox node — for example, a Docker container exits unexpectedly or a health check fails.
+
+### 2. Retrieval
+
+LlamaIndex queries the local vector database to pull the exact stack trace and cross-references it with local runbooks (restart procedures, known failure modes).
+
+### 3. Sanitization
+
+Raw text passes through the **Python DLP Scrubber**. All MAC addresses, internal IPs, hostnames, and tokens are replaced with `[REDACTED_*]` tags.
+
+### 4. Reasoning
+
+LangChain sends the sanitized logs and runbook context to the **Groq** or **DeepSeek** API.
+
+### 5. Formulation
+
+The cloud LLM analyzes the error and formulates a fix — for example, *"Restart the database container"* — returning a structured response to LangChain with the proposed command.
+
+### 6. Alert
+
+A local POST request hits the **ntfy** server. The sysadmin's phone receives the analysis summary and a **Confirm & Execute** action button.
+
+### 7. Remediation
+
+The admin taps **Confirm & Execute**. The webhook triggers LangChain to call the `Paramiko_SSH` tool. Paramiko logs into the failing node over SSH and applies the fix.
+
+---
+
+## Design Principles
+
+* **Human in the loop** — analysis can be automated; execution requires explicit approval.
+* **Sanitize first, reason second** — no cloud API call receives unsanitized infrastructure data.
+* **Local retrieval, cloud reasoning** — RAG stays on-prem; only masked context leaves the network.
+
+See **[Core Components](/local-sre-platform/components/)** for per-component details.
