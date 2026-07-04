@@ -1,0 +1,16 @@
+---
+title: "EVE-NG Configuration"
+date: 2026-07-4
+tag: eve-ng
+sidebar:
+  order: 0
+---
+
+## Reset first-run setup
+
+EVE-NG marks initial configuration as complete by creating a flag file. To run the setup wizard again (network, credentials, etc.), remove it and reboot or restart the service:
+
+```bash
+rm -f /opt/ovf/.configured
+```
+

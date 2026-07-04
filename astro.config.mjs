@@ -166,6 +166,11 @@ export default defineConfig({
 							autogenerate: { directory: 'learning-log/proxmox', collapsed: true },
 						},
 						{
+							label: 'EVE-NG',
+							collapsed: true,
+							autogenerate: { directory: 'learning-log/eve-ng', collapsed: true },
+						},
+						{
 							label: 'Databases',
 							collapsed: true,
 							autogenerate: { directory: 'learning-log/databases', collapsed: true },
