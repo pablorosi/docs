@@ -1,0 +1,219 @@
+---
+title: "Proxmox CLI Cheat Sheet"
+date: 2026-07-4
+tag: proxmox
+sidebar:
+  order: 0
+---
+
+Quick reference for managing **LXC containers** (`pct`), **QEMU/KVM VMs** (`qm`), storage, and node status on Proxmox VE.
+
+Replace `<vmid>` with the numeric ID shown in the web UI or CLI output.
+
+---
+
+## 1. LXC Containers (`pct`)
+
+### 1.1 List and status
+
+```bash
+pct list
+pct status <vmid>
+```
+
+### 1.2 Lifecycle
+
+```bash
+pct start <vmid>
+pct shutdown <vmid>      # graceful ACPI shutdown
+pct stop <vmid>          # force stop (like pulling power)
+pct reboot <vmid>
+```
+
+### 1.3 Create and destroy
+
+```bash
+# Download a template first (see section 5)
+pct create 100 local:vztmpl/debian-12-standard_12.7-1_amd64.tar.zst \
+  --hostname my-lxc \
+  --memory 512 \
+  --cores 1 \
+  --rootfs local-lvm:8 \
+  --net0 name=eth0,bridge=vmbr0,ip=dhcp
+
+pct destroy <vmid>
+```
+
+### 1.4 Configuration
+
+```bash
+pct config <vmid>                    # show current config
+pct set <vmid> -memory 1024          # change RAM
+pct set <vmid> -cores 2              # change CPU cores
+pct set <vmid> -onboot 1             # start on host boot
+```
+
+### 1.5 Shell access
+
+```bash
+pct enter <vmid>                     # attach to container console
+pct exec <vmid> -- bash              # run a command inside the CT
+```
+
+---
+
+## 2. Virtual Machines (`qm`)
+
+### 2.1 List and status
+
+```bash
+qm list
+qm status <vmid>
+```
+
+### 2.2 Lifecycle
+
+```bash
+qm start <vmid>
+qm shutdown <vmid>       # graceful shutdown via guest agent / ACPI
+qm stop <vmid>           # force power off
+qm reboot <vmid>
+qm reset <vmid>          # hard reset
+```
+
+### 2.3 Configuration
+
+```bash
+qm config <vmid>
+qm set <vmid> -memory 4096
+qm set <vmid> -cores 4
+qm set <vmid> -onboot 1
+```
+
+### 2.4 Clone and destroy
+
+```bash
+qm clone <source-vmid> <new-vmid> --name my-vm-clone --full 1
+qm destroy <vmid>
+```
+
+### 2.5 Console
+
+```bash
+qm terminal <vmid>       # serial console (if configured)
+```
+
+Access the graphical console from the Proxmox web UI (noVNC / SPICE).
+
+---
+
+## 3. Node and cluster
+
+### 3.1 Version and node status
+
+```bash
+pveversion
+pveversion -v                    # verbose — kernel, pve-manager, etc.
+pvenode status
+uptime
+free -h
+```
+
+### 3.2 Cluster (if configured)
+
+```bash
+pvecm status
+pvecm nodes
+```
+
+### 3.3 Services
+
+```bash
+systemctl status pveproxy pvedaemon pve-cluster
+systemctl restart pveproxy       # restart web UI after cert changes
+```
+
+---
+
+## 4. Storage
+
+### 4.1 List storage pools and content
+
+```bash
+pvesm status
+pvesm list local
+pvesm list local-lvm
+df -h
+```
+
+### 4.2 Common storage IDs
+
+| ID | Typical use |
+| :--- | :--- |
+| `local` | ISO images, container templates, backups |
+| `local-lvm` | VM/CT disks (LVM-thin) |
+| `local-zfs` | ZFS-based disk pool (if configured) |
+
+---
+
+## 5. Templates and backups
+
+### 5.1 Download LXC templates
+
+```bash
+pveam update                       # refresh template index
+pveam available
+pveam download local debian-12-standard_12.7-1_amd64.tar.zst
+```
+
+### 5.2 Backup a VM or container
+
+```bash
+vzdump <vmid> --storage local --mode snapshot --compress zstd
+```
+
+| Flag | Description |
+| :--- | :--- |
+| `--storage <id>` | Target storage pool |
+| `--mode snapshot` | Live backup with minimal downtime |
+| `--mode stop` | Stop VM/CT before backup (consistent but disruptive) |
+| `--compress zstd` | Compress backup archive |
+
+List backups on storage:
+
+```bash
+ls /var/lib/vz/dump/
+```
+
+---
+
+## 6. Tasks and logs
+
+```bash
+# Active and recent tasks (also visible in web UI → Datacenter → Tasks)
+pvesh get /cluster/tasks
+
+# Host syslog
+journalctl -u pvedaemon -f
+tail -f /var/log/pve/tasks/active
+```
+
+---
+
+## 7. Quick reference
+
+| Goal | Command |
+| :--- | :--- |
+| List all CTs | `pct list` |
+| List all VMs | `qm list` |
+| Graceful stop CT | `pct shutdown <vmid>` |
+| Force stop CT | `pct stop <vmid>` |
+| Graceful stop VM | `qm shutdown <vmid>` |
+| Enter CT shell | `pct enter <vmid>` |
+| Show CT config | `pct config <vmid>` |
+| Show VM config | `qm config <vmid>` |
+| Storage usage | `pvesm status` |
+| Proxmox version | `pveversion` |
+| Backup VM/CT | `vzdump <vmid> --storage local` |
+
+See **[Network configuration](./network/)** for bridges, `/etc/network/interfaces`, and DNS.
