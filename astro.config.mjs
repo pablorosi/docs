@@ -171,6 +171,11 @@ export default defineConfig({
 							autogenerate: { directory: 'learning-log/eve-ng', collapsed: true },
 						},
 						{
+							label: 'Tailscale',
+							collapsed: true,
+							autogenerate: { directory: 'learning-log/tailscale', collapsed: true },
+						},
+						{
 							label: 'Databases',
 							collapsed: true,
 							autogenerate: { directory: 'learning-log/databases', collapsed: true },
