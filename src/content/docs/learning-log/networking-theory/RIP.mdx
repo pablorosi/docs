@@ -44,6 +44,21 @@ Router(config-router)# network 192.168.1.0
 Router(config-router)# network 10.0.0.0
 ```
 
+### Manual summarization
+
+```txt
+Router(config-router)# interface f1/0
+Router(config-if)# ip summary-address rip 10.0.0.0 255.255.0.0
+```
+
+### Default route injection
+
+```txt
+Router(config)# ip route 0.0.0.0 0.0.0.0 203.0.113.2
+Router(config)# router rip
+Router(config-router)# default-information originate 
+```
+
 ### 4. Debugging
 
 Use **`debug ip rip`** in privileged EXEC mode to watch RIP updates in real time — routes sent to neighbors, routes received, and metric changes.
