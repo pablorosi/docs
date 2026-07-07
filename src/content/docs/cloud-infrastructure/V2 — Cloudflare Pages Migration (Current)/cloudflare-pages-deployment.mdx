@@ -35,13 +35,6 @@ git push → Cloudflare webhook → pnpm install → pnpm run build → dist/ up
 
 Each push to the production branch triggers a new deployment. Cloudflare also builds preview deployments for other branches.
 
-The Astro build output includes:
-
-* Static HTML pages (Starlight)
-* Pagefind search index
-* `sitemap-index.xml` via `@astrojs/sitemap`
-* Assets from `public/`
-
 ---
 
 ## Local development

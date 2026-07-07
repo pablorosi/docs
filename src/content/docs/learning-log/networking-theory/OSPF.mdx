@@ -1,6 +1,6 @@
 ---
-title: "Open Shortest Path First (OSPF)"
-date: 2026-05-31
+title: "Open Shortest Path First (OSPF) Basics"
+date: 2026-07-6
 tag: networking-theory
 ---
 
@@ -15,6 +15,20 @@ When OSPF starts up on a router, it goes through a specific process to build thr
 **The Topology Table (Link-State Database / LSDB):** Every router floods the network with LSAs (Link-State Advertisements) containing information about their connected links. Every router collects these LSAs until they all have an identical, complete map of the entire network. (Command: show ip ospf database)
 
 **The Routing Table (Forwarding Database):** The router takes that complete map and runs a mathematical formula over it to find the fastest routes. The winning routes are injected into the final routing table. (Command: show ip route)
+
+## 2. OSPF packet types 
+
+**Hello:** The router listen and send out hello packets to form adjacencies with other OSPF routers on the link 
+
+**DBD Database Description:** Adjacent routers will tell each other the networks they know about with the DBD packet
+
+**LSR Link State Request:** If a router is missing information about any of the networks in the received DBD, it will send the neighbor an LSR
+
+**LSA Link State Advertisement:** A routing update
+
+**LSU Link State Update:** Contains a list of LSA's which should be updated, used during flooding
+
+**LSAck:** Receiving routers acknowledge LSAs
 
 ## 2. The Algorithm (Dijkstra's SPF)
 
@@ -36,7 +50,7 @@ The Rule: OSPF will always choose the path with the lowest cumulative cost, even
 
 OSPF calculates the cost of a link using the formula: `Reference Bandwidth / Interface Bandwidth`. By default, Cisco uses a reference bandwidth of **100 Mbps** ($10^8$ bps).
 
-Here are the default costs you need to memorize:
+Here are the default costs:
 
 | Interface Type | Bandwidth | Default OSPF Cost |
 | :--- | :--- | :--- |
@@ -48,6 +62,125 @@ Here are the default costs you need to memorize:
 | **Slow Serial** | 128 kbps | **781** |
 | **ISDN / Slow Serial** | 64 kbps | **1562** |
 
+To change the default reference bandwidth we use the command:
 
-## 5. DR (Designated Router) and BDR (Backup Designated Router)
+```txt
+R1(config-router)# auto-cost reference-bandwidth 100000
+```
+
+:::caution[Reference Bandwidth]
+When changing the reference bandwidth it has to be the same in all routers
+:::
+
+
+## 5. Basic Configuration
+
+```txt
+R2(config)# router ospf 1
+R2(config)# network 10.0.0.0 0.0.255.255 area 0
+```
+
+:::note[network command]
+The command network 10.0.0.0 0.0.255.255 area 0 only advertises the networks that fall into that range.
+
+For example:
+
+10.0.1.0/24 -- Advertised
+
+10.0.2.0/24 -- Advertised
+
+10.0.0.0/16 -- NOT Advertised
+:::
+
+To inject a default route:
+
+```txt
+R1(config)# ip route 0.0.0.0 0.0.0.0 192.168.2.1
+R1(config)# router ospf 1
+R1(config-router)# default-information originate
+```
+
+## 6. Verification
+
+```txt
+R1# show run | section ospf
+R1# show ip protocols
+R1# show ip ospf interface brief
+R1# show ip ospf neighbor
+R1# show ip ospf database
+R1# show ip route
+```
+
+## 7. OSPF Areas
+
+OSPF divides the network into **areas** to limit LSA flooding and keep each router's LSDB smaller. 
+### Why areas exist
+
+| Problem without areas | What areas solve |
+| :--- | :--- |
+| Every router stores the full network map | Each router only floods LSAs inside its area |
+| SPF runs on a huge topology | SPF runs on a smaller local topology |
+| One link flap floods the whole AS | Instability stays mostly inside one area |
+
+### Area 0 — the backbone
+
+**Area 0** is mandatory. It is the central hub all other areas must connect to — **directly or through another area that touches Area 0**.
+
+```text
+[Area 1] ──ABR──► [Area 0] ◄──ABR── [Area 2]
+```
+
+:::note[rule]
+Every non-backbone area must have a path to **Area 0**. You cannot have Area 1 talking to Area 2 without Area 0 in the middle (no "disconnected" areas).
+:::
+
+**Multi-area example** — R1 in Area 1, backbone router in Area 0:
+
+```txt
+! R1 — internal router in Area 1
+R1(config)# router ospf 1
+R1(config-router)# network 10.1.0.0 0.0.0.255 area 1
+
+! ABR — interface in Area 1 and interface in Area 0
+ABR(config)# router ospf 1
+ABR(config-router)# network 10.1.0.0 0.0.0.255 area 1
+ABR(config-router)# network 10.0.0.0 0.0.0.255 area 0
+```
+
+### Key router roles
+
+| Role | Abbrev. | Function |
+| :--- | :--- | :--- |
+| **Internal router** | — | All interfaces in the **same** area |
+| **Backbone router** | — | At least one interface in **Area 0** |
+| **Area Border Router** | **ABR** | Connects Area 0 to another area; summarizes between areas |
+| **AS Boundary Router** | **ASBR** | Injects external routes (static, EIGRP, etc.) into OSPF |
+
+### Route types
+
+| Type | Code | Meaning |
+| :--- | :--- | :--- |
+| **Intra-area** | O | Destination inside **your** area |
+| **Inter-area** | O IA | Destination in another area (via ABR) |
+| **External** | O E1 / O E2 | From outside OSPF (via ASBR) |
+
+Check in the routing table:
+
+```txt
+R1# show ip route ospf
+```
+
+### Stub areas
+
+**Stub area** — ABR blocks external LSAs (Type 5); internal routers get a default route instead. Reduces LSDB size at the edge. CCNA may mention stub/totally stubby; single-area labs usually skip this.
+
+### Quick checks
+
+```txt
+R1# show ip ospf
+R1# show ip ospf interface brief    ! Area ID per interface
+R1# show ip ospf border-routers   ! ABR / ASBR info
+```
+
+**Area ID mismatch** on the same link → neighbors never reach `FULL`. Always verify both sides use the same area on a shared segment.
 

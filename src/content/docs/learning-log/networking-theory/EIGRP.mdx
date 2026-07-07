@@ -1,0 +1,111 @@
+---
+title: "EIGRP (Enhanced Interior Gateway Routing Protocol)"
+date: 2026-07-5
+tag: networking-theory
+---
+
+### 1. Core concepts
+
+**Type:** Advanced distance vector (Cisco proprietary). Often called a **hybrid** — fast convergence like link-state, but exchanges routing info like distance vector.
+
+**Algorithm:** DUAL (Diffusing Update Algorithm) — loop-free path calculation with backup routes ready before failure.
+
+**Metric:** Composite (lower is better). By default only **bandwidth** and **delay** are used (K1 and K3). Reliability, load, and MTU are off by default.
+
+**AS number:** Routers must share the same **autonomous system number** to become neighbors (`router eigrp 100`).
+
+**Updates:** Multicast to `224.0.0.10`. Sends **partial** triggered updates, not full periodic table dumps like RIP.
+
+**Admin distance:** 90 (internal), 170 (external/redistributed).
+
+---
+
+### 2. DUAL — Successor and Feasible Successor
+
+| Term | Meaning |
+| :--- | :--- |
+| **Successor** | Best route to a destination (installed in routing table) |
+| **Feasible Distance (FD)** | Metric of the successor route |
+| **Feasible Successor (FS)** | Backup route stored in topology table |
+| **Reported Distance (RD)** | Metric a neighbor reports to reach the destination |
+| **Feasibility Condition** | `RD < FD` of current successor — guarantees loop-free backup |
+
+If the successor fails and a feasible successor exists, EIGRP switches instantly (**local computation**). No query flood.
+
+If no FS exists, DUAL goes active and queries neighbors (**active computation**).
+
+**Three tables:**
+
+| Table | Command |
+| :--- | :--- |
+| Neighbor | `show ip eigrp neighbors` |
+| Topology | `show ip eigrp topology` |
+| Routing | `show ip route eigrp` |
+
+---
+
+### 3. Cisco IOS Configuration
+
+```txt
+Router(config)# router eigrp 100
+Router(config-router)# eigrp router-id 1.1.1.1
+Router(config-router)# network 192.168.1.0 0.0.0.255
+Router(config-router)# network 10.0.0.0 0.255.255.255
+Router(config-router)# no auto-summary
+```
+
+`network` uses a **wildcard mask**. `no auto-summary` prevents summarizing to classful boundaries (important on older IOS; modern IOS disables auto-summary by default).
+
+#### Passive interface
+
+```txt
+Router(config-router)# passive-interface GigabitEthernet0/0
+```
+
+---
+
+### 4. Verification
+
+```txt
+Router# show ip eigrp neighbors
+Router# show ip eigrp topology
+Router# show ip eigrp topology 10.1.1.0/24
+Router# show ip route eigrp
+Router# show ip protocols
+```
+
+In `show ip eigrp topology`, look for:
+
+* **P** — route in passive state (stable)
+* **A** — active (DUAL is querying, convergence in progress)
+* Entry marked **successor** and optional **feasible successor**
+
+---
+
+### 5. Debugging
+
+```txt
+Router# debug ip eigrp
+Router# debug eigrp packets
+```
+
+**What to look for:**
+
+* **Hello/Update packets** — neighbor formation and route exchange.
+* **Query/Reply** — active state when no feasible successor exists.
+* **Metric changes** — bandwidth/delay affecting composite metric.
+
+Turn off when done:
+
+```txt
+Router# undebug all
+```
+
+Or disable EIGRP debug only:
+
+```txt
+Router# undebug ip eigrp
+Router# undebug eigrp packets
+```
+
+**Without debug** — `show ip eigrp neighbors` and `show ip eigrp topology all-links` for FS visibility.

@@ -42,13 +42,3 @@ Legacy `.com` domains are handled by **Redirect Rules** at the Cloudflare edge. 
 ## TLS
 
 Cloudflare Pages provisions and renews TLS certificates for custom domains automatically. No origin certificate or reverse proxy configuration is required on the server for static frontends.
-
----
-
-## Adding another static site
-
-1. Create a new Pages project connected to the repository.
-2. Add a CNAME (or use Custom domains) for the new hostname.
-3. Keep backend or API routes on separate hostnames that point to the Hetzner origin.
-
-Each static frontend gets its own Pages project and DNS record. The VPS handles only hostnames that need a running process.

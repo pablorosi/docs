@@ -1,0 +1,53 @@
+---
+title: "Open Shortest Path First (OSPF) Adjacency process"
+date: 2026-07-6
+tag: networking-theory
+---
+
+import ThemeImage from '../../../../components/ThemeImage.astro';
+
+OSPF routers exchange several packet types while forming an adjacency and synchronizing the LSDB.
+
+
+
+| Packet | Role in adjacency |
+| :--- | :--- |
+| **Hello** | Discover neighbors, agree on timers and area |
+| **DBD** | Exchange summary of the local LSDB |  
+| **LSR** | Request missing LSA details |
+| **LSU** | Deliver requested LSAs |
+| **LSAck** | Acknowledge LSU |
+
+Neighbor state must reach **FULL** before the LSDB is considered synchronized.
+
+## 1. OSPF packet
+
+<ThemeImage
+  lightSrc="/OSPF_packet_light.svg"
+  darkSrc="/OSPF_packet_dark.svg"
+  alt="OSPF packet types and adjacency exchange"
+/>
+
+**Version:** OSPFv2 or OSPFv3
+
+**Type:**  
+1- Hello  
+2- DBD Database Descriptor  
+3- LSR Link State Request  
+4- LSU Link State Update (LSA Link State Advertisements are inside LSUs)  
+5- Link State Acknowledgment   
+
+**Router ID:** Of the advertising router, and interface
+
+**Authentication Type:**  
+0 - No password  
+1 - Plain text password  
+2 - MD5 authentication  
+ 
+
+## 2. Hello packets
+
+* OSPF discover each other and form adjacencies via Hello packets.  
+* They send Hello packets out each interface where OSPF is enabled (except passive interfaces)  
+* Multicast to 224.0.0.5  
+* Sent every 10 seconds by default  
