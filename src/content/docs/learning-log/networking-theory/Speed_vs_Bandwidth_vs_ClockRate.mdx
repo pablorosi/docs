@@ -1,0 +1,41 @@
+---
+title: "Speed vs Bandwidth vs Clock Rate commands in CISCO IOS"
+date: 2026-07-6
+tag: networking-theory
+---
+
+## 1. Speed 
+
+Applies to ethernet interfaces. It changes the actual physical transmission rate of the port hardware.
+
+```txt
+R1(config-int)# speed 100 -- Sets the transmission rate to 100 Mbps 
+```
+:::note[]
+Speed works in Mbps
+:::
+
+## 2. Clock Rate
+Applies to serial interfaces. Changes the actual physical transmission rate of a serial cable.
+
+```txt
+R1(config-int)# clock rate 6400 -- Sets the transmission rate to 64 Kbps
+```
+
+:::note[]
+Clock rate works in bps
+:::
+
+## 3. Bandwidth
+Applies to any interface. This is purely a logical command. It does absolutely nothing to the physical hardware, and it does not change how fast the port actually sends or receives data.
+
+```txt
+R1(config)# interface serial1/0
+R1(config-if)# bandwidth 768 -- Sets que transmission rate to 768 Kbps
+```
+
+:::note[]
+Bandwidth works in Kbps
+:::
+
+
