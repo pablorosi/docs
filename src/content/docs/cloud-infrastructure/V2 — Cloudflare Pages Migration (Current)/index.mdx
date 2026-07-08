@@ -7,7 +7,7 @@ sidebar:
 
 ## Executive Summary
 
-**Version 2** splits the infrastructure by workload type. **Static frontends** — starting with `docs.pablorosi.dev` — are built and served from **Cloudflare Pages**. The **Hetzner VPS** remains online for **backend services**, dynamic applications, APIs, and any page that is not a pre-rendered static build.
+Version 2 splits the infrastructure by workload type. Static frontends are built and served from Cloudflare Pages. The Hetzner VPS remains online for backend services, dynamic applications, APIs, and any page that is not a pre-rendered static build.
 
 This replaces the v1 model where every site — including fully static documentation — ran as a Docker container behind Nginx Proxy Manager.
 
@@ -15,18 +15,18 @@ This replaces the v1 model where every site — including fully static documenta
 
 ## Why the architecture changed
 
-Version 1 treated the documentation site like a dynamic app: GitHub Actions built the project, copied `dist/` to the VPS over Tailscale, and Nginx routed traffic to an nginx container. That added operational overhead for a site that is **100% static HTML, CSS, and JavaScript** at build time.
+Version 1 treated the documentation site like a dynamic app: GitHub Actions built the project, copied `dist/` to the VPS over Tailscale, and Nginx routed traffic to an nginx container. That added operational overhead for a site that is 100% static HTML, CSS, and JavaScript at build time.
 
 Static frontends belong at the edge. Backend logic belongs on a server you control. Mixing both on the same VPS made every doc update touch Docker, NPM, TLS, and a custom deploy pipeline.
 
-**The new model:**
+The new model:
 
 | Workload | Platform | Examples |
 | :--- | :--- | :--- |
-| **Static frontends** | Cloudflare Pages | `docs.pablorosi.dev`, future marketing or docs sites |
-| **Backend & dynamic apps** | Hetzner VPS | APIs, databases, SSR apps, admin tools, webhooks |
+| **Static frontends** | Cloudflare Pages | `docs.pablorosi.dev`, `pablorosi.dev` |
+| **Backend & dynamic apps** | Hetzner VPS | APIs, databases, admin tools |
 
-The Hetzner server is **not decommissioned** — it shifts from "host everything" to **backend-only**, which is a better fit for future non-static projects.
+The Hetzner server is not decommissioned — it shifts from hosting everything to backend-only, which is a better fit for future non-static projects.
 
 ---
 
@@ -35,9 +35,6 @@ The Hetzner server is **not decommissioned** — it shifts from "host everything
 * **Zero Maintenance:** No need to manage Nginx certificates or OS updates for the frontend. Cloudflare handles TLS, CDN, and static hosting for Pages projects.
 * **Cost-Effective:** Zero operational cost for static frontends using Cloudflare's Always Free tier.
 * **Performance:** Static assets are served from the edge, achieving near-instant load times globally with zero server overhead.
-
-Additional gains:
-
 * **Simpler deploys** — `git push` triggers build and publish; no Tailscale, SCP, or `docker compose` for docs.
 * **Preview URLs** per branch for review before merge.
 * **Smaller attack surface** on the VPS — no docs container or NPM proxy host for static sites.
@@ -48,7 +45,7 @@ Additional gains:
 ## Documentation Directory
 
 * **[Cloudflare Pages Deployment](./cloudflare-pages-deployment)** — build settings, repository layout, and deploy pipeline
-* **[DNS & Routing for Docs](./dns-routing)** — how `docs.pablorosi.dev` points to Pages instead of the VPS
+* **[DNS & Routing for Docs](./dns-routing)** — how `docs.pablorosi.dev` and `pablorosi.dev` point to Pages instead of the VPS
 
 :::tip[Version 1 reference]
 The original all-in-one Hetzner stack is documented under **[V1 — Hetzner Secure Cloud Routing (Legacy)](/cloud-infrastructure/v1--hetzner-secure-cloud-routing-legacy/)**.

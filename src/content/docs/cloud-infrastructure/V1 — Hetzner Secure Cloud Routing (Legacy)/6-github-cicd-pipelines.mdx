@@ -1,17 +1,13 @@
 ---
-title: "CI/CD Pipelines with GitHub Actions (v1)"
+title: "CI/CD Pipelines with GitHub Actions"
 description: Version 1 deploy pipeline — GitHub Actions over Tailscale to Hetzner.
 sidebar:
   order: 6
 ---
 
-:::note[Version 1 — docs deploy replaced]
-This workflow described the **documentation** deploy to Hetzner. The docs site now uses **[Cloudflare Pages (v2)](/cloud-infrastructure/v2--cloudflare-pages-migration-current/cloudflare-pages-deployment)**. This page remains as reference for the portfolio pipeline and the original Zero Trust deploy pattern.
-:::
-
 ## Continuous Deployment Strategy
 
-Manual server updates are prone to human error. **GitHub Actions** automatically builds and deploys new code every time a commit is pushed to the `main` branch.
+Manual server updates are prone to human error. GitHub Actions automatically builds and deploys new code every time a commit is pushed to the `main` branch.
 
 Because the server's SSH port is blocked from the public internet by the Hetzner firewall, a standard deployment pipeline cannot reach the server over its public IP.
 
@@ -19,7 +15,7 @@ Because the server's SSH port is blocked from the public internet by the Hetzner
 
 ## Zero Trust Workflow Integration
 
-Each pipeline temporarily joins the private **Tailscale** overlay network. The GitHub runner authenticates with an OAuth client, deploys over the encrypted VPN tunnel as an ephemeral node, and disconnects when the job finishes.
+Each pipeline temporarily joins the private Tailscale overlay network. The GitHub runner authenticates with an OAuth client, deploys over the encrypted VPN tunnel as an ephemeral node, and disconnects when the job finishes.
 
 ### Workflow Breakdown
 
@@ -73,7 +69,7 @@ The portfolio pipeline follows the same Tailscale-first pattern with repo-specif
 | Artifacts copied | `dist/`, `docker-compose.yml` | `dist/`, `docker-compose.yml` |
 | Post-deploy | `docker compose up -d` | `docker compose up -d` |
 
-Both workflows connect to `secrets.SERVER_IP`, which holds the **internal Tailscale IP**, not the Hetzner public address. Deploy paths are defined in the workflow files themselves — they are operational layout, not secrets. Access still requires Tailscale authentication and the SSH private key stored in GitHub Secrets.
+Both workflows connect to `secrets.SERVER_IP`, which holds the internal Tailscale IP, not the Hetzner public address. Deploy paths are defined in the workflow files themselves — they are operational layout, not secrets. Access still requires Tailscale authentication and the SSH private key stored in GitHub Secrets.
 
 :::tip[View the Complete Workflows]
 - [Documentation Deployment Workflow](https://github.com/pablorosi/docs/blob/main/.github/workflows/deploy.yml)

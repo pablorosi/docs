@@ -7,7 +7,7 @@ sidebar:
 
 ## Zero Trust Philosophy
 
-The Nginx Proxy Manager (NPM) administrative dashboard runs on port 81. Exposing this port to the public internet creates an unnecessary attack surface. To implement a **Zero Trust Architecture**, port 81 is blocked on the Hetzner public firewall, and access is exclusively routed through a **Tailscale** overlay network.
+The Nginx Proxy Manager (NPM) administrative dashboard runs on port 81. Exposing this port to the public internet creates an unnecessary attack surface. To implement a Zero Trust Architecture, port 81 is blocked on the Hetzner public firewall, and access is exclusively routed through a Tailscale overlay network.
 
 ---
 
@@ -23,7 +23,7 @@ Tailscale establishes a peer-to-peer WireGuard mesh network (Tailnet) between my
 
 ## Out-of-Band (OOB) Management
 
-Instead of routing the admin panel through the reverse proxy itself (which can cause Docker Hairpin NAT loops and creates a circular dependency on the proxy engine), the architecture utilizes **Out-of-Band (OOB) Management**.
+Instead of routing the admin panel through the reverse proxy itself (which can cause Docker Hairpin NAT loops and creates a circular dependency on the proxy engine), the architecture utilizes Out-of-Band (OOB) Management.
 
 Administrative access to NPM is entirely decoupled from the public DNS routing table. 
 

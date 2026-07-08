@@ -1,19 +1,15 @@
 ---
-title: "Cloudflare DNS & Edge Routing (v1)"
+title: "Cloudflare DNS & Edge Routing"
 description: Version 1 DNS — edge proxy and redirects with docs origin on Hetzner.
 sidebar:
   order: 2
 ---
 
-:::note[Version 1 DNS]
-This page describes DNS when **both** portfolio and docs pointed to the Hetzner VPS. Current docs DNS is documented in **[DNS & Routing for Docs (v2)](/cloud-infrastructure/v2--cloudflare-pages-migration-current/dns-routing)**.
-:::
-
 ## Edge Network Strategy
 
-Instead of pointing domains directly to the Hetzner server's public IP, **Cloudflare** acts as a reverse proxy at the edge. This provides DDoS protection, global CDN caching, and centralized DNS management.
+Instead of pointing domains directly to the Hetzner server's public IP, Cloudflare acts as a reverse proxy at the edge. This provides DDoS protection, global CDN caching, and centralized DNS management.
 
-Active `.dev` domains are proxied to the Hetzner origin. Legacy `.com` domains are redirected to their `.dev` equivalents **at the Cloudflare edge**, before any traffic reaches the VPS.
+Active `.dev` domains are proxied to the Hetzner origin. Legacy `.com` domains are redirected to their `.dev` equivalents at the Cloudflare edge, before any traffic reaches the VPS.
 
 ### Active Domains
 
@@ -35,7 +31,7 @@ All records for `.dev` domains are proxied through Cloudflare (orange cloud icon
 | A | `pablorosi.dev` | `@` | `[Hetzner IP]` | `pablorosi.dev` | Proxied |
 | CNAME | `pablorosi.dev` | `docs` | `pablorosi.dev` | `docs.pablorosi.dev` | Proxied |
 
-The CNAME `docs` → `pablorosi.dev` means `docs.pablorosi.dev` shares the same origin IP as the apex domain. **Nginx Proxy Manager** distinguishes the two sites by reading the `Host` header and routing each domain to its container.
+The CNAME `docs` → `pablorosi.dev` means `docs.pablorosi.dev` shares the same origin IP as the apex domain. Nginx Proxy Manager distinguishes the two sites by reading the `Host` header and routing each domain to its container.
 
 Legacy `.com` zones are managed in Cloudflare for DNS and redirect rules only. They do not need to proxy traffic to Hetzner because all HTTP(S) requests are answered with a 301 at the edge.
 
@@ -43,7 +39,7 @@ Legacy `.com` zones are managed in Cloudflare for DNS and redirect rules only. T
 
 ## Legacy Domain Redirection
 
-To preserve SEO and keep legacy URLs working, traffic from `.com` domains is permanently forwarded to `.dev` using **Cloudflare Redirect Rules** (Single Redirects). The Hetzner server never processes these requests.
+To preserve SEO and keep legacy URLs working, traffic from `.com` domains is permanently forwarded to `.dev` using Cloudflare Redirect Rules (Single Redirects). The Hetzner server never processes these requests.
 
 ### Why redirect at the edge
 

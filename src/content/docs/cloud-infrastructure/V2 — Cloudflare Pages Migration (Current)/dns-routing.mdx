@@ -7,10 +7,10 @@ sidebar:
 
 ## Routing overview
 
-Static frontends are served from **Cloudflare Pages**. Traffic never reaches the Hetzner VPS for those hostnames — Cloudflare terminates TLS at the edge and serves pre-built files from its CDN.
+Static frontends are served from Cloudflare Pages. Traffic never reaches the Hetzner VPS for those hostnames — Cloudflare terminates TLS at the edge and serves pre-built files from its CDN.
 
 ```text
-User → docs.pablorosi.dev → Cloudflare DNS → Pages project → edge CDN → dist/
+User → docs.pablorosi.dev / pablorosi.dev → Cloudflare DNS → Pages project → edge CDN → dist/
 ```
 
 ---
@@ -21,9 +21,10 @@ After creating a Pages project, Cloudflare provides a target hostname (e.g. `<pr
 
 | Type | Name | Content | Proxy |
 | :--- | :--- | :--- | :--- |
-| CNAME | `docs` | `<project>.pages.dev` | Proxied (orange cloud) |
+| CNAME | `docs` | `<project>.pages.dev` | Proxied |
 
-Alternatively, add the domain under **Pages → Custom domains** in the Cloudflare dashboard. When the zone lives on the same account, Cloudflare creates the DNS record automatically.
+The pablorosi.dev and docs.pablorosi.dev domains are added under Pages → Custom domains in the Cloudflare dashboard. The zone lives on the same account, so Cloudflare creates the DNS record automatically.
+
 
 ---
 
@@ -32,10 +33,10 @@ Alternatively, add the domain under **Pages → Custom domains** in the Cloudfla
 | Hostname | Destination | Notes |
 | :--- | :--- | :--- |
 | `docs.pablorosi.dev` | Cloudflare Pages | Documentation site (Astro + Starlight) |
-| `pablorosi.dev` | Hetzner VPS | Portfolio and other dynamic workloads |
+| `pablorosi.dev` | Cloudflare Pages | Portfolio (Astro Vanilla) |
 | `docs.pablorosi.com` | Cloudflare edge redirect | 301 → `docs.pablorosi.dev` |
 
-Legacy `.com` domains are handled by **Redirect Rules** at the Cloudflare edge. Only the final `.dev` hostname needs a Pages custom domain.
+Legacy `.com` domains are handled by Redirect Rules at the Cloudflare edge. Only the final `.dev` hostname needs a Pages custom domain.
 
 ---
 

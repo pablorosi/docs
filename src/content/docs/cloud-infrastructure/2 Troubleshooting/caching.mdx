@@ -14,7 +14,7 @@ During the deployment of a Zero Trust administration panel (Nginx Proxy Manager 
 
 ## Root Cause Analysis
 
-The root cause was traced to a **split-brain caching issue** on the client machine. 
+The root cause was traced to a split-brain caching issue on the client machine. 
 
 An initial typographical error was made during the DNS and Reverse Proxy configuration. After correcting the typo across all infrastructure layers (Cloudflare DNS, Let's Encrypt Certificate, and Nginx Proxy Manager), the client machine aggressively held onto the stale data. 
 
@@ -22,7 +22,7 @@ Because the architecture utilizes a private VPN overlay (Tailscale), standard pu
 
 ## The Diagnosis
 
-To isolate the issue and rule out server-side misconfigurations, a **Clean Slate Device Test** was performed:
+To isolate the issue and rule out server-side misconfigurations, a Clean Slate Device Test was performed:
 1. Disconnected a secondary mobile device from the local Wi-Fi to force a different network path (Cellular Data).
 2. Connected the device to the Tailscale overlay network.
 3. Attempted to access the secure URL.
@@ -55,5 +55,5 @@ A hard refresh (Cmd + Shift + R) was executed to bypass stored offline web asset
 ---
 
 :::note[Historical Context]
-**Note:** The issue described in this document occurred *before* the architectural decision was made to strictly use the Tailscale IP (`http://100.x.x.x:81`) to access the Nginx control panel in order to prevent NAT Loopback issues. For more details on the current approach, see the [504 Gateway Time-out Documentation](/cloud-infrastructure/2-troubleshooting/npm-504-gateway-timeout/).
+Note: The issue described in this document occurred *before* the architectural decision was made to strictly use the Tailscale IP (`http://100.x.x.x:81`) to access the Nginx control panel in order to prevent NAT Loopback issues. For more details on the current approach, see the [504 Gateway Time-out Documentation](/cloud-infrastructure/2-troubleshooting/npm-504-gateway-timeout/).
 :::
