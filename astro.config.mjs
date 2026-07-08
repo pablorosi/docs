@@ -15,6 +15,7 @@ export default defineConfig({
 		mermaid(),
 		sitemap(),
 		starlight({
+			lastUpdated: true,
 			customCss: [
 				'@fontsource/jetbrains-mono',
 				'@fontsource/inter',

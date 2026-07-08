@@ -1,6 +1,7 @@
 ---
 // src/components/RecentNotes.astro
 import { getCollection } from 'astro:content';
+import { execSync } from 'node:child_process';
 
 const { limit = 5, showAllLink = true, showFilters = !showAllLink } = Astro.props;
 
@@ -20,6 +21,30 @@ const visibleNotes = typeof limit === 'number' && limit > 0
 const formatDate = (value) => {
   if (!value) return '';
   return new Date(value).toLocaleDateString('es-ES');
+};
+
+const gitCache = new Map();
+
+const getLastModified = (entry) => {
+  if (entry.data.lastUpdated) {
+    const d = entry.data.lastUpdated instanceof Date ? entry.data.lastUpdated : new Date(entry.data.lastUpdated);
+    if (!isNaN(d.getTime())) return d;
+  }
+  const id = entry.id;
+  if (gitCache.has(id)) return gitCache.get(id);
+  try {
+    const result = execSync(
+      `git log -1 --format=%ct "src/content/docs/${id}"`,
+      { encoding: 'utf-8', timeout: 3000 }
+    ).toString().trim();
+    const ts = parseInt(result, 10);
+    const date = !isNaN(ts) ? new Date(ts * 1000) : undefined;
+    gitCache.set(id, date);
+    return date;
+  } catch {
+    gitCache.set(id, undefined);
+    return undefined;
+  }
 };
 
 const getTag = (data) => {
@@ -70,6 +95,9 @@ const allTags = Array.from(new Set(visibleNotes.map(note => getTag(note.data))))
             <a href={getHref(note)}>
               {getNoteText(note.data)}
             </a>
+            {getLastModified(note) && (
+              <span class="note-modified"> · mod. {formatDate(getLastModified(note))}</span>
+            )}
           </td>
         </tr>
       ))}
@@ -164,6 +192,11 @@ const allTags = Array.from(new Set(visibleNotes.map(note => getTag(note.data))))
     padding: 0.2rem 0.5rem;
     border-radius: 6px;
     border: 1px solid var(--sl-color-gray-5);
+    white-space: nowrap;
+  }
+  .note-modified {
+    font-size: 0.75rem;
+    color: var(--sl-color-gray-3);
     white-space: nowrap;
   }
   .recent-notes-footer {
