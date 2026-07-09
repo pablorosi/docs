@@ -1,0 +1,37 @@
+---
+title: Maximum transmission unit (MTU)
+date: 2026-07-09
+tag: networking-theory
+---
+
+## 1. The MTU command 
+
+```txt 
+Router(config-if)# mtu 1480
+```
+
+Defines the maximum size of the payload the pyhiscal interface can encapsulate into an Ethernet frame
+
+If the router receives a frame larger than this value, it cannot process it and immediately drops it.
+
+To verify it:
+
+```txt 
+Router# show int g0/0
+```
+
+## 2. The ip MTU command 
+
+```txt 
+Router(config-if)# ip mtu 1460
+```
+Defines the maximum size of an IPv4 packet that can be sent out of that interface
+
+If the router need to send an IP packet that is larger than the ip mtu it will fragment the packet before sending it down to layer 2.
+(If the packet has the "DF"-Don't Fragment bit set, the router will drop it and send an ICMP error back to the source)
+
+To verify it:
+
+```txt 
+Router# show ip int g0/0
+```
