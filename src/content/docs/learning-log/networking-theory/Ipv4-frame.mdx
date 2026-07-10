@@ -1,0 +1,59 @@
+---
+title: "Ipv4 Frame Format"
+date: 2026-07-10
+tag: networking-theory
+---
+
+![IPv4 Packet](/IPv4-packet.png)
+
+### 1. Version (4 bits)
+
+Indicates the IP version being used.
+ An Ipv4 packet -> 4 (in binary 0100)
+ An Ipv6 packet -> 6 (in binary 0110)
+
+ 
+### 2. IHL (Internet Header Length) (4 bits)
+
+Indicates where the header ends and where the actual user data begins
+It measures in groups of 4-byte words. Its normal value is 5 (5 x 4 = 20 bytes)
+
+### 3. Type of Service (ToS) / DSCP (8 bits)
+
+Used for QoS. It alows packets to be marked with a specific priority 
+
+### 4. Total Length (16 bits)
+
+Specifies the entire size of the complete packet. (IP Header + Payload)
+
+### 5. Identification (16 bits)
+
+"ID" or serial number of the original packet. If the packet gets fragmented, all fragments will carry this exact same number.
+
+### 6. Flags (3 bits)
+
+The first bit is always set to 0.  
+DF Bit (Don't Fragment): If set to 1, prohibits routers from fragmenting the packet.  
+MF Bit (More Fragments): If set to 1, it warns the receiver that more pieces are on the way. If set to 0, it means this is the last fragment.
+
+### 7. Fragment Offset (13 bits)
+
+Indicates the exact position of that fragment within the original packet.
+
+### 8. TTL (Time to Live) (8 bits)
+
+A security counter to prevent a packet from looping indefinitely around the internet if there is a routing loop.
+Max value 255.
+
+### 9. Protocol (8 bits)
+
+Indicates which Layer 4 (Transport) protocol is encapsulated inside the IP packet.
+1 -> ICMP 
+6 -> TCP 
+17 -> UDP
+89 -> OSPF
+
+### 10. Header Checksum (16 bits)
+
+The quality control for the IP header. Every single router along the path must recalculate this field.
+
