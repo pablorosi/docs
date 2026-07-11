@@ -1,0 +1,90 @@
+---
+title: "Syslog"
+date: 2026-07-11
+tag: networking-theory
+---
+
+import ThemeImage from '../../../../components/ThemeImage.astro';
+
+Syslog is a standard format for logging messages. Cisco devices implement syslog. A syslog is generated when something happens in the device.
+
+The format of the message is:
+
+<ThemeImage
+  lightSrc="/syslog_light.svg"
+  darkSrc="/syslog_dark.svg"
+  alt="Syslog message format"
+/>
+
+## 1. Syslog Severity Levels
+
+| Value | Severity | Description |
+| :--- | :--- | :--- |
+| 0 | Emergency | System is unusable. A panic condition. |
+| 1 | Alert | A condition that should be corrected immediately. |
+| 2 | Critical | Critical conditions, such as hard device errors. |
+| 3 | Error | Error conditions. |
+| 4 | Warning | Warning conditions. |
+| 5 | Notice | Normal but significant conditions. |
+| 6 | Informational | Informational messages. |
+| 7 | Debug | Messages that contain information normally of use only when debugging a program. |
+
+
+Syslog messages can be logged to various locations:
+* Console line
+* VTY Terminal lines (not enabled by default)  
+* The logging buffer (events saved in RAM, you can view them with `show logging`)  
+* External Syslog servers  
+
+## 2. Configuration
+
+Disables logging in the console line
+```txt
+R1(config)# no logging console
+```
+
+Events with severity level informational and higher will be logged to the VTY lines
+```txt
+R1(config)# logging monitor 6
+```
+
+Events with severity level 7 and higher will be logged to the buffer
+```txt
+R1(config)# logging buffered debugging
+```
+
+Configure Syslog monitoring to an external server
+```txt
+R1(config)# logging ip-address
+```
+or 
+```txt
+R1(config)# logging host ip-address
+```
+
+Configure the level of Syslog messages sent to an external server
+```txt
+R1(config)# logging trap level
+```
+
+Display the messages for the current session when conected via Telet/SSH 
+```txt
+R1(config)# terminal monitor
+```
+
+Enable timestamps for Syslog log messages
+```txt
+R1(config)# service timestamps log datetime
+```
+
+Enable secuence numbers for Syslog messages
+```txt
+R1(config)# service sequence-numbers
+```
+
+## 3. Syslog & SIEM
+
+A basic Syslog server provides a centralised location for Syslog logging messages.
+A Security Information and Event Management (SIEM) is a more advanced system that will also typically provide advanced analysis and correlation of events.
+
+
