@@ -1,0 +1,43 @@
+---
+title: "CISCO IOS File System"
+date: 2026-07-14
+tag: networking-theory
+---
+
+Copy a file from a FTP server to the router's flash
+```txt
+R1# copy ftp: flash:
+``` 
+
+Display the contents of flash memory 
+```txt
+R1# show flash
+``` 
+
+Specify the OS file the device should use the next time it boots:
+```txt
+R1# boot system filepath 
+```
+
+Display the file systems of the device
+```txt
+R1# show file systems
+```
+
+Configure the FTP username on the device:
+```txt
+R1# ip ftp username username 
+```
+
+Configure the FTP password on the device
+```txt
+R1# ip ftp password password
+```
+
+File types:
+
+* opaque : File system type that represent logical systems used for internal functions.
+* network: File system type that represents external file systems, for example FTP/TFTP 
+* nvram: File system used for the device's internal NVRAM 
+
+
