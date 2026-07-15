@@ -1,0 +1,89 @@
+---
+title: "Cisco Serial Interfaces & WAN Connectivity"
+date: 2026-07-14
+tag: networking-theory
+---
+
+## 1. Core Concepts: DTE vs. DCE
+
+In wide area network (WAN) serial connections, the two ends of a physical serial link play different functional roles:
+
+* **DTE (Data Terminal Equipment):**
+    * This is typically the user/customer router.
+    * It receives the clocking signal from the external source to synchronize data transmission.
+    * By default, all Cisco router serial interfaces act as DTE.
+
+* **DCE (Data Communications Equipment):**
+    * This is the device that provides the physical clocking signal (the "metronome" of the connection) to regulate the timing and speed of the link.
+    * In a real-world enterprise deployment, the DCE is usually a service provider device (like a CSU/DSU).
+    * In a back-to-back lab environment, one of your routers must simulate the provider by acting as the DCE, requiring a manual clock rate configuration.
+
+---
+
+## 2. Configuration Commands
+
+Below are the commands needed to configure serial interfaces, change encapsulation types, and apply a clock rate to a DCE interface.
+
+### Standard Interface Initialization
+
+```txt
+Router# configure terminal
+Router(config)# interface serial 0/1/0
+Router(config-if)# ip address 10.1.1.1 255.255.255.252
+Router(config-if)# no shutdown
+```
+
+### Configuring Layer 2 Encapsulation
+Cisco routers default to Cisco HDLC (cHDLC), which is a proprietary framework supporting multi-protocol environments. If connecting a Cisco router to a non-Cisco router, you must explicitly switch to a standard open protocol like PPP.
+
+```txt
+Router(config-if)# encapsulation ppp
+```
+
+To revert back to the default Cisco HDLC encapsulation:
+
+```txt
+Router(config-if)# encapsulation hdlc
+```
+
+### Configuring Clocking on the DCE Interface
+
+The clock rate command specifies the hardware synchronization speed in bits per second (bps). This command only takes effect on an interface acting as the DCE.
+
+```txt 
+Router(config-if)# clock rate 64000
+``` 
+
+Note: Common clock rate values include 56000, 64000, 128000, etc. If you want to configure routing protocols correctly, don't confuse this hardware speed with the logical bandwidth kbps parameter used for metric calculations.
+
+---
+
+## 3. Verification & Troubleshooting Commands
+
+### Step 1: Determine Cable Type (DTE vs. DCE)
+
+To identify which end of a back-to-back serial cable is connected to your router, use the show controllers command followed by the interface ID.
+
+```txt
+Router# show controllers serial 0/1/0
+```
+
+Expected DCE Output (Truncated Example):
+
+Interface Serial0/1/0
+Hardware is GT96K
+DCE V.35 cable, clock rate 64000
+
+(If the interface is DTE, the output will explicitly state DTE V.35 cable and will omit the clock rate assignment details).
+
+### Step 2: Verify Protocol and Layer 2 Encapsulation Status
+
+To verify the operational state, IP configurations, MTU size, and active layer-2 encapsulation protocol, use the standard show interfaces command.
+
+```txt
+Router# show interfaces serial 0/1/0
+````
+
+Key Items to Look For:
+* Serial0/1/0 is up, line protocol is up: Shows complete Layer 1 and Layer 2 end-to-end functionality.
+* Encapsulation HDLC or Encapsulation PPP: Validates which Layer 2 framing protocol is active. If there is an encapsulation mismatch between the two sides, the interface status will read: Serial0/1/0 is up, line protocol is down.
