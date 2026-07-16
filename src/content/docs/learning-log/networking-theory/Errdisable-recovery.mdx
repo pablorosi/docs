@@ -1,0 +1,57 @@
+---
+title: "Errdisable recovery config in CISCO IOS"
+date: 2026-07-16
+tag: networking-theory
+---
+
+The recovery feature allows the switch to automatically re-enable the port after a specific countdown timer reaches zero.
+
+### Configuration 
+
+```txt
+Switch(config)# errdisable recovery cause all
+```
+```txt
+Switch(config)# errdisable recovery interval 60
+```
+
+### 1. Port Security violations
+
+```txt
+Switch(config)# errdisable recovery cause psecure-violation
+```
+
+### 2. BPDU Guard
+
+```txt
+Switch(config)# errdisable recovery cause bpduguard
+```
+
+### 3. EtherChannel Misconfiguration
+
+```txt
+Switch(config)# errdisable recovery cause channel-misconfig
+``` 
+
+### 4. Dynamic ARP inspection 
+
+```txt 
+Switch(config)# errdisable recovery cause arp-inspection
+```
+
+### 5. DHCP Snooping 
+
+```txt
+DHCP Snooping
+```
+
+
+### Verification commands
+
+```txt
+Switch# show interfaces status err-disabled
+```
+
+```txt 
+Switch# show errdisable recovery
+``` 
