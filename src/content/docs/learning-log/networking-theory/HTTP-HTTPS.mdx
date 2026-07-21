@@ -1,0 +1,24 @@
+---
+title: "HTTP and HTTPs"
+date: 2026-07-20
+tag: networking-theory
+---
+
+
+### The Classic Era (HTTP/1.1 and HTTP/2)
+
+Historically, both standard HTTP and secure HTTPS relied entirely on TCP at the Transport layer.
+
+**HTTP (Unencrypted):** Uses TCP Port 80.
+**HTTPS (Encrypted):** Uses TCP Port 443 (this is just HTTP with a TLS/SSL security layer wrapped over the TCP connection).
+
+### The Modern Era (HTTP/3 and QUIC)
+
+HTTP/3 abandons TCP and instead runs on a newer transport protocol called QUIC (Quick UDP Internet Connections), which was originally developed by Google.
+
+Because encryption is structurally mandatory in QUIC, there is no such thing as unencrypted "HTTP over UDP." If a connection is using HTTP/3, it is automatically secure, encrypted HTTPS traffic.
+
+
+HTTP with TLS is HTTPS 
+
+TLS is the cryptographic protocol
