@@ -1,0 +1,30 @@
+---
+title: "802.1X Identity Based Networking and EAP"
+date: 2026-05-30
+tag: networking-theory
+---
+## 1. How 802.1X Works
+
+It relies on a "Zero Trust" model at the physical layer, using three specific components:
+
+    **The Supplicant (The Client):** The laptop or PC trying to connect. It must have software configured to send credentials (usually a digital certificate or a corporate username/password).
+
+    **The Authenticator (The Switch):** The gatekeeper. When a PC plugs in, the switch port stays mathematically "locked" in an unauthorized state. It blocks all DHCP, ARP, and IP traffic. The only traffic allowed through is EAP (Extensible Authentication Protocol) messages.
+
+    **The Authentication Server (RADIUS/Cisco ISE):** The switch forwards the EAP credentials to a central security server. If the server verifies the credentials, it sends an "Accept" message to the switch.
+
+
+### 2. Extensible Authentication Protocol 
+
+It is not a standalone authentication mechanism, but rather an authentication framework. 
+It functions as a secure "transport structure" that allows network devices and servers to exchange security messages to authenticate users.
+
+Because EAP is extensible, there are various types (methods) used to send credentials over the air securely without interception.
+
+**LEAP (Lightweight EAP):** An old, proprietary Cisco method. It is no longer secure because it is highly vulnerable to offline dictionary attacks.  
+**PEAP (Protected EAP):** One of the most widely used methods in the enterprise world. It establishes a secure, encrypted TLS tunnel between the client and the RADIUS server using a digital certificate only on the server side. Once the tunnel is secure, the user sends their traditional username and password (MSCHAPv2) completely shielded inside it.  
+**EAP-FAST (Flexible Authentication via Secure Tunneling):** Developed by Cisco to replace LEAP. Instead of using digital certificates to establish the secure tunnel (which can be complex to manage), it uses a shared secret key called a PAC (Protected Access Credential) that the server automatically delivers to the client.  
+**EAP-TLS:** The most secure method available, but also the most complex. It requires both the server and the client to have a valid digital certificate installed. No traditional passwords are used; identity is proven purely through asymmetric cryptography.  
+
+
+
