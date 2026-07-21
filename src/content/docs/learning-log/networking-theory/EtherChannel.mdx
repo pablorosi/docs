@@ -13,9 +13,17 @@ When configuring EtherChannel, you have to choose a negotiation protocol:
 
     **LACP (Link Aggregation Control Protocol):** The IEEE standard (802.3ad).
 
+        * Active: The port actively sends LACP negotiation packet to the other switch to try and form an EtherChannel.
+        * Passive: The port is silent but listening. It will not initiate the negotiation, but it will respond and form and EtherChannel if it receives LACP packets.
+
     **PAgP (Port Aggregation Protocol):** Cisco's proprietary version.
 
+        *Desirable: The port actively sends PAgP negotiation packets to the other switch (equivalent to LACP's Active).
+        *Auto: (equivalent to LACP's Passive but with PAgP packets).
+
     **Static (ON):** Forces the channel without negotiation. Dangerous because if one side is misconfigured, it can create an STP loop.
+
+        *On: The port is forcefully bundled.
 
 ## 2. Configuration of LACP
 
@@ -40,6 +48,7 @@ SwitchA(config-if)# exit
 
 ### 2.3 Configure Switch B
 ```txt
+SwitchB(config-if-range)# channel-protocol lacp
 SwitchB(config-if-range)# channel-group 1 mode active
 SwitchB(config-if-range)# exit
 
@@ -54,5 +63,12 @@ SwitchB(config-if)# end
 SwitchA# show etherchannel summary
 SwitchA# show interfaces trunk
 ```
+:::note[EtherChannel Protocols & Modes]
+While setting the mode (e.g., channel-group 1 mode active) automatically selects the protocol in the background, you can explicitly lock it at the interface level using the channel-protocol [lacp | pagp] command.
+The Mode Mapping Cheat Sheet:  
+* LACP (IEEE Standard): active (initiates) / passive (waits)
+* PAgP (Cisco Proprietary): desirable (initiates) / auto (waits)
+* Static (No Negotiation): on / on  
 
-
+Rule of thumb: Never mix protocols on the same link. An active port will never form a channel with a desirable port.
+:::
