@@ -1,0 +1,65 @@
+---
+title: "Application Programming Interfaces (API)"
+date: 2026-07-16
+tag: networking-theory
+---
+
+An API is a way for a computer program to communicate directly with another program
+
+**CRUD**  
+* Create   
+* Read 
+* Update 
+* Delete 
+
+**HTTP methods**
+* GET - retrieves data from an object
+* PUT - adds information to an object
+* POST - creates an object
+* DELETE - removes an object
+* PATCH - applies partial modifications to an object
+
+
+**REST**
+Is an architecture, not a protocol. It gives guidelines for the structure and organization of an API.  
+It supports any transport and data format.  
+HTTP(S) transport and JSON or XML data formats are commonly used.  
+It typically has faster performance and is easier to work with than SOAP.  
+
+
+- It should be a client-server architecture: the client sends a request, the server sends a response
+- Uniform interface: provides simplicity 
+- Statelessness: no client context is stored on the server between request 
+- Cacheability: responses must define themselves
+- Layered system: any intermediary devices such as load balancers must be transparent to the client and server
+- Code on demand (optional): server can temporarily extend or customize the functionality of a client by transferring executable code 
+
+REST Authentication Types 
+* No auth 
+* Basic Authentication: Username and password sent in plain text
+* API Key: Uses encrypted tokens, usually created in admin portal. The same user can request tokens with different permission. 
+The server must check the API key permissions on every client request.
+* Bearer Token: Basic or API Key authentication user request encrypted Bearer Token which is the automatically included in other requests.
+Permissions are embedded in the token so it puts less load on server than API Key.
+
+REST Request URL 
+
+https://demo.app.com|/api/running/aaa/users/pablo|?dryrun
+
+
+1xx: Informational  
+2xx: Success  
+200: OK  
+201: Created   
+204: No Content (deleted)  
+3xx: Redirection  
+
+4xx: Client Error  
+400: Bad request   
+401: Unauthorized   
+403: Forbidden  
+404: Not Found  
+
+5xx: Server Error  
+500: Internal Server Error  
+
