@@ -44,4 +44,22 @@ Router(dhcp-config)# lease 7 0 0
 Router(dhcp-config)# exit
 ```
 
+## 3.Verification
 
+To verify the clients that have received an IP address:
+```txt
+Router# show ip dhcp binding
+```
+
+
+UDP 67 -> server port  
+UDP 68 -> client port  
+
+DHCP options
+
+* 3 -> Router 
+* 6 -> DNS Server 
+* 15 -> Domain Name 
+* 43 -> Tells the AP the IP address of the WLC
+* 66 -> TFTP Server Name
+* 150 -> TFTP Server IP address (Cisco Propietary)
