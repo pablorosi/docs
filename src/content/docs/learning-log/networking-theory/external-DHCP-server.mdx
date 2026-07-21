@@ -12,11 +12,11 @@ By default, routers block and discard broadcast messages. To avoid this, it is n
 ### 1.1 Access the interface to which the devices that need an IP address are connected
 
 ```txt
-Router(config-if)# ip helper-address 10.5.5.10
+Router(config)# int g0/1
 ```
 
 ### 1.2 Configure the external DHCP server IP
-
+Converts Layer 2 Broadcasts into Layer 3 Unicasts.
 ```txt
 Router(config-if)# ip helper-address 10.5.5.10
 ```
