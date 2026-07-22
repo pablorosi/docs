@@ -1,0 +1,80 @@
+---
+title: "Quality of Service (QoS)"
+date: 2026-07-18
+tag: networking-theory
+---
+
+### 1. The Three Enemies of Network Traffic
+
+When congestion happens, traffic suffers from three main issues:
+
+* **Delay (Latency):** The time it takes a packet to travel from the source to the destination.  
+* **Jitter:** The variation in delay. (e.g., Packet 1 takes 10ms, Packet 2 takes 50ms, Packet 3 takes 15ms). Voice traffic hates jitter because it makes the audio sound robotic or chopped up.
+* **Loss:** Packets are dropped because the router's hardware queues (buffers) are completely full.
+
+### 2. Traffic Characteristics
+
+* **Voice:** Needs absolute priority. Very sensitive to delay (needs ≤ 150ms) and jitter (needs ≤ 30ms). It uses UDP, meaning dropped packets cannot be retransmitted. The flow is very smooth and predictable.
+* **Video:** Also sensitive to delay and jitter, but consumes much more bandwidth. Unlike voice, video traffic is "bursty" (it sends massive chunks of data all at once).
+* **Data:** Highly tolerant of delay and jitter. If a data packet drops, TCP simply notices and asks for a retransmission.
+
+### 3. The QoS Toolkit
+
+Think of QoS mechanisms like an airport security and boarding process.
+
+**Classification:** Identifying the traffic. The router looks at the packet (IP address, port numbers, MAC addresses) and says, "This is Voice" or "This is a YouTube video."
+
+**Marking:** Painting a priority label on the packet so other routers downstream know what it is without having to do the heavy lifting of classifying it all over again.
+
+* **Layer 2 Marking:** Class of Service (CoS). Uses 3 bits, but it only exists inside an 802.1Q VLAN trunk tag.
+* **Layer 3 Marking:** Differentiated Services Code Point (DSCP). Uses 6 bits inside the IP header. This is the most robust and common marking method because it survives across the entire routed network.
+
+**Queuing (Scheduling):** Putting packets into different waiting lines (queues) based on their markings to board the physical link.
+
+* **CBWFQ (Class-Based Weighted Fair Queuing):** Guarantees a certain percentage of bandwidth to specific data classes (e.g., 20% for database traffic, 10% for web traffic).
+* **LLQ (Low Latency Queuing):** This is the exact same as CBWFQ, but with a Strict Priority (SP) queue added to it. Voice traffic always goes in the LLQ so it gets to skip the line and be sent immediately.
+* **Policing vs. Shaping:** Methods to enforce a bandwidth speed limit.
+* **Policing:** Implacable. If traffic exceeds the speed limit, it instantly drops the excess packets. It is usually applied inbound.
+* **Shaping:** Forgiving. If traffic exceeds the speed limit, it buffers (delays) the excess packets in a queue and sends them out when the link is free. It is only applied outbound.
+
+Configure the switch so that voice traffic and data traffic are separated:
+```txt
+switchport voice vlan dot1p
+```
+
+## Congestion Management
+
+### 1. Classification and Marking (The Identification)
+
+Before a switch or router can treat traffic differently, it has to know what the packet contains.
+Classification: The device inspects the packet (examining ports, IP addresses, or protocols) to determine what type of traffic it is (e.g., voice, video, or data).
+Marking: The device changes a specific field in the packet header to "color" or label it. This way, subsequent switches down the road don't have to re-inspect the whole packet; they just look at the label.
+Layer 2 Marking: Uses the CoS (Class of Service) bits inside the 802.1Q VLAN tag.
+Layer 3 Marking: Uses the DSCP (Differentiated Services Code Point) bits inside the IPv4 ToS byte.
+
+### 2. Congestion Management (Queuing)
+
+When an interface receives more traffic than its bandwidth can handle, packets start backing up. Queuing determines the order in which those waiting packets are sent out.
+FIFO (First-In, First-Out): The default behavior. No priority—whoever arrives first leaves first. (Terrible for voice).
+CBWFQ (Class-Based Weighted Fair Queuing): Guarantees a specific amount of bandwidth to different classes of traffic (e.g., 20% for database, 30% for web).
+LLQ (Low Latency Queuing): CBWFQ but with a strict priority queue added on top. Voice traffic is dumped directly into this priority queue so it bypasses all other traffic, minimizing delay. This is Cisco's recommended mechanism for voice.
+
+### 3. Congestion Avoidance (Dropping Packets Early)
+
+What happens when the memory buffers (queues) fill up completely? The router is forced to drop any new incoming packets. This is called Tail Drop, and it causes TCP global synchronization (where all servers stop sending data at the same time, wrecking network efficiency).
+WRED (Weighted Random Early Detection): Instead of waiting for the buffer to fill up completely, WRED monitors the queue depth. If it starts getting full, it begins randomly dropping low-priority packets (like email or file transfers) early. This forces the sending servers to slow down their transmission speeds before a total bottleneck occurs, keeping high-priority traffic flowing.
+
+### 4. Traffic Conditioning (Policing and Shaping)
+These mechanisms enforce bandwidth limits (e.g., limiting guest Wi-Fi to 10 Mbps). They act as the speed limits of your network, but they handle excess traffic differently:  
+ 
+**Policing:** When traffic exceeds the configured limit, the policer instantly drops the extra packets or re-marks them to a lower priority. It results in a jagged, harsh traffic profile. (Commonly used by ISPs at the network edge).  
+
+**Shaping:** When traffic exceeds the limit, the shaper buffers the extra packets in memory and delays them, sending them out smoothly over time. It creates a smooth traffic profile but introduces delay (latency).
+
+The Cheat Sheet for Your Exam
+If Pearson presents a drag-and-drop or a scenario question, look for these specific keywords:
+DSCP / CoS / ToS → Classification and Marking
+LLQ / Priority Queue / Buffering → Congestion Management
+WRED / Tail Drop prevention → Congestion Avoidance
+Dropping vs. Delaying (Buffering) traffic → Policing vs. Shaping
+
