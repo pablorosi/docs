@@ -79,6 +79,12 @@ When changing the reference bandwidth it has to be the same in all routers
 R2(config)# router ospf 1
 R2(config)# network 10.0.0.0 0.0.255.255 area 0
 ```
+O  
+```txt
+R2(config)# int g0/0
+R2(config-int)# ip osfp 1 area 0
+```
+
 
 :::note[network command]
 The command network 10.0.0.0 0.0.255.255 area 0 only advertises the networks that fall into that range.
@@ -98,6 +104,21 @@ To inject a default route:
 R1(config)# ip route 0.0.0.0 0.0.0.0 192.168.2.1
 R1(config)# router ospf 1
 R1(config-router)# default-information originate
+```
+
+Set and reset Hello and Dead intervals 
+```txt
+ip ospf hello-interval interval
+ip ospf dead-interval interval 
+
+no ip ospf hello-interval
+no ip ospf dead-interval
+```
+
+Configure authentication
+```txt
+ip ospf authentication-key key123
+ip osfp authentication
 ```
 
 ## 6. Verification
@@ -184,3 +205,62 @@ R1# show ip ospf border-routers   ! ABR / ASBR info
 
 **Area ID mismatch** on the same link → neighbors never reach `FULL`. Always verify both sides use the same area on a shared segment.
 
+
+## 8. OSPF BR and BDR 
+
+The default priority is 1, the higher the better (0-255)
+
+Setting OSPF Priority 
+
+```txt
+R1(config)# int FastEthernet 0/0
+R1(config-if)# ip ospf priority 100
+```txt
+
+This command isn't applied immediately. Restart OSPF on the interface for the command to take effect.
+
+
+When a link state changes on a router connected to a multiacce segment, it sends a multicast LSU packet to 224.0.0.6
+The DR multicasts the update to 224.0.0.5
+
+## 9. Router ID 
+
+The router ID can be established using the command:
+
+```txt
+router-id 1.1.1.1
+```
+
+If there is no manual router ID configured, the router uses the highest up/up loopback interface
+If no loopback interfaces exist, the router looks at its active physical interfaces and picks the one with the highest IP address.
+
+
+This command isn't applied immediately. Restart OSPF on the interface for the command to take effect.
+
+## `ip ospf network non-broadcast`
+Applying this command to an interface changes how OSPF operates to accommodate networks that do not support broadcast or multicast traffic.
+
+### Core Concepts from the Options:
+
+*   **Neighbor Adjacencies (The Correct Answer):** 
+    Because multicasts are blocked, OSPF cannot dynamically discover its neighbors. You **must** manually establish adjacencies by using the `neighbor <ip-address>` command in the OSPF router configuration. This forces OSPF to use 1-to-1 unicast messages.
+*   **Multicast Updates (Option B):** 
+    Non-broadcast networks do **not** send multicast updates (such as to `224.0.0.5`). All OSPF communication is strictly unicast.
+*   **OSPF Timers (Option A):** 
+    The 10-second Hello and 40-second Dead timers are for *Broadcast* and *Point-to-Point* networks. In a *Non-Broadcast* network, the timers are automatically increased to **30 seconds (Hello)** and **120 seconds (Dead)**.
+*   **DR and BDR Elections (Option D):** 
+    Even though it cannot broadcast, the network is still considered "Multi-Access" (meaning multiple routers share the segment). Because of this, DR (Designated Router) and BDR (Backup Designated Router) elections **are still performed**.
+
+
+OSPF timer:
+
+* **Broadcast, point ot point** -> Hello timer 10 seconds, Dead timer 40 seconds.
+* **Non Broadcast, point to multipoint, point to multipoint not broadcast*** -> Hello timer 30 seconds, Dead timer 120 seconds.
+
+```txt
+ip ospf network broadcast 
+
+ip osf network point-to-point
+``` 
+
+* In not broadcast the neighbor command is required so that OSPF send unicast updates.
