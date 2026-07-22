@@ -1,0 +1,66 @@
+---
+title: Configure VTP in a cisco switch
+date: 2026-07-09
+tag: networking-theory
+---
+
+VTP is a Cisco-proprietary protocol used to synchronize the VLAN database (vlan.dat) across multiple switches in a network. For VTP to work all switches must be connected via Trunk links (802.1Q).
+VTP advertisements are only sent across trunk port using VLAN 1.
+
+## 1. VTP Server Configuration
+
+### 1.1 Set the domain name:
+
+```txt
+Switch(config)# vtp domain MY_NETWORK
+```
+### 1.3 Set the VTP mode:
+By default, all Cisco Switches act as VTP Servers
+
+```txt 
+Switch(config)# vtp mode server
+``` 
+### 1.4 Set the VTP password (optional):
+To prevent rogue switches from accidentally joining the domain
+
+```txt
+Switch(config)# vtp password cisco123
+``` 
+### 1.5 Set the VTP version
+
+```txt 
+Switch(config)# vtp version 2
+``` 
+
+### 1.6 Verification commands 
+
+```txt
+Switch# show vtp status
+Switch# show vtp password
+``` 
+
+Every time you add, delete or rename a VLAN, the configuration revision number goes up by 1. When the switches exchange VTP messages, they look at this number.
+The switch with the highest revision number "wins", and all other switches will overwrite their VLAN database to match it.
+
+
+## 2. VTP Client Configuration
+
+ ```txt
+ Switch(config)# vtp mode client
+ ```
+
+ A VTP Client receives the VLAN database from the Server. You cannot create, modify or delete VLANs on a VTP Client.
+
+
+## 3. VTP Transparent Mode Configuration
+
+ ```txt
+ Switch(config)# vtp mode transparent
+ ```
+
+ A switch in Transparent mode ignores VTP updates.
+
+VTP Version 1: A transparent switch will ONLY forward VTP packets if its configured domain name matches the domain name in the VTP packet.
+
+VTP Version 2: A transparent switch will forward VTP packets regardless of its domain name.
+
