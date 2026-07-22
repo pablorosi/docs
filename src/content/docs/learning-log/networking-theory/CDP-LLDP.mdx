@@ -1,0 +1,58 @@
+---
+title: CDP and LLDP 
+date: 2026-07-14
+tag: networking-theory
+---
+
+## 1. Cisco Discovery Protocol (CDP)
+* Cisco proprietary  
+* CDP messages are sent to mac address `0100.0CCC.CCCC`  
+* Default CDP message timer -> 60 seconds  
+* Default CDP holdtime -> 180 seconds  
+
+### 1.1 Configuration
+
+```txt
+R1# show cdp -- Show cpd global details
+R1# show cdp interface -- Show the interfaces cdp is enabled on
+R1# show cdp neighbors detail -- Show the neighbor table
+R1# show cdp traffic -- Show the number of CDP packets sent/received 
+R1# show cdp entry host-name -- Show detailed information for a specific CDP neighbor 
+R1(config)# cpd run -- Enable CDP globally 
+R1(config-if)# cdp enable -- Enable CDP on an interface 
+R1(config)# cpd timer seconds -- Configure the CDP message timer
+R1(config)# cdp holdtime seconds -- Configure the CDP hold time
+R1(config)# cdp advertise-v2 -- Enable CDPv2
+```
+
+## 2. Link Layer Discovery Protocol
+
+* LLDP messages are sent to MAC address `0180.C200.000E`
+* LLDP message timer -> 30 seconds
+* LLDP holdtime -> 120 seconds 
+* LLDP reinitialization timer -> 2 seconds
+
+### 2.1 Configuration
+
+```txt
+R1# show lldp traffic -- show information about LLDP frames sent/received
+R1# show lldp -- show global LLDP information
+R1# show lldp interface -- show LLDP-enabled interfaces
+R1# show lldp neighbors -- show the LLDP neighbor table
+R1# show lldp neighbors detail -- show detailed information about all LLDP neighbors
+R1# show lldp entry host-name -- show detailed information about a single LLDP neighbor 
+R1(config)# lldp run -- enable LLDP
+R1(config-if)# lldp transmit -- enable LLDP on an interface 
+R1(config-if)# lldp receive -- enable LLDP on an interface (rx)
+R1(config)# lldp timer seconds -- configure the LLDP message timer
+R1(config)# lldp reinit seconds
+``` 
+
+Show cdp neighbors
+
+• The device ID of the neighboring device
+• The capabilities of the neighboring device
+• The product number of the neighboring device
+• The holdtime
+• The local interface
+• The remote interface
