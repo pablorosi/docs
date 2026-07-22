@@ -1,0 +1,96 @@
+---
+title: "Clock and Network Time Protocol (NTP)"
+date: 2026-07-15
+tag: networking-theory
+---
+2 types of clocks:
+* Hardware clock -> Physical battery-backed chip on the motherboard, officially called the Real-Time Clock (RTC)  
+Commands:
+```txt
+R1# show calendar
+R1# calendar set hh:mm:ss day month year
+R1# clock update-calendar 
+```
+
+* Software clock -> Active clock running in the router's RAM while the device is turned on.
+```txt
+R1# show clock 
+R1# clock set hh:mm:ss day month year
+R1# clock read-calendar 
+```
+
+
+NTP uses UDP port 123
+
+## 1. The Stratum Hierarchy 
+
+* Stratum 0: The authoritative time sources. Devices do not operate at Stratum =
+* Stratum 1: A router or server directly connected to a Stratum 0 device.
+* Stratum 2 - 15: Devices that receive their time from the stratum above them over the network
+* Stratum 16: The time source is unreachable or unsynchronized
+
+## 2. NTP Modes of Operation
+* Client Mode: The device polls a server for the time but does not provide time ot anyone else.
+* Server Mode: The device provides time to clients. 
+* Peer Mode: Two routers back each other up. If one loses its connection to the main NTP server, it can temporarily sync its clock with its peer.
+* Broadcast Mode: Used on LANs where a server broadcasts the time to all devices on the subnet so they do not have to poll it individually.
+
+## 3. Configuration commands in CISCO IOS
+
+```txt
+R1 (config)# clock timezone PST -8
+R1 (config)# ntp server [ip-addr] -- Tells the router to act as an NTP client and sync its time with the specified IP addr
+R1 (config)# ntp master [stratum-level] -- This makes the router act as an  authoritative NTP server for the network, even if does not have an external source to sync with.
+```
+
+## 4. Verification commands in CISCO IOS
+
+```txt
+show ntp status 
+show ntp associations
+```
+
+
+1. Client Server Mode
+
+```txt
+ntp server [IP ADDRESS] 
+``` 
+
+2. Symmetric Active Mode
+
+```txt
+ntp peer [IP_ADDRESS]
+```
+
+3. Broadcast mode 
+
+```txt
+ntp broadcast
+``` 
+
+```txt
+ntp broadcast client
+``` 
+
+
+A Cisco router can operate in several different NTP roles depending on the network topology and design requirements.
+
+### 1. NTP Client
+*   **Function:** The router synchronizes its own internal clock by reaching out to an external time source, such as a public internet server or a corporate core router.
+*   **Command:** `ntp server <ip-address>`
+
+### 2. NTP Server & NTP Master
+*   **NTP Server:** By default, once a Cisco router successfully synchronizes its time as a client, it automatically begins functioning as an NTP server to provide time to other local network devices.
+*   **NTP Master:** If the router is isolated or lacks an external time connection, it can be configured to act as the authoritative time source for the network using its own internal hardware clock.
+*   **Command:** `ntp master <stratum-level>` (e.g., `ntp master 4`)
+
+### 3. NTP Peer (Symmetric Active)
+*   **Function:** Two routers are configured to mutually synchronize with each other. This provides high availability; if Router A loses its connection to the primary time server, it can seamlessly pull the time from Router B.
+*   **Command:** `ntp peer <ip-address>`
+
+### 4. NTP Broadcast (Optional/Less Common)
+*   **Function:** Instead of having clients actively poll the server for the time (unicast), the router periodically broadcasts time updates out of a specific interface to the entire subnet.
+*   **Commands:** `ntp broadcast` (configured on the server's interface) and `ntp broadcast client` (configured on the receiving devices).
+
+
