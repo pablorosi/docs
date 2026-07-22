@@ -55,6 +55,17 @@ When switches decide which port becomes the Root Port or Designated Port, they f
 | **3** | **Learning** | 15 seconds | **Learning** | Milliseconds | The switch starts reading source MAC addresses from the wire to populate its MAC table. It still drops user data to prevent loops. |
 | **4** | **Forwarding** | Permanent | **Forwarding** | Permanent | The port is fully operational. It sends and receives standard user data. |
 
+
+Rapid STP port roles
+
+- Root Port: The port that receives the best BPDU, wich indicates the best path to the root bridge based on the best root port costs.
+
+- Designated Port: The segment that has the best path to the root bridge. One designated port is selected for each segment.
+
+-Alternate port: Receives more useful BDPUs from a designated port located on another switch 
+
+-Backup port: Receives more useful BPDUs from a designated port in the switch itself
+
 ## 3. Configuration
 
 ### 3.1 Set the STP mode
@@ -72,6 +83,7 @@ Switch(config)# spanning-tree mode rapid-pvst
 Switch(config)# spanning-tree vlan 1 priority 4096
 ! Method B
 Switch(config)# spanning-tree vlan 1 root primary
+Switch(config)# spanning-tree vlan 1 root secondary
 ```
 
 ### 3.3 Verification
@@ -80,3 +92,21 @@ Switch# show spanning-tree
 ```
 
 
+## IEEE Spanning Tree Protocol Numbers
+
+Cisco and the IEEE define several variations of Spanning Tree. Knowing the underlying standard numbers is essential for exam questions.
+
+*   **802.1D (Classic STP):** 
+    *   The original Spanning Tree standard.
+    *   Slow convergence (30–50 seconds) moving through distinct states: *Blocking $\rightarrow$ Listening $\rightarrow$ Learning $\rightarrow$ Forwarding*.
+*   **802.1w (RSTP - Rapid Spanning Tree Protocol):** 
+    *   Introduces rapid convergence (seconds).
+    *   Merges the old *Disabled*, *Blocking*, and *Listening* states into a single **Discarding** state.
+*   **802.1s / 802.1Q Clause (MSTP - Multiple Spanning Tree Protocol):** 
+    *   Allows multiple VLANs to be mapped to a single Spanning Tree instance to optimize CPU usage and network performance in large enterprise environments.
+
+---
+
+## Cisco Proprietary vs. IEEE Standards
+*   **PVST+ (Per-VLAN Spanning Tree Plus):** Cisco proprietary implementation running classic **802.1D** per VLAN.
+*   **Rapid PVST+:** Cisco proprietary implementation running **802.1w (RSTP)** per VLAN.
