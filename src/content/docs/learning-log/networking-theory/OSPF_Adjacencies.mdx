@@ -10,13 +10,13 @@ OSPF routers exchange several packet types while forming an adjacency and synchr
 
 
 
-| Packet | Role in adjacency |
-| :--- | :--- |
-| **Hello** | Discover neighbors, agree on timers and area |
-| **DBD** | Exchange summary of the local LSDB |  
-| **LSR** | Request missing LSA details |
-| **LSU** | Deliver requested LSAs |
-| **LSAck** | Acknowledge LSU |
+| Number | Message Type | Full Name | Purpose | Neighbor State Used |
+| :---: | --- | --- | --- | --- |
+| **1** | **Hello** | Hello Packet | Discover neighbors, negotiate parameters, and maintain the adjacency (*Keepalive*). | **Init / 2-Way** |
+| **2** | **DBD** | Database Description | The "catalog" or summary of the network map to check what the neighbor is missing. | **Exstart / Exchange** |
+| **3** | **LSR** | Link State Request | The "order form" used to request specific network data discovered in the DBD. | **Loading** |
+| **4** | **LSU** | Link State Update | The "delivery truck" that carries the actual, detailed **LSA** network data. | **Loading** |
+| **5** | **LSAck** | Link State Acknowledgment | The "receipt confirmation". Confirms that an LSU arrived safe and sound. | **Loading / Full** |
 
 Neighbor state must reach **FULL** before the LSDB is considered synchronized.
 
@@ -50,4 +50,63 @@ Neighbor state must reach **FULL** before the LSDB is considered synchronized.
 * OSPF discover each other and form adjacencies via Hello packets.  
 * They send Hello packets out each interface where OSPF is enabled (except passive interfaces)  
 * Multicast to 224.0.0.5  
-* Sent every 10 seconds by default  
+* Sent every 10 seconds by default  (even when the adjacency is already formed, to make sure the router is still up)
+
+### 2. Hello packets content
+
+* Router ID: 32 bit number that uniquely identifies each OSFP router.
+* Hello Interval How often router sends Hello packets.
+* Dead Interval: How long a router waits to hear from a neighbor before declaring it out of service. Default 4x Hello Interval.
+* Neighbors: A list of adjacent OSPF routers that this router has received a Hello packet from.
+* Area ID: The area configured for that interface
+* Router priority: An 8 bit number used to select DR and BDR and BSR IPv4 addres: if known
+* Authentication Flag: Authentication details if configured.
+* Stub Area Flag: If the area is a stub area.
+
+
+## 3. Neighbor State Summary
+
+**1. Down**  
+The initial state, no hello packets have been received from the neighbor.
+
+**2. Init**  
+The router has received a packet form the neighbor, but bidirectional communication is not yet established.
+
+**3. 2-way**  
+Bidirectional communication is confirmed because the local router sees its own Router ID listed in the neighbor's Hello packet. On broadcast networks (like Ethernet), the Designated Router (DR) and Backup Designated Router (BDR) election happens during this state.
+
+**4. Exstart**  
+Two-way traffic established; DR/BDR election occurs.
+
+**5. Exchange**  
+Sharing LSA headers via DBD packets.
+
+* 6. Loading
+Requesting missing LSAs (LSR) and receiving them (LSU).
+
+* 7. Full
+LSDBs are 100% identical; full adjacency.
+
+## 4. Neighbor requirements
+
+1. Area numbers must match 
+2. Interfaces must be in the same subnet  
+3. OSPF process must not be shutdown  
+4. OSPF Router IDs must be unique  
+5. Hello and Dead timers must match   
+6. Authentication settings must match  
+7. IP MTU settings must match      
+8. OSPF network type must match     
+
+:::note[]
+In requirements 7 and 8 the routers can become OSPF neighbors but OSPF doesn't operate properly 
+:::
+
+## 5. Important LSA types 
+
+1. Router LSA
+2. Network LSA
+5. AS-External LSA
+
+
+
