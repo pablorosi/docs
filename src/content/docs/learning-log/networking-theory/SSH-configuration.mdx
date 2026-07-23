@@ -105,3 +105,27 @@ ssh -l admin 192.168.99.10
 ```
 
 Replace the IP with the SVI address on a switch or the loopback address on a router.
+
+
+Custom authentication rule:
+
+```txt
+aaa authentication login <list-name> <method>
+``` 
+
+```txt 
+aaa authentication login disable none
+``` 
+
+`none` → This is the `method`. This is the actual functional keyword. It tells the router: "Do not ask for a password. Let anyone in."
+
+how to apply it:
+
+```txt 
+aaa authentication login disable none
+
+line console 0
+
+login authentication disable
+``` 
+
