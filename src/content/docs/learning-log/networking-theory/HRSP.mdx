@@ -1,8 +1,9 @@
 ---
-title: "HSRP - Hot Standby Router Protocol"
+title: "FHRP: First Hop Redundancy Protocols"
 date: 2026-05-25
 tag: networking-theory
 ---
+Their main purpose is to provide high availability for the Default Gateway 
 
 HSRP is a Cisco proprietary protocol that creates the illusion of a single gateway. Two (or more) routers share a virtual IP and MAC so hosts always use the same default gateway. One router is active and forwards traffic, while the other stays in standby and takes over if the active router fails.
 
@@ -88,4 +89,12 @@ GLBP solves the main inefficiency of HSRP and VRRP. Instead of having a powerful
     **Multicast Address:** 224.0.0.102.
 
 
-
+| Feature | HSRP (Hot Standby Router Protocol) | VRRP (Virtual Router Redundancy Protocol) | GLBP (Gateway Load Balancing Protocol) |
+| :--- | :--- | :--- | :--- |
+| **Standard Type** | Cisco Proprietary | Open Standard (IETF) | Cisco Proprietary |
+| **Terminology/Roles** | Active / Standby | Master / Backup | AVG (Active Virtual Gateway) / AVF (Active Virtual Forwarder) |
+| **Load Balancing** | Requires multiple groups (Per-VLAN) | Requires multiple groups (Per-VLAN) | Native / Built-in capability |
+| **Virtual MAC Address** | **v1:** `0000.0C07.ACxx` **v2:** `0000.0C9F.Fxxx` | **IPv4:** `0000.5E00.01xx` **IPv6:** `0000.5E00.02xx` | `0007.B400.xxyy` |
+| **Multicast IP** | **v1:** `224.0.0.2` **v2:** `224.0.0.102` | `224.0.0.18` | `224.0.0.102` |
+| **Default Timers** | Hello: 3s / Hold: 10s | Hello: 1s / Dead: 3s | Hello: 3s / Hold: 10s |
+| **Preemption** | Disabled by default | Enabled by default | Disabled by default |
