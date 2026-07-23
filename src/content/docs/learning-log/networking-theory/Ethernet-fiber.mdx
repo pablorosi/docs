@@ -1,0 +1,67 @@
+---
+title: "Ethernet and Fiber"
+date: 2026-07-16
+tag: networking-theory
+---
+
+![RJ45 Connector](/RJ45-connector.jpg)
+
+
+| Speed | Common Name | Media | IEEE Standard |
+|-------|-------------|-------|---------------|
+| 10 Mbps | Ethernet | Copper | 802.3i |
+| 100 Mbps | Fast Ethernet | Copper/Fiber | 802.3u |
+| 1 Gbps | Gigabit Ethernet | Fiber | 802.3z |
+| 1 Gbps | Gigabit Ethernet | Copper | 802.3ab |
+| 10 Gbps | 10 Gigabit | Fiber | 802.3ae |
+| 10 Gbps | 10 Gigabit | Copper | 802.3an |
+
+
+## Connector Types
+
+| Connector | Usage |
+|-----------|-------|
+| ST | Terminate fiber connections |
+| RJ-45 | Terminate four-pair twisted copper cables |
+| DB-9 | Terminate point-to-point serial connections |
+| BNC | Terminate legacy coaxial cable connections |
+| RJ-11 | Terminate legacy plain old telephone system (POTS) connections |
+
+## Copper Ethernet Standards (Twisted Pair)
+
+These are the most heavily tested standards because they deal with the standard RJ-45 cables you patch into switches.
+
+| IEEE Standard | Common Name | Speed | Minimum Cable Type |
+|---------------|-------------|-------|-------------------|
+| 802.3i | 10BASE-T | 10 Mbps | Cat3 |
+| 802.3u | 100BASE-TX (Fast Ethernet) | 100 Mbps | Cat5 |
+| 802.3ab | 1000BASE-T (Gigabit Ethernet) | 1 Gbps | Cat5e |
+| 802.3bz | 2.5GBASE-T / 5GBASE-T (mGig) | 2.5 Gbps / 5 Gbps | Cat5e / Cat6 |
+| 802.3an | 10GBASE-T | 10 Gbps | Cat6a |
+
+## Fiber Optic Ethernet Standards
+
+While you do not need to memorize every single fiber standard, you need to know the broad categories that differentiate 1 Gbps from 10 Gbps fiber links.
+
+| IEEE Standard | Common Name | Speed | Cable Type |
+|---------------|-------------|-------|------------|
+| 802.3z | 1000BASE-X | 1 Gbps | Multimode / Singlemode Fiber |
+| 802.3ae | 10GBASE-X | 10 Gbps | Multimode / Singlemode Fiber |
+
+## Power over Ethernet (PoE) Standards
+
+Do not skip these. Cisco heavily tests your ability to match the IEEE PoE standard with the maximum wattage it can provide to an end device (like a Lightweight AP or an IP Phone).
+
+| IEEE Standard | PoE Generation Name | Maximum Power per Port | Target Devices |
+|---------------|---------------------|------------------------|----------------|
+| 802.3af | PoE (Type 1) | 15.4 Watts | Basic IP Phones, simple IP cameras |
+| 802.3at | PoE+ (Type 2) | 30 Watts | Dual-radio Wireless APs, Video phones |
+| 802.3bt | UPoE / PoE++ (Type 3 & 4) | 60 Watts to 90 Watts | High-end APs, PTZ cameras, digital signage |
+
+The "Base" Cheat Sheet
+Standard	The Mnemonic Trick	Cable Type
+1000Base-SX	S is for Short distance.	MMF (Multi-Mode Fiber)
+1000Base-LX	L is for Long distance.	SMF (Single-Mode Fiber)
+1000Base-ZX	Z is for eZtra long distance.	SMF (Single-Mode Fiber)
+1000Base-CX	C is for Copper.	Twinax Copper Cable
+1000Base-T	T is for Twisted Pair.	Standard UTP (Cat5/Cat6)
