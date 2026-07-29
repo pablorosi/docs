@@ -17,12 +17,36 @@ An Access Control List (ACL) is essentially a set of IF/THEN rules that you appl
 
 ### 2.1 Standard ACLs (Numbers 1 - 99)
 
-They can only filter traffic based on the Source IP Address.
+They can only filter traffic based on the Source IP Address. It has to be applied as close to the destiny as possible.
 
 ### 2.1.1 Configuration
+
 ```txt
 Router(config)# access-list 10 deny host 192.168.1.50
 Router(config)# access-list 10 permit any
+```
+
+Enter the configuration mode of the ACL
+```txt 
+Router(config)# ip access-list standard MI_ACL_WEB
+````
+
+Remove an ACL
+```txt
+Router(config-std-nacl)# no 20
+```
+
+Insert an ACL in a determined position
+
+```txt
+Router(config)# ip access-list standard MI_ACL
+Router(config-std-nacl)# 15 permit host 192.168.1.20
+```
+
+Re-sequence the numbers
+
+```txt
+Router(config-std-nacl)# ip access-list resequence [ACL_NAME] [Start_Number] [Increment]
 ```
 
 ### 2.2 Extended ACLs (Numbers 100 - 199)
@@ -44,3 +68,47 @@ An ACL does absolutely nothing until you attach it to an interface and tell the 
 Router(config)# interface GigabitEthernet0/0
 Router(config-if)# ip access-group 100 in
 ```
+
+## 4. Eliminate the ACL from the port 
+
+```txt
+Router(config-if)# no ip access-group [ACL_NAME_OR_NUMBER] in
+```
+
+## 5. Eliminate the ACL from the map 
+
+```txt
+Router(config)# no access-list [ACL_NUMBER]
+Router(config)# no ip access-list [standard or extended] [ACL_NAME]
+``` 
+
+## 6. Verification commands  
+
+```txt
+Router# show access-lists -- Shows all lists 
+Router# show ip access-lists -- Shows only ipv4 lists 
+```
+
+The command shows :
+
+```
+10 deny tcp any 10.55.55.0 0.0.0.255 eq www
+```
+If the ACL has been not applied of it hasn't got any matches 
+
+```txt
+10 deny tcp any 10.55.55.0 0.0.0.255 eq www (18 matches)
+``` 
+Shows the parentesis if has at least 1 match
+
+
+IOS XE -> Common ACL feature 
+Allows two ACLs per router interface per direction
+
+
+
+To apply an ACL to management lines:
+
+```txt
+access-class [name/number] [in/out]
+``` 
