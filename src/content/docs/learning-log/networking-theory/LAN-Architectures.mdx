@@ -1,0 +1,82 @@
+---
+title: LAN Architectures
+date: 2026-07-15
+tag: networking-theory
+---
+
+## Campus LAN Models
+
+### 3-Tier (Traditional)
+| Layer | Function |
+|-------|----------|
+| **Access** | End hosts, QoS marking, PoE |
+| **Distribution / Aggregation** | Aggregates access switches; policy, routing, QoS |
+| **Core** | High-speed transport between distribution layers |
+
+### 2-Tier (Collapsed Core)
+| Layer | Function |
+|-------|----------|
+| **Access** | End hosts |
+| **Distribution** | Aggregation + core combined |
+
+### SOHO
+All functions in a single multipurpose home router / wireless router.
+
+---
+
+## Traffic Patterns
+
+| Pattern | Direction | Description |
+|---------|-----------|-------------|
+| **North-South** | Vertical | Traffic entering/leaving the data center |
+| **East-West** | Horizontal | Traffic between servers inside the data center |
+
+---
+
+## Topologies
+
+| Topology | Diagram |
+|----------|---------|
+| **Star** | ![Star Network](/star-network.webp) |
+| **Full Mesh** | ![Full Mesh](/Full-Mesh-Topology.jpg) |
+| **Partial Mesh** | ![Partial Mesh](/partial-mesh.webp) |
+
+---
+
+## Spine-Leaf (Clos Architecture)
+
+Optimized for East-West traffic in data centers.
+
+![Spine Leaf Topology](/spine-leaf-topology.webp)
+
+:::note[Three Golden Rules of Spine-Leaf]
+1. Every Leaf connects to **every** Spine  
+2. Spines **never** connect to other Spines  
+3. Leafs **never** connect to other Leafs  
+:::
+
+---
+
+## VXLAN (Virtual Extensible LAN)
+
+Network virtualization technology to overcome VLAN limits in massive data centers.
+
+**In simple terms:** VXLAN stretches a Layer 2 network over a Layer 3 routed fabric.
+
+### Why it's needed
+In Spine-Leaf, all links are routed (L3) to avoid STP. But what if a VM on Leaf 1 needs the same subnet (L2) as a VM on Leaf 4? Traditional VLANs can't cross routers.
+
+### How it works
+1. Original L2 Ethernet frame is encapsulated in a **UDP packet** (port 4789)
+2. Routed across the Spine-Leaf L3 backbone
+3. Destination Leaf decapsulates — servers think they're on the same local switch
+
+### Key Concepts
+
+| Term | Definition |
+|------|------------|
+| **VTEP** (VXLAN Tunnel Endpoint) | Device (usually Leaf switch) that encapsulates/decapsulates VXLAN packets |
+| **VNI** (VXLAN Network Identifier) | 24-bit ID — the VXLAN equivalent of a VLAN ID (16M+ segments vs 4K) |
+| **Encapsulation** | MAC-in-UDP (Outer: IP/UDP/VXLAN; Inner: original L2 frame) |
+
+
