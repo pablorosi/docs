@@ -1,0 +1,287 @@
+---
+title: Wireless Networks
+date: 2026-07-16
+tag: networking-theory
+---
+
+## Network Types
+
+**WPAN:** Wireless Personal Area Network
+Devices are within 10 meters of each other
+Bluetooth is ofter used
+
+**WLAN:** Wireless Local Area Network
+Provides access to a campus without the need for a cable
+Devices within 100 m of a Wireless AP
+
+**WMAN:** Wireless Metropolitan Area Network
+Covers a large area such as a city
+
+## Wireless Modes
+
+**Ad Hoc Networks:**
+Two or more wireless stations communicate directly with each other
+**IBSS** -> Independent Basic Service Set
+
+**Infrastructure mode:**
+Stations communicate via a Wireless AP
+
+Wireless stations work in either Ad-Hoc or Infrastructure mode or Ad-Hop but not both at the same time
+
+**WiFi Direct:**
+WiFi Direct allows devices to be connected to an Access Point
+It is an extension to infrastructure mode
+
+WiFi Direct Predefined Services:
+- Miracast -> Wireless to external monitor
+- DLNA (Digital Living Network Alliance) -> Allows devices to stream music and video
+- Direct Print
+
+## Wireless Topology
+
+**Wireless Bridges:**
+Can be used to connect areas wich are not rechable via cable to the network
+
+**Mesh Networks:**
+One AP radio is used to serve clients
+The other radio connects to the backhaul network
+
+* **BSS (Basic Service Set)** -> The devices and their wireless settings make up a BSS  
+* **DS (Distribution System)** -> A distribution system connects a Wireless Access Point to the wired network.
+* **BSSID (Basic Service Set Identifier)** -> Devices within the BSS are identified by their BSSID
+* **BSA (Basic Service Area)** -> The wireless coverage area of an Access Point al so wireless cell
+* **SSID (Service Set Identifier)** -> Unique identifier that names the wireless network
+* **Beacons** -> Wireless Access Points broadcast information about their WLANs (including the SSID and authentication requirements) with beacon frames. This can be disabled.
+* **ESS** -> The same SSID can be supported across multiple Access Points to give a larger coverage area
+
+## IEEE 802.11 Standards
+
+| Standard | Frequency |
+|----------|-----------|
+| 802.11 | 2.4 GHz |
+| 802.11a | 5 GHz |
+| 802.11b | 2.4 GHz |
+| 802.11g | 2.4 GHz |
+| 802.11n | 2.4 & 5 GHz |
+| 802.11ac | 5 GHz |
+
+For the 2.4 GHz frequency, channels 1, 6, and 11 are the ones that don't overlap
+
+## 802.11 Frame Structure
+
+An 802.11 frame is divided into three main sections: the MAC Header, the Frame Body (Payload), and the Trailer (FCS).
+
+### 1. The MAC Header
+
+This is the most complex part of the frame and contains all the routing and control information.
+
+**Frame Control (2 Bytes):** This field acts as the master blueprint for the frame. It contains numerous sub-fields that tell the receiver exactly how to interpret the rest of the frame:
+- **Protocol Version:** Currently always set to 0.
+- **Type & Subtype:** Identifies if the frame is a Management frame (e.g., Beacons, Probes), a Control frame (e.g., RTS, CTS, ACK), or a Data frame.
+- **To DS / From DS:** Two individual bits that indicate the direction of the traffic relative to the Distribution System (the wired network).
+- **Other Flags:** Includes bits for Power Management, More Fragments, Retry (if a previous frame was lost), and Protected Frame (encryption).
+
+**Duration / ID (2 Bytes):** Typically used for the NAV (Network Allocation Vector). It tells all other stations how long the airwaves will be busy, instructing them to pause their own transmissions.
+- **Address 1 (6 Bytes):** The Receiver Address (RA). The MAC address of the device that is physically receiving the wireless signal right now (often the Access Point).
+- **Address 2 (6 Bytes):** The Transmitter Address (TA). The MAC address of the device that is physically sending the wireless signal right now.
+- **Address 3 (6 Bytes):** Usually the original Source Address (SA) or ultimate Destination Address (DA), depending on the To DS/From DS bits. Often, this is the BSSID (the MAC address of the AP).
+- **Sequence Control (2 Bytes):** Used to reassemble fragmented packets and to drop duplicate frames if an ACK was lost.
+- **Address 4 (6 Bytes):** Only used in specific scenarios. It is typically absent unless a Wireless Distribution System (WDS) / Wireless Bridge is being used, where both the source, destination, transmitter, and receiver MAC addresses must be distinctly recorded.
+- **QoS Control (2 Bytes):** Optional. Present in QoS-enabled data frames (802.11e) to prioritize voice or video traffic.
+- **HT/VHT Control (4 Bytes):** Optional. Added in newer standards like 802.11n (High Throughput) and 802.11ac/ax to handle advanced modulation and beamforming data.
+
+### 2. The Frame Body (Payload)
+
+- **Frame Body (0 to 2312 Bytes):** This is the actual data payload (MSDU) being transported, such as the IP packet. If the "Protected Frame" bit in the Frame Control field is set to 1, this entire payload is encrypted (e.g., via WPA2/AES or WPA3). Management and Control frames often have empty or very small payloads containing specific wireless parameters.
+
+### 3. The Trailer
+
+- **FCS (Frame Check Sequence) (4 Bytes):** A 32-bit Cyclic Redundancy Check (CRC). The receiving device runs a mathematical algorithm against the received header and body. If the result matches the FCS value, the frame is intact. If it does not match, the frame was corrupted by interference and is silently dropped.
+
+## 802.11 Association Process
+
+**Beacon:** The AP announces its presence and SSID  
+**Probe Request / Response:** The client searches for networks or the AP responds to the search  
+**Authentication Request / Response:** The client and AP authenticate  
+**Association Request / Response:** The client requests to formally join the network and the AP responds accepting or rejecting the association and assigning an Association ID  
+**Deauthentication / Disassociation:** To disconnect the client
+
+## 802.11 Amendments
+
+### 802.11w: Protected Management Frames (PMF)
+
+This is the most critical amendment to know for the CCNA v1.1 because it is strictly tied to modern wireless security.
+
+- **The Problem:** In older Wi-Fi standards (WPA/WPA2), data frames were encrypted, but **management frames** (such as deauthentication or disassociation frames) were sent in cleartext. An attacker could spoof an Access Point's MAC address and send fake deauth frames to client devices, forcefully disconnecting them from the network (a Deauthentication DoS attack).
+- **The Solution:** 802.11w encrypts these management frames, ensuring that only legitimate access points can instruct a client to disconnect or change network parameters.
+- **WPA3 Integration:** The use of 802.11w (PMF) is **mandatory** for WPA3 certification. You cannot deploy a WPA3 network without it.
+
+### Roaming & Optimization (k, r, v)
+
+These standards work together to help client devices seamlessly transition between Access Points (APs) and optimize their connection.
+
+- **802.11r (Fast BSS Transition / Fast Roaming):** Allows a client to pass its authentication keys directly between APs when roaming. This skips the lengthy 802.1X/EAP authentication process on the new AP, preventing latency and dropped VoIP calls.
+- **802.11k (Radio Resource Measurement):** The AP provides the client with a "neighbor report" containing a list of nearby APs and their channels. This prevents the client device from having to blindly scan every frequency when looking for a better signal.
+- **802.11v (Wireless Network Management):** Allows the network infrastructure to tell the client how to optimize itself. Features include network-directed load balancing (moving a client to a less congested AP) and **network-assisted power savings** (dictating exactly how long a device can sleep before listening to the network).
+
+## WLC (Wireless LAN Controllers)
+
+Standalone Access Points are known as Autonomous Access Points
+Access Points with a WLC are known as Lightweight Access Points
+
+The instaled software image determines whether an Access Point is Autonomous or Lightweight.
+
+Lightweight Access Points support Zero Touch Provisioning.
+They discover their Wireless LAN Controller via these options:
+- DHCP - option 43 gives the IP address of the WLC
+- DNS - `cisco-capwap-controller` resolves the IP address of the WLC
+- Local subnet broadcast
+
+The Lightweight Access Point downloads its configuration from the WLC, what WLANs it should support and their settings,
+the WLC also monitors the wireless quality and controls the channels and power of the Access Points, it can also detect rogue APs.
+
+Wireless stations can roam across Wireless APs supporting the same WLANs.
+
+### WLC Interfaces
+
+**Management Interface:**
+Used for in-band management. This is the main IP address you use to log into the web GUI, use SSH, or ping the WLC after it has fully booted up. All traffic to the WLC itself goes here.
+
+**AP-manager interface:**
+This handles the CAPWAP tunnels that connect the lightweight Access Points to the controller.
+
+**Virtual interface:**
+Provides a specific Internet Protocol (IP) address that is the same across multiple controllers when wireless clients roam among the controllers.
+
+**Service port interface:**
+For maintenance purposes of a WLC. This interface is a physical interface on the WLC that can be used to recover the WLC in the event that it fails.
+It is the only one available when the WLC is booting
+
+**Dynamic Interfaces:**
+User-defined and typically used for wireless client data.
+
+### CAPWAP & Split MAC
+
+**CAPWAP** -> Protocol that enables a WLC to manage a collection of Wireless APs, communications are encrypted inside a DTLS CAPWAP tunnel.
+It uses UDP ports 5246 and 5247
+
+In a Lightweight APs the work except from Real-Time traffic is moved from the AP to the WLC, this is known as `split MAC`
+
+**Split MAC - AP Operations:**
+- Client handshake when connecting
+- Beacons
+- Performance monitoring
+- Encryption and decryption
+- Clients in power save
+
+**Split MAC - WLC Operations:**
+- Authentication
+- Roaming control
+- 82.11 to 802.3 communication
+- Radio Frequency management
+- Security management
+- QoS management
+
+Because the WLC handles all the Wireless AP traffic it is often recomendable to use LAG Link Aggregation.
+
+## Wireless Architectures
+
+| Architecture Type | WLC Location / Control Function |
+|-------------------|--------------------------------|
+| Centralized | Positioned near or within the Core layer (Centralized dedicated appliance/server). |
+| Embedded | Integrated via software inside a Network Switch (Access Layer). |
+| Mobility Express | Running virtually inside one of the Access Points (APs) itself. |
+| Autonomous | No WLC required. Each AP is managed individually and separately. |
+
+**EWC (Embedded Wireless Controller):**
+- EWC in APs (EWC-AP) -> The replacement for Mobility Express. The AP has the EWC software integrated.
+- EWC in Switches -> The implementation of Embedded Architecture. The Switch has the EWC software integrated.
+
+## Wireless Security
+
+### Security Standards
+
+| Standard | Year | Encryption | Protocol |
+|----------|------|------------|----------|
+| WEP (Wired Equivalent Privacy) | 1999 | RC4 | — |
+| WPA (WiFi Protected Access) | 2003 | RC4 | TKIP |
+| WPA2 | 2004 | AES | CCMP |
+| WPA3 | 2018 | AES | CCMP / GCMP |
+
+The WiFi Alliance defines all versions of the WPA security suite.
+
+### Personal vs Enterprise
+
+- WPA Personal uses pre-shared keys (PSKs)
+- WPA2 Personal -> PSKs, AES-CCMP
+- WPA3 Personal -> SAE (Simultaneous Authentication of Equals). Introduces support for Protected Management Frames (PMF) (802.11w)
+- WPA3 Enterprise -> AES-GCMP
+- WPA Enterprise uses a AAA server
+
+### Encryption Methods
+
+- **TKIP** -> Temporary Key Integrity Protocol -- Obsolete and Insecure
+- **CCMP** -> Counter CBC-MAC Protocol -- Relies on AES
+- **GCMP** -> Galois Counter Mode Protocol -- Relies on AES but is much faster than CCMP
+
+**MIC** is a cryptographic checksum appended to the end of a wireless frame to ensure the packet has not been altered
+
+Clients are limited in a WLAN to a session timeout of 1800 seconds (30 minutes) max 86400 seconds
+
+## FlexConnect
+
+FlexConnect (formerly Hybrid Remote Edge Access Point)
+
+In a traditional Cisco network all APs are connected to a central controller (WLC). All client traffic travels inside an encrypted CAPWAP tunnel from the AP to the WLC, and from there to its destination.
+
+If an enterprise has its main office (where the WLC is located) in Madrid and a branch office in Barcelona, a user in Barcelona trying to reach the local printer would have their traffic travel all the way to Madrid and back. Worse, if the WAN link goes down, the APs in Barcelona stop serving clients entirely.
+
+FlexConnect solves this problem by allowing the AP to locally switch traffic at the branch, without needing to tunnel it to the WLC.
+
+- **Connected Mode:** The AP has connectivity to the WLC. Client traffic is switched locally at the AP, but the AP still receives configuration, authentication, and management from the WLC.
+- **Standalone Mode:** The WAN link to the WLC is down. The AP continues to serve clients and forward traffic locally using cached credentials and configuration. When the WLC becomes reachable again, the AP re-synchronizes.
+
+## SE-Connect
+
+**SE-Connect (Spectrum Expert Connect):**
+A Cisco feature that allows a Wireless AP to dedicate one of its radios to act as a spectrum analyzer. This radio continuously monitors the RF environment for interference sources (e.g., microwaves, Bluetooth devices, cordless phones) without affecting client service on the other radio.
+
+## Cisco WLC Platforms
+
+### Cisco IOS-XE Wireless LAN Controllers
+
+| If you need to configure... | ...you must look at the: | Which maps to the: |
+|----------------------------|--------------------------|--------------------|
+| SSID Name, WPA3, 802.1X, Security | Policy Tag | WLAN Profile |
+| VLAN Mapping, QoS, Timeouts | Policy Tag | Policy Profile |
+| AP Passwords, Backup WLCs, Syslog | Site Tag | AP Join Profile |
+| FlexConnect Local Switching | Site Tag | FlexConnect Profile |
+| Tx Power, Data Rates, Channel Width | RF Tag | RF Profile |
+
+### AireOS WLC
+
+Wireless LAN Controller that works with the SO AireOS
+
+- **Interfaces** -> logical connections within a WLC
+- **Ports** -> Physical connections to a wired network
+
+## Site-to-Site VPN
+
+A site-to-site VPN uses IPSec to transport information across a tunnel that is established between two devices. A typical site-to-site VPN uses GRE with confidentiality, integrity, and antireplay protection provided by IPSec. There are four steps in the site-to-site VPN IPSec encryption process. By contrast, a remote access VPN uses client software to encrypt traffic between a remote user and internal company resources, typically over the Internet.
+
+First, the sending device combines a session key, which is also known as an encryption key or a shared key, with the data that is to be transported over the tunnel. It then uses the session key to encrypt both the data and the key.
+Second, the sending device encapsulates the encrypted data and session key into a packet with a VPN header and a new IP header. These headers contain the source and destination information that is used to transport the encrypted data and session key over the tunnel.
+Third, the sending device sends the completed packet to the destination device at the other end of the tunnel, or site-to-site VPN.
+Fourth and finally, the destination device, or receiving device, uses the same session key that the sending device used for encryption to decrypt the encrypted packet and session key.
+
+
+You can authenticate in a wireless network by:
+
+Something you know -> Password or PIN
+Something you have -> Using a device or a document you are carrying with you
+Something you are -> Fingerprints
+
+
+Amplitude is the height of a wave from trough to crest
+
+Wavelength, not amplitude is the length of the wave 
