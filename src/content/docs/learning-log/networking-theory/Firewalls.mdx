@@ -1,0 +1,46 @@
+---
+title: "Firewalls"
+date: 2026-07-19
+tag: networking-theory
+---
+
+## Next-Generation IPS vs Traditional IPS
+
+| Feature | Benefit |
+|---------|---------|
+| **Contextual Awareness** | Evaluates destination OS & existing vulnerabilities |
+| **Application Visibility & Control (AVC)** | Layer 7 inspection (beyond just ports) |
+| **User Identity** | Knows "who" not just "what IP" |
+| **Reputation Filtering** | Dynamic blocklists via Cisco Talos |
+
+---
+
+## Stateful Inspection
+
+Tracks connection state in a state of active connections (TCP handshakes, UDP flows) in a state table. Decisions are based on:
+- Source/destination IP & port
+- Protocol
+- **Connection state** (SYN, ESTABLISHED, FIN, etc.)
+
+Only return traffic for allowed outbound connections is permitted back in.
+
+---
+
+## DMZ (Demilitarized Zone)
+
+Physical/logical subnetwork isolating public-facing services from the private internal network.
+
+### Classic 3-Interface Firewall Design
+
+| Zone / Interface | Security Level | Description |
+|------------------|----------------|-------------|
+| **Outside / Untrusted** | 0 (lowest) | Internet — highly restricted inbound |
+| **DMZ / Public-Facing** | 50 (medium) | Web servers, mail relays, DNS — specific inbound allowed (e.g., TCP 443) |
+| **Inside / Trusted** | 100 (highest) | Employee workstations, databases — no direct inbound from Internet; DMZ → Inside heavily restricted |
+
+**Traffic Flow Rules:**
+- Outside → DMZ: **Permit specific** (web, mail)
+- Outside → Inside: **Deny all**
+- Inside → DMZ/Outside: **Permit** (initiated from inside)
+- DMZ → Inside: **Deny / heavily restrict**
+
