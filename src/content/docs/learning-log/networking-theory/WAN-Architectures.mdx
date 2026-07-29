@@ -1,0 +1,68 @@
+---
+title: WAN Architectures
+date: 2026-07-15
+tag: networking-theory
+---
+
+## Leased Lines (Traditional WAN)
+
+| Standard | Speed | Region |
+|----------|-------|--------|
+| **T1** | 1.544 Mbps | North America |
+| **T2** | 6.312 Mbps | North America |
+| **T3** | 44.736 Mbps | North America |
+| **E1** | 2.048 Mbps | Europe/International |
+| **E2** | 8.448 Mbps | Europe/International |
+| **E3** | 34.368 Mbps | Europe/International |
+
+---
+
+## MPLS (Multi-Protocol Label Switching)
+
+A shared network that uses labels to act like a dedicated circuit.
+
+### How it works
+1. Your router sends a packet to the ISP
+2. The Service Provider (SP) attaches a **Label** to your data
+3. Provider core routers forward based **only on the label** — they never inspect the IP header
+4. At the destination, the ISP strips the label and delivers the original packet
+
+Because traffic is segregated by labels, this creates a **VPN** effect across the shared infrastructure.
+
+### Key Router Roles
+| Role | Name | Description |
+|------|------|-------------|
+| **P Router** | Provider / Core Router | Switches labeled packets in the core |
+| **PE Router** | Provider Edge | Connects to customer CE routers; adds/removes labels |
+| **CE Router** | Customer Edge | Customer's router connecting to the SP |
+
+---
+
+## Broadband Access
+
+| Technology | Medium | Modem Required |
+|------------|--------|----------------|
+| **DSL** (Digital Subscriber Line) | Phone lines | DSL modem (modulator-demodulator) |
+| **CATV** (Cable) | TV coaxial lines | Cable modem |
+
+---
+
+## VPN Technologies
+
+| Type | Protocol | Use Case |
+|------|----------|----------|
+| **Site-to-Site VPN** | IPsec | Permanently connect two sites over the internet |
+| **Remote Access VPN** | TLS (Transport Layer Security) | On-demand access for end devices |
+
+### GRE (Generic Routing Encapsulation)
+- Creates tunnels like IPsec
+- **Does NOT encrypt** the original packet
+
+### DMVPN (Dynamic Multipoint VPN)
+- Cisco proprietary
+- Dynamically creates a full mesh of IPsec tunnels
+- Eliminates manual configuration of every tunnel
+
+### SSL / TLS
+- Secure Sockets Layer / Transport Layer Security
+- Used for remote access VPNs (clientless or thin-client)  
