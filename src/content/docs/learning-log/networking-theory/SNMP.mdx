@@ -1,0 +1,47 @@
+---
+title: "Simple Network Management Protocol (SNMP)"
+date: 2026-07-12
+tag: networking-theory
+---
+
+## 1. Core Concepts
+
+| Term | Description |
+|------|-------------|
+| **SNMP Manager (NMS)** | Central server that collects data from network devices |
+| **SNMP Agent** | Software running on the router/switch |
+| **MIB** (Management Information Base) | Structured database on the device organizing all statistics (CPU, interface status, etc.) |
+| **OID** (Object Identifier) | Specific address to look up a metric within the MIB |
+| **Traps** | Unreliable/unacknowledged alerts from agent → manager (UDP 162) |
+| **Informs** | Reliable alerts requiring manager acknowledgment |
+
+---
+
+## 2. Protocol Versions
+
+| Version | Security | Community Strings | Features |
+|---------|----------|-------------------|----------|
+| **v1** | Clear text | Yes | Traps only |
+| **v2c** | Clear text | Yes | Adds Informs, bulk transfers |
+| **v3** | **Auth + Encryption** (USM) | No (uses users) | Secure — SHA/MD5 auth, DES/AES privacy |
+
+---
+
+## 3. Configuration
+
+### 3.1 SNMPv2c
+```txt
+R1(config)# snmp-server community ReadOnlyPassword RO
+R1(config)# snmp-server community WritePassword RW
+R1(config)# snmp-server location Madrid_DataCenter
+R1(config)# snmp-server contact admin@networklab.com
+R1(config)# snmp-server host 10.0.0.100 version 2c WritePassword
+R1(config)# snmp-server enable traps config
+```
+
+### 3.2 SNMPv3
+```txt
+R1(config)# snmp-server group MySecureGroup v3 priv
+R1(config)# snmp-server user SecurityAdmin MySecureGroup v3 auth sha MyAuthPass priv aes 128 MyPrivPass
+```
+
