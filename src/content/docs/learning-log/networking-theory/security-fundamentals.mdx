@@ -1,0 +1,118 @@
+---
+title: Security Fundamentals
+date: 2026-07-15
+tag: networking-theory
+---
+
+DHCP exhaustion -> The attacker floods the target with DHCP Discover messages.  
+
+Relection attack -> The attacker causes a reflector to send traffic to the target.   
+
+Amplification attack -> A more dangerous kind of reflection attack.  
+
+man-in-the-middle -> The attacker intercepts communications between two devices.  
+
+ARP spoofing/ ARP poisoning -> An attacker sends fraudulent ARP replies.  
+
+Reconnaissance attacks -> Usd to gather information about a target  
+
+Malware -> Variety of harmful programs that can infect a computer  
+
+Viruses -> A kind of malware that infect other software  
+
+Worms -> Standalone malware that spread their own, without user interaction  
+
+Trojan horses -> Malware that is disguised as legitimate software  
+
+Social engineering -> Attacks that involve pyschological manipulation to make the target reveal confident information  
+
+Phishing -> A kind of social engineering which typically involves fraudulent emails that try to appear legitimate.  
+
+Spear phishing -> A more targeted form of phishing, aimed for example at employees of a certain company  
+
+Whaling -> A kind of phishing targeted at high-profile individuals  
+ 
+Vishing -> Phishing performed over the phone  
+
+Smishing -> Phishing using SMS text messages  
+
+Watering hole -> Hacking a website the victim usually goes to
+
+Tailgating -> Entering restricted, secured areas by walking in behind an authorized person  
+
+Vulnerability -> Any potential weakness that can compromise the security of a system  
+
+Dictionary attack -> Runs through a list of common words or passwords to find the target's password   
+
+Brute force attack -> Tries every possible combination of letters, numbers and special characters to guess the target's password  
+
+Land attack -> Layer 4 DoS attack where the attacker uses IP Spoofing to trick a machine into attacking itself.
+
+MFA -> Multi-factor authentication   
+
+Digital certificates -> A form of authentication often used to prove the identity of a website  
+
+AAA -> Authentication, Authorization, Accounting  
+
+Authentication -> The process of verifying a user's identity
+Authorization -> The process of verifying the level of access configured for a user
+Accounting -> The process of recording the use of resources
+
+
+Cisco's AAA server is ISE (Identity Services Engine)  
+
+Radius -> AAA open standard protocol, uses UDP ports 1812 and 1813  
+
+TACACS+ -> Cisco propietary AAA protocol uses TCP 49  
+
+```txt
+Router(config)# aaa authentication login default group tacacs+ local
+``` 
+Here is how the router reads this command from left to right:
+aaa authentication login: "I am creating a rule for people trying to log into this device."  
+default: "Apply this rule everywhere (to the Console port, the AUX port, and all VTY/SSH lines) unless I specify otherwise."  
+group tacacs+: "When a user types a password, send it to the TACACS+ server first."  
+local: "This is my emergency backup. If the TACACS+ server is completely offline or unplugged, check the router's local database (the username X privilege Y secret Z commands)."  
+
+
+MAC Flooding or Content Addressable Memory (CAM) overflow -> An attacker generates thousands of forged frames every minute with the intention of overwhelming the switch's MAC address table
+MAC Spoofing -> An attacker uses the MAC address of another host in the network in order to bypass port security measures.
+ARP poisoning attack -> The attacker sends a gratuitous ARP (GARP) message to host
+VLAN hopping attack -> The attacker attempts to inject packet into other VLANs by accessing the VLAN trunk and double-tagging 802.1Q frames.
+DHCP spoofing attack -> The attacker installs a rogue DHCP server on the network in an attempt to intercept DHCP requests.
+
+
+The feature of cisco SD-Access underlay desing called routed access layer desing are:
+
+All switches act as Layer 3 switches
+All switches use an IGP
+All links between switches act as Layer 3 routed inks, not Layer 2 links spanning VLANs
+Because no layer 2 links exist between the switches, switches do not need use Spanning Tree
+Endpoints refer to a default gateway IP address of an interface on the layer 3 switch directly connected to the endpoint device.
+First Hop Redundancy Protocol (FHRP) is no longer needed
+
+
+
+
+**Awareness** -> Security program that provides employees with information about protecting confidential data.
+**User training** -> Security program element that familiarizes user with corporate security in a formal and mandatory way
+Physical access control -> Is the security program element that protects infrastructure locations such as network closets.
+
+
+x1. NGFW (Next-Generation Firewall)
+The core job: It is a bouncer at the door. It makes "allow or deny" decisions.
+What makes it "Next-Gen": A traditional firewall only looks at IP addresses and port numbers (e.g., "Allow Port 80"). An NGFW has Application Visibility and Control (AVC). It can look inside the traffic and say, "I will allow the user to load the Facebook web page, but I will block the Facebook Messenger application."
+Key takeaway: It filters based on application types (just like the first half of Option D says).
+2. NGIPS (Next-Generation Intrusion Prevention System)
+The core job: It is the detective. It does deep packet inspection to look for malicious payloads, malware, and strange behavior.
+What makes it "Next-Gen": A traditional IPS just looks for known virus signatures. An NGIPS looks at the wider context: user behavior, what types of files are moving across the network, and zero-day anomalies. If it sees a normal user suddenly acting suspiciously (like trying to scan the network for vulnerabilities), it kills the connection.
+
+IPsec has two modes 
+
+IPsec tunnel mode 
+How it works: It takes the entire original packet (both the data payload and the original IP header), encrypts the whole thing, and then slaps a brand-new IP header on the outside so the packet can be routed across the internet.
+
+IPsec transport mode 
+How it works: It only encrypts the data payload. It leaves the original IP header completely unencrypted.
+
+Used with GRE 
