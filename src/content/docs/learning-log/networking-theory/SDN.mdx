@@ -1,0 +1,125 @@
+---
+title: Software-Defined Networking (SDN)
+date: 2026-07-16
+tag: networking-theory
+---
+
+### 1. Traditional vs. SDN Architecture
+*   **Traditional Network (Distributed):** Every router and switch has its own **Control Plane** (the brain making routing decisions) and **Data Plane** (the muscle forwarding the packets). 
+*   **SDN (Centralized):** The **Control Plane** is removed from the physical hardware and centralized in a server (the **SDN Controller**). The physical switches are left only with the **Data Plane** to blindly forward traffic based on the Controller's instructions.
+
+---
+
+### 2. The APIs (Direction of Communication)
+Everything is viewed from the perspective of the **SDN Controller** sitting in the middle of the network.
+
+#### Southbound Interfaces (SBIs)
+Communicate *down* from the Controller to the physical hardware (routers/switches).
+*   **OpenFlow:** The original protocol. Modifies the switch hardware (TCAM) directly.
+*   **NETCONF:** Uses **XML** for data formatting and travels over **SSH** (Port 830).
+*   **RESTCONF:** The web-based evolution of NETCONF. Uses **JSON** or XML and travels over **HTTP/HTTPS**.
+
+#### Northbound Interfaces (NBIs)
+Communicate *up* from the Controller to external applications, scripts, or web dashboards.
+*   Almost exclusively use **REST APIs** (which are completely **stateless**).
+
+---
+
+### 3. Cisco SD-Access (SDA) Architecture
+Cisco's enterprise SDN solution uses the **Cisco DNA Center (DNAC)** as the controller.
+
+| Term | Definition |
+| :--- | :--- |
+| **Underlay Network** | The physical cables and switches. Only provides basic IP connectivity (usually via OSPF or IS-IS). Knows nothing about users or security. |
+| **Overlay Network** | The logical, virtual network built on top of the Underlay. Uses dynamic tunnels (**VXLAN**) to connect users and apply security policies. |
+| **Fabric** | The entire system working together (Underlay + Overlay + DNA Center). |
+
+---
+
+### 4. Configuration Management Tools (Infrastructure as Code)
+The "Big Three" automation tools. This is pure exam trivia.
+
+| Tool | Agent Type | Model | Protocol | Script Name & Language |
+| :--- | :--- | :--- | :--- | :--- |
+| **Ansible** | **Agentless** | **Push** | SSH | Playbooks (YAML) |
+| **Puppet** | **Agent-based** | **Pull** | HTTPS (Port 8140) | Manifests (Ruby) |
+| **Chef** | **Agent-based** | **Pull** | HTTPS | Recipes / Cookbooks (Ruby) |
+
+> **Exam Tip:** Ansible is the only one that uses an Agentless/Push model over SSH. 
+
+---
+
+### 5. REST API HTTP Verbs (CRUD Operations)
+When your script talks to a Northbound Interface, it uses these five standard HTTP verbs to manipulate data:
+
+*   **POST:** Create a brand new variable or configuration.
+*   **GET:** Read or retrieve information (e.g., *Show me the routing table*).
+*   **PUT:** Update or replace an entire existing configuration file.
+*   **PATCH:** Update just a small, specific piece of an existing configuration.
+*   **DELETE:** Remove a configuration or variable.
+
+| HTTP Methods | CRUD Operations |
+|--------------|----------------|
+| GET | Read |
+| PATCH | Update |
+| PUT | Update |
+| POST | Create |
+| DELETE | Delete |
+
+TO create a Webhook -> `POST` instead of polling.
+### 6. Important Definitions and Concepts 
+
+Infrastructure layer of SDN contains the network devices  
+Cisco Digital Network Architecture (DNA)  
+Cisco Application-Centric Infrastructure  
+In SDN the fabric is the combination of the overlay and underlay  
+The application layer of SDN architecture contians scripts and apps tha interact with the SDN controller  
+The control layer of SDN architecture contains the SDN controller   
+The underlay is the physical network of devices and connections   
+ACI is Cisco SDN solution for automating data center networks  
+In SDN the overlay is the virtual network built on top of the physical network  
+SD-Access is Cisco's SDN solution for automating campus LANs  
+SD-Wan is Cisco's SD-WAN solution for automating WANs  
+VXLAN = Virtual Extensible LAN, provides the data plane of cisco SD-Access  
+LISP = Locator ID Separation Protocol, provides the control plane of Cisco SD-Access  
+IBN = Intent-Based Networking  
+CTS = Cisco TrustSec, provides policy control in Cisco SD-Access   
+
+Three switch types in Cisco SD-Access:
+Edge node 
+Border node 
+Control node
+
+
+Fabric Devices:
+
+- **Fabric Edge Node**
+This is where the end-users (PCs, printers, access points) physically plug into the network.
+
+- Fabric Border Node 
+The "Exit Door" or gateway of your network.
+
+- Control Plane Node
+What it does: Because users are constantly moving around the campus (like roaming on Wi-Fi), the network needs to know exactly where every device is at all times. The Control Plane Node runs a protocol called LISP (Locator/ID Separation Protocol).
+
+- Fabric intermediate node: 
+Routes and transports IP traffic inside the fabric. Does not run VXLAN.
+
+Cisco SD-Access also called SDA, runs underlay IS-IS routing protocol, the underlay network is completely Layer 3 routed access. This means there is no Layer 2, which eliminates RSTP, FHRP
+
+
+Cisco ASI, SDN solution for enterprise
+
+
+
+## 1. Ansible (Agentless, Python-based)
+* Playbook: The file containing the configuration tasks, written in YAML format.
+* Inventory: The file containing the list of hostnames and IP addresses.
+* Module: A small, pre-written script that Ansible uses to perform a specific action (like an ios_config module used to push commands to a Cisco router).
+
+## 2. Terraform (Declarative, Infrastructure as Code)
+* Configuration File (.tf files): This is where you write the code to define your infrastructure (usually written in HCL - HashiCorp Configuration Language).
+* State File (terraform.tfstate): This is highly testable. Terraform relies on this file as its "memory." It keeps track of exactly what infrastructure has already been built so that the next time you run a configuration, it only makes the necessary changes instead of rebuilding everything from scratch.
+* Execution Plan: The output generated when you run terraform plan, showing you exactly what changes will be made before you actually apply them.
+
+
