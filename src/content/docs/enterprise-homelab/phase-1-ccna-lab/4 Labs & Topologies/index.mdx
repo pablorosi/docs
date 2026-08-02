@@ -1,0 +1,44 @@
+---
+title: "Labs & Topologies"
+description: Lab topologies and diagrams used to practice OSPF, VLAN, and switching topics for the CCNA.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+import ThemeImage from '../../../../../components/ThemeImage.astro';
+
+A collection of the labs and topologies I built while practicing for the CCNA. These were **temporary lab setups**, not production designs.
+
+<Aside type="note" title="Just a Sample">
+During my CCNA preparation I built **many more labs** than the ones shown here. This page is simply a small sample of the ones worth keeping, with their diagrams.
+</Aside>
+
+## OSPF Lab
+
+Single-area OSPF practice in EVE-NG: building adjacencies, DR/BDR election, and path selection across a multi-router topology bridged to the physical switches.
+
+![OSPF lab topology](/OSPF-topology-lab.png)
+
+*OSPF topology used for adjacency, DR/BDR, and path-selection practice.*
+
+
+
+
+## SNMP Server Lab
+
+SNMP monitoring of the physical Catalyst 2960 and a virtual IOSv router in EVE-NG using the iReasoning MIB Browser, with agents isolated in the management VLAN (102). SNMP v2c and v3 configured.
+
+<ThemeImage lightSrc="/SNMP-server-lab_light.svg" darkSrc="/SNMP-server-lab_dark.svg" alt="SNMP Server lab topology" />
+
+*SNMP lab topology — server and monitored agents in the management VLAN.*
+
+## Switching / VLAN Topology
+
+Multi-switch Layer 2 topology for VLAN, trunking, and inter-VLAN routing practice between the Catalyst 3560-CX and 2960.
+
+<ThemeImage lightSrc="/vlan-lab-topology-light.svg" darkSrc="/vlan-lab-topology-dark.svg" alt="VLAN lab topology" />
+
+*VLAN/trunk topology across the physical switches.*
+
+The four lab PCs are **VMs on the HP t740**, each mapped to a physical network card bridged to the 3560-CX, so virtual hosts reach the physical switches over real cabling.
+
+

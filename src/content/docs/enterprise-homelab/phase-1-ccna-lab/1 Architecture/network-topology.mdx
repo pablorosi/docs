@@ -1,0 +1,39 @@
+---
+title: "Network Topology"
+description: The practice topology and IP schema used in the CCNA lab.
+sidebar:
+  order: 2
+---
+
+import ThemeImage from '../../../../../components/ThemeImage.astro';
+
+## Physical Topology Diagram
+
+<ThemeImage
+  lightSrc="/network-topology-light.svg"
+  darkSrc="/network-topology.svg"
+  alt="Hybrid Lab Network Topology"
+/>
+
+*Figure 1: The practice lab topology with collapsed core design.*
+
+## Lab Topology
+
+The lab followed a hierarchical design (core / distribution / access) — not because a home lab needs it, but to **practice real-world switching concepts** on physical hardware.
+
+* **Edge Gateway (GL.iNet):** Upstream ISP connectivity and NAT for the lab.
+* **Core Switch (Catalyst 3560-CX):** Practiced Layer 3 inter-VLAN routing and SVIs.
+* **Compute Node (HP t740):** Proxmox hypervisor and EVE-NG, bridged to physical ports via multiple NICs.
+* **Access Switch (Catalyst 2960):** Practiced Layer 2 concepts (VLANs, trunking, STP). The FastEthernet 2960 would make no sense as real access for end devices — it was purely for practice.
+* **Management Console:** Out-of-band and in-band configuration workstation.
+
+## Practice VLAN Schema
+
+VLANs were used to separate traffic by function while practicing VLANs, trunking, and inter-VLAN routing. The **Catalyst 3560-CX** acted as the Layer 3 gateway using Switch Virtual Interfaces (SVIs).
+
+* **Management VLAN:** Dedicated subnet for switch management, Proxmox, and out-of-band access.
+* **Lab VLANs:** Isolated segments for EVE-NG bridges, LXC containers, and physical test endpoints.
+* **802.1Q trunking:** Uplinks between the 3560-CX and 2960 carrying tagged VLANs.
+* **EtherChannel / LACP:** uplink aggregation practiced in EVE-NG topologies.
+
+These were **practice schemas, not fixed production configurations** — they were rebuilt per lab. See the [Labs & Topologies](/enterprise-homelab/phase-1-ccna-lab/4-labs--topologies/) section for the diagrams used.

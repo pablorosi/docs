@@ -7,6 +7,8 @@ sidebar:
 
 EVE-NG (Emulated Virtual Environment — Next Generation) runs as a **nested VM** on Proxmox, bridging virtual Cisco IOS nodes with physical switch ports on the Catalyst 3560-CX. This hybrid approach is essential for realistic lab testing.
 
+While I utilize physical Cisco Catalyst switches to practice Layer 1/Layer 2 configurations and physical cabling, I deliberately chose to virtualize my routing topology using EVE-NG. Physical enterprise routers (like Cisco ISRs) generate excessive acoustic noise and consume unnecessary power for a residential setup. EVE-NG allows me to scale to complex multi-router OSPF topologies while maintaining a quiet, energy-efficient homelab environment.
+
 ## Host Environment
 
 | Component | Details |
@@ -34,4 +36,5 @@ The EVE-NG instance is fully integrated into the physical network:
 * **Management Interface:** Static IP within the management VLAN.
 * **External Cloud:** Bridged to **Catalyst 3560-CX** physical ports — virtual routers communicate with physical hardware.
 
-See **[PCIe Passthrough](/enterprise-homelab/2-hypervisor/pcie-passthrough)** for NIC passthrough plans and **[Cisco Images](/enterprise-homelab/4-emulation/cisco-images)** for IOU/QEMU image loading.
+NIC integration uses **VirtIO interfaces bridged to physical ports** on the 3560-CX. Dedicated PCIe NIC passthrough (bypassing the Linux bridge overhead) was considered but not pursued — the bridge approach added no measurable overhead for lab workloads.
+

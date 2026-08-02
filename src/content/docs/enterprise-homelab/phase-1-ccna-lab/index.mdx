@@ -1,0 +1,31 @@
+---
+title: "Phase 1 — CCNA Lab & Emulation (Completed)"
+description: The practice lab used to prepare for and pass the Cisco CCNA — physical Cisco switching, Proxmox, and EVE-NG.
+sidebar:
+  label: Overview
+---
+
+import { Aside, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+<Aside type="note" title="Status: Completed — Sandbox, Not Production">
+This phase was a **practice lab (sandbox) built to prepare for the Cisco CCNA**. It was never a production network: configurations were temporary and recreated per lab.
+</Aside>
+
+Phase 1 documents the lab I used to earn the CCNA. It was a sandbox for **practicing** Cisco switching, routing, and emulation topics — physical Cisco switches for real Layer 2/3 behavior, Proxmox virtualization, and EVE-NG for virtual nodes. None of it was intended to serve real end devices.
+
+## What It Was Used For
+
+* **Switching practice:** VLANs, 802.1Q trunking, inter-VLAN routing (SVIs), STP, and LACP scenarios.
+* **Routing practice:** OSPF and routing fundamentals in EVE-NG, bridged to the physical switches.
+* **Real hardware feel:** a Catalyst 3560-CX (L3) and a Catalyst 2960 (L2) to practice on real IOS instead of emulation alone.
+* **Incident practice:** real Layer 1/2/3 failures during build-out, documented in [Troubleshooting](/enterprise-homelab/phase-1-ccna-lab/5-troubleshooting/catalyst-autonegotiation/).
+
+## Section Map
+
+<CardGrid>
+  <LinkCard title="1 Architecture" description="Lab hardware and the practice topology used for CCNA labs." href="/enterprise-homelab/phase-1-ccna-lab/1-architecture/hardware-specs/" />
+  <LinkCard title="2 Hypervisor" description="Proxmox installation, storage, and resource allocation." href="/enterprise-homelab/phase-1-ccna-lab/2-hypervisor/proxmox-installation/" />
+  <LinkCard title="3 Emulation" description="EVE-NG deployment and Cisco IOU/QEMU images." href="/enterprise-homelab/phase-1-ccna-lab/3-emulation/eve-ng-deployment/" />
+  <LinkCard title="4 Labs & Topologies" description="Lab diagrams used for OSPF, VLAN, and switching practice." href="/enterprise-homelab/phase-1-ccna-lab/4-labs--topologies/" />
+  <LinkCard title="5 Troubleshooting" description="Root cause analyses resolved during lab build-out." href="/enterprise-homelab/phase-1-ccna-lab/5-troubleshooting/catalyst-autonegotiation/" />
+</CardGrid>

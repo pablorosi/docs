@@ -1,0 +1,35 @@
+---
+title: "Proxmox Installation"
+description: Base OS setup, storage configuration, and resource allocation on the HP t740.
+sidebar:
+  order: 1
+---
+
+This section documents the **Proxmox VE** hypervisor that powered the CCNA lab. The design prioritizes **performance-per-watt** on small-form-factor hardware.
+
+> **Philosophy:** The HP t740 thin client was selected as the primary node for its efficiency and nested virtualization support (EVE-NG).
+
+## Hardware Inventory
+
+| Node | Specs | Role |
+| :--- | :--- | :--- |
+| **HP t740 Thin Client** | AMD Ryzen Embedded V1756B (4C/8T), 16 GB DDR4, 512 GB NVMe | Compute node |
+| **MacBook Pro** | — | Management console — CLI, diagramming, code |
+
+See **[Hardware Specs](/enterprise-homelab/phase-1-ccna-lab/1-architecture/hardware-specs)** for switch and NIC details.
+
+## Software Stack
+
+* **Hypervisor:** Proxmox VE (Debian-based)
+* **Virtualization:** KVM / QEMU with nested virtualization for EVE-NG
+* **Containers:** LXC (native) and Docker (planned stacks for Phase 2)
+* **Tailscale (LXC):** encrypted remote access to the lab over a WireGuard mesh (Tailnet)
+
+## Resource Allocation
+
+| Service | vCPU | RAM | Storage | Role |
+| :--- | :--- | :--- | :--- | :--- |
+| **EVE-NG** | 4 | 8 GB | 50 GB | Network emulation — see [EVE-NG](/enterprise-homelab/phase-1-ccna-lab/3-emulation/eve-ng-deployment) |
+| **Tailscale** | 1 | 512 MB | 8 GB | Mesh VPN — encrypted remote access (Tailnet) |
+| **Reserved** | 3 | 7 GB | 20 GB | Growth capacity |
+
