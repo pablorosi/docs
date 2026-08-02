@@ -1,0 +1,35 @@
+---
+title: "OPNsense Router"
+description: Blueprint — convert the HP t740 into the homelab edge router running OPNsense (DPI, AdGuard, firewall). First project of Phase 2.
+sidebar:
+  order: 1
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="note" title="Planned / First Phase 2 Project">
+This is the **first project** of Phase 2. After the CCNA lab ([Phase 1](/enterprise-homelab/phase-1-ccna-lab/)), the **HP t740** is repurposed as the edge router.
+</Aside>
+
+## The Move
+
+During [Phase 1](/enterprise-homelab/phase-1-ccna-lab/) the edge routing role was handled by the **GL.iNet GL-MT3000**, while the HP t740 ran Proxmox. In Phase 2:
+
+| Device | Phase 1 role | Phase 2 role |
+| :--- | :--- | :--- |
+| **HP t740** | Proxmox hypervisor + EVE-NG | **Edge router** — OPNsense (DPI, AdGuard, NAT, firewall) |
+| **GL.iNet GL-MT3000** | Edge router / NAT / DHCP | **Access Point** — wireless connectivity |
+
+## Goals
+
+* **OPNsense** on the HP t740 as the main gateway and firewall.
+* **DPI** (Deep Packet Inspection) for traffic visibility and application-level control.
+* **AdGuard** for DNS-level ad and tracker filtering across the whole network.
+* Native NAT, DHCP, and VLAN-aware routing on the same device that runs Proxmox.
+
+## Open Questions
+
+* Run OPNsense as a **VM on Proxmox** (with NIC passthrough) vs. **bare metal** replacing Proxmox.
+* Whether Proxmox remains the host for other workloads or the t740 becomes a dedicated router.
+
+*Documentation will be filled in as the migration is executed.*

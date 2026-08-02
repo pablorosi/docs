@@ -3,59 +3,31 @@ title: "Project Overview"
 description: The core vision and roadmap for the enterprise homelab environment.
 ---
 
-import { Aside, CardGrid, LinkCard, Steps } from '@astrojs/starlight/components';
+import { Aside, CardGrid, LinkCard } from '@astrojs/starlight/components';
 import ThemeImage from '../../../components/ThemeImage.astro';
 
-Welcome to the **Enterprise Homelab** documentation. This environment is the foundation for **NetDevOps** experiments, Cisco networking labs, and Linux systems administration.
+Welcome to the **Enterprise Homelab** documentation. This environment started as a **CCNA practice lab** and is evolving into a real network lab for NetDevOps experiments and Linux systems administration.
 
-<Aside type="caution" title="Evolution in Progress">
-The lab is continuously evolving. Infrastructure docs (sections 1–7) are updated as hardware and services are provisioned.
-</Aside>
+## Roadmap
 
-## Architecture
+The project is organized into two phases:
 
-<ThemeImage
-  lightSrc="/network-topology-light.svg"
-  darkSrc="/network-topology.svg"
-  alt="Hybrid Lab Network Topology"
-/>
+1. **[Phase 1 — CCNA Lab & Emulation (Completed)](/enterprise-homelab/phase-1-ccna-lab/)** — the practice lab used to earn the CCNA: HP t740 compute node, Catalyst 3560-CX, 2960 access, Proxmox VE, and EVE-NG emulation.
+2. **[Phase 2 — Infrastructure Expansion (Roadmap)](/enterprise-homelab/phase-2-infrastructure/)** — **OPNsense router** on the HP t740 (DPI, AdGuard, firewall, GL.iNet MT3000 as AP), and everything managed **as code** with Ansible.
 
-*Figure 1: Physical network architecture with collapsed core design.*
-
-A **hybrid infrastructure** combining physical Cisco hardware with a **Proxmox** cluster: physical switches for real Layer 2/3 behavior, virtual machines for emulation and services.
-
-## Current Status
-
-<Steps>
-1. **Architecture:** HP t740 compute node, Catalyst 3560-CX core, 2960 access — documented in [Hardware Specs](/enterprise-homelab/1-architecture/hardware-specs).
-2. **Hypervisor:** Proxmox VE on the t740 with nested virtualization for EVE-NG.
-3. **Networking:** VLANs, trunking on Cisco switches; Tailscale mesh for remote access.
-4. **Emulation:** EVE-NG bridging virtual IOS nodes to physical switch ports.
-5. **Observability:** Prometheus and Grafana — **planned (post-CCNA)**.
-6. **Phase 1 backlog:** [IPAM](/enterprise-homelab/ipam/) for address management; Ansible for VLAN/switch automation.
-7. **Phase 2 backlog:** [Autonomous SRE Agent](/local-sre-platform/) — planned architecture, requires observability baseline first.
-</Steps>
-
-## Documentation Map
+## Phase 1 — CCNA Lab & Emulation
 
 <CardGrid>
-  <LinkCard title="1 Architecture" description="Hardware specs, IP schemas, subnets, and physical cabling." href="/enterprise-homelab/1-architecture/hardware-specs/" />
-  <LinkCard title="2 Hypervisor" description="Proxmox installation, storage, and PCIe passthrough." href="/enterprise-homelab/2-hypervisor/proxmox-installation/" />
-  <LinkCard title="3 Networking" description="Cisco VLANs, LACP, trunking, and Tailscale mesh." href="/enterprise-homelab/3-networking/cisco-switches/" />
-  <LinkCard title="4 Emulation" description="EVE-NG deployment and Cisco IOU/QEMU images." href="/enterprise-homelab/4-emulation/eve-ng-deployment/" />
-  <LinkCard title="5 Compute" description="Docker engine and compose stacks on Proxmox." href="/enterprise-homelab/5-compute/docker-engine/" />
-  <LinkCard title="6 Observability" description="Prometheus scrape targets and Grafana dashboards." href="/enterprise-homelab/6-observability/prometheus/" />
-  <LinkCard title="7 Troubleshooting" description="Root cause analyses and resolutions." href="/enterprise-homelab/7-troubleshooting/catalyst-autonegotiation/" />
+  <LinkCard title="1 Architecture" description="Lab hardware and the practice topology used for CCNA labs." href="/enterprise-homelab/phase-1-ccna-lab/1-architecture/hardware-specs/" />
+  <LinkCard title="2 Hypervisor" description="Proxmox installation, storage, and resource allocation." href="/enterprise-homelab/phase-1-ccna-lab/2-hypervisor/proxmox-installation/" />
+  <LinkCard title="3 Emulation" description="EVE-NG deployment and Cisco IOU/QEMU images." href="/enterprise-homelab/phase-1-ccna-lab/3-emulation/eve-ng-deployment/" />
+  <LinkCard title="4 Labs & Topologies" description="Lab diagrams used for OSPF, VLAN, and switching practice." href="/enterprise-homelab/phase-1-ccna-lab/4-labs--topologies/" />
+  <LinkCard title="5 Troubleshooting" description="Root cause analyses and resolutions." href="/enterprise-homelab/phase-1-ccna-lab/5-troubleshooting/catalyst-autonegotiation/" />
 </CardGrid>
 
-## Homelab Platforms
-
-Planned utility applications — blueprints only, implementation post-CCNA.
+## Phase 2 — Infrastructure Expansion
 
 <CardGrid>
-  <LinkCard title="IPAM" description="Planned — centralized IP and VLAN allocation tracking." href="/enterprise-homelab/ipam/" />
+  <LinkCard title="1 Router" description="OPNsense on HP t740 — DPI, AdGuard, firewall; GL.iNet MT3000 as AP." href="/enterprise-homelab/phase-2-infrastructure/1-router/opnsense/" />
+  <LinkCard title="2 IaC & Automation" description="Manage the homelab as code with Ansible — planned." href="/enterprise-homelab/phase-2-infrastructure/2-iac--automation/" />
 </CardGrid>
-
-## Flagship Project (Planned)
-
-The **[Autonomous SRE Agent](/local-sre-platform/)** is a planned hybrid SRE assistant — local observability, cloud LLM reasoning, and DLP-protected remediation. Architecture blueprint documented on the [homepage](/); implementation follows observability rollout.

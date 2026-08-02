@@ -1,0 +1,29 @@
+---
+title: "Phase 2 — Infrastructure Expansion (Roadmap)"
+description: Planned scope for the homelab — OPNsense router on the HP t740 and everything as code with Ansible. Work in progress.
+sidebar:
+  label: Overview
+---
+
+import { Aside, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+<Aside type="caution" title="Status: Roadmap / Work in Progress">
+This phase is **not yet built**. It is deliberately kept as a **simple planned scope** — details will be filled in as each project starts.
+</Aside>
+
+Phase 2 begins where [Phase 1](/enterprise-homelab/phase-1-ccna-lab/) ends: the **HP t740 is repurposed as the edge router** running OPNsense. The second idea is to manage the whole lab **as code** with Ansible.
+
+## Planned Scope
+
+| Section | Status |
+| :--- | :--- |
+| **[1 Router](/enterprise-homelab/phase-2-infrastructure/1-router/opnsense/)** | OPNsense on HP t740 — DPI, AdGuard, firewall. GL.iNet MT3000 → AP mode — **first project, planned** |
+| **[2 IaC & Automation](/enterprise-homelab/phase-2-infrastructure/2-iac--automation/)** | Provision the homelab as code with Ansible — **planned** |
+
+## Section Map
+
+<CardGrid>
+  <LinkCard title="1 Router" description="OPNsense on HP t740 — DPI, AdGuard, firewall; GL.iNet MT3000 as AP." href="/enterprise-homelab/phase-2-infrastructure/1-router/opnsense/" />
+  <LinkCard title="2 IaC & Automation" description="Manage the homelab as code with Ansible — planned." href="/enterprise-homelab/phase-2-infrastructure/2-iac--automation/" />
+</CardGrid>
+
