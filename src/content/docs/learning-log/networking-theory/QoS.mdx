@@ -48,33 +48,26 @@ switchport voice vlan dot1p
 
 Before a switch or router can treat traffic differently, it has to know what the packet contains.
 Classification: The device inspects the packet (examining ports, IP addresses, or protocols) to determine what type of traffic it is (e.g., voice, video, or data).
-Marking: The device changes a specific field in the packet header to "color" or label it. This way, subsequent switches down the road don't have to re-inspect the whole packet; they just look at the label.
-Layer 2 Marking: Uses the CoS (Class of Service) bits inside the 802.1Q VLAN tag.
-Layer 3 Marking: Uses the DSCP (Differentiated Services Code Point) bits inside the IPv4 ToS byte.
+* Marking: The device changes a specific field in the packet header to "color" or label it. This way, subsequent switches down the road don't have to re-inspect the whole packet; they just look at the label.
+* Layer 2 Marking: Uses the CoS (Class of Service) bits inside the 802.1Q VLAN tag.
+* Layer 3 Marking: Uses the DSCP (Differentiated Services Code Point) bits inside the IPv4 ToS byte.
 
 ### 2. Congestion Management (Queuing)
 
 When an interface receives more traffic than its bandwidth can handle, packets start backing up. Queuing determines the order in which those waiting packets are sent out.
-FIFO (First-In, First-Out): The default behavior. No priority—whoever arrives first leaves first. (Terrible for voice).
-CBWFQ (Class-Based Weighted Fair Queuing): Guarantees a specific amount of bandwidth to different classes of traffic (e.g., 20% for database, 30% for web).
-LLQ (Low Latency Queuing): CBWFQ but with a strict priority queue added on top. Voice traffic is dumped directly into this priority queue so it bypasses all other traffic, minimizing delay. This is Cisco's recommended mechanism for voice.
+* FIFO (First-In, First-Out): The default behavior. No priority—whoever arrives first leaves first. (Terrible for voice).
+* CBWFQ (Class-Based Weighted Fair Queuing): Guarantees a specific amount of bandwidth to different classes of traffic (e.g., 20% for database, 30% for web).
+* LLQ (Low Latency Queuing): CBWFQ but with a strict priority queue added on top. Voice traffic is dumped directly into this priority queue so it bypasses all other traffic, minimizing delay. This is Cisco's recommended mechanism for voice.
 
 ### 3. Congestion Avoidance (Dropping Packets Early)
 
 What happens when the memory buffers (queues) fill up completely? The router is forced to drop any new incoming packets. This is called Tail Drop, and it causes TCP global synchronization (where all servers stop sending data at the same time, wrecking network efficiency).
-WRED (Weighted Random Early Detection): Instead of waiting for the buffer to fill up completely, WRED monitors the queue depth. If it starts getting full, it begins randomly dropping low-priority packets (like email or file transfers) early. This forces the sending servers to slow down their transmission speeds before a total bottleneck occurs, keeping high-priority traffic flowing.
+* WRED (Weighted Random Early Detection): Instead of waiting for the buffer to fill up completely, WRED monitors the queue depth. If it starts getting full, it begins randomly dropping low-priority packets (like email or file transfers) early. This forces the sending servers to slow down their transmission speeds before a total bottleneck occurs, keeping high-priority traffic flowing.
 
 ### 4. Traffic Conditioning (Policing and Shaping)
 These mechanisms enforce bandwidth limits (e.g., limiting guest Wi-Fi to 10 Mbps). They act as the speed limits of your network, but they handle excess traffic differently:  
  
-**Policing:** When traffic exceeds the configured limit, the policer instantly drops the extra packets or re-marks them to a lower priority. It results in a jagged, harsh traffic profile. (Commonly used by ISPs at the network edge).  
+* **Policing:** When traffic exceeds the configured limit, the policer instantly drops the extra packets or re-marks them to a lower priority. It results in a jagged, harsh traffic profile. (Commonly used by ISPs at the network edge).  
 
-**Shaping:** When traffic exceeds the limit, the shaper buffers the extra packets in memory and delays them, sending them out smoothly over time. It creates a smooth traffic profile but introduces delay (latency).
-
-The Cheat Sheet for Your Exam
-If Pearson presents a drag-and-drop or a scenario question, look for these specific keywords:
-DSCP / CoS / ToS → Classification and Marking
-LLQ / Priority Queue / Buffering → Congestion Management
-WRED / Tail Drop prevention → Congestion Avoidance
-Dropping vs. Delaying (Buffering) traffic → Policing vs. Shaping
+* **Shaping:** When traffic exceeds the limit, the shaper buffers the extra packets in memory and delays them, sending them out smoothly over time. It creates a smooth traffic profile but introduces delay (latency).
 
