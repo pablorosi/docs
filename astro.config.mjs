@@ -201,7 +201,12 @@ export default defineConfig({
 						{
 							label: 'Python',
 							collapsed: true,
-							autogenerate: { directory: 'learning-log/python', collapsed: true },
+							autogenerate: { directory: 'learning-log/Python', collapsed: true },
+						},
+						{
+							label: 'Linux',
+							collapsed: true,
+							autogenerate: { directory: 'learning-log/Linux', collapsed: true },
 						},
 						{
 							label: 'Docker',
@@ -227,6 +232,11 @@ export default defineConfig({
 							label: 'Databases',
 							collapsed: true,
 							autogenerate: { directory: 'learning-log/databases', collapsed: true },
+						},
+						{
+							label: 'Azure',
+							collapsed: true,
+							autogenerate: { directory: 'learning-log/Azure', collapsed: true },
 						},
 					],
 				},
